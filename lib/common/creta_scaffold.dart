@@ -12,6 +12,10 @@ class CretaScaffold {
   final GlobalKey gkey = GlobalKey();
   List<Widget>? actions;
   Widget? leading;
+  void Function()? gotoLeft;
+  void Function()? gotoRight;
+  void Function()? gotoToday;
+  void Function()? copyYesterday;
 
   CretaScaffold({
     required this.title,
@@ -19,6 +23,10 @@ class CretaScaffold {
     required this.child,
     this.actions,
     this.leading,
+    this.gotoLeft,
+    this.gotoRight,
+    this.gotoToday,
+    this.copyYesterday,
   });
 
   Scaffold create() {
@@ -64,11 +72,9 @@ class CretaScaffold {
     List<SpeedDialChild> retval = [];
     if (AppRoutes.isCurrentPage(context, AppRoutes.timeSheetPage)) {
       retval.add(SpeedDialChild(
-        child: Icon(Icons.format_paint_outlined),
-        label: '도배하기',
-        onTap: () {
-          showSnackBar(gkey.currentContext!, '아직 구현되지 않았음');
-        },
+        child: Icon(Icons.calendar_month_outlined),
+        label: '오늘날짜로 돌아가기',
+        onTap: gotoToday,
       ));
       retval.add(SpeedDialChild(
         child: Icon(Icons.copy_outlined),
