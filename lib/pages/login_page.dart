@@ -3,13 +3,49 @@
 import 'package:flutter/material.dart';
 import 'package:time_sheet/routes.dart';
 import 'package:http/http.dart' as http;
-import 'package:http/browser_client.dart';
-import 'dart:convert';
+//import 'package:http/browser_client.dart';
 import 'package:routemaster/routemaster.dart';
-import 'dart:js' as js;
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:metaballs/metaballs.dart';
+import 'dart:convert';
+//import 'dart:js' as js;
 
 import '../common/creta_scaffold.dart';
+
+class ColorsEffectPair {
+  final List<Color> colors;
+  final MetaballsEffect? effect;
+  final String name;
+
+  ColorsEffectPair({
+    required this.colors,
+    required this.name,
+    required this.effect,
+  });
+}
+
+List<ColorsEffectPair> colorsAndEffects = [
+  ColorsEffectPair(colors: [
+    const Color.fromARGB(255, 255, 21, 0),
+    const Color.fromARGB(255, 255, 153, 0),
+  ], effect: MetaballsEffect.follow(), name: 'FOLLOW'),
+  ColorsEffectPair(colors: [
+    const Color.fromARGB(255, 0, 255, 106),
+    const Color.fromARGB(255, 255, 251, 0),
+  ], effect: MetaballsEffect.grow(), name: 'GROW'),
+  ColorsEffectPair(colors: [
+    const Color.fromARGB(255, 90, 60, 255),
+    const Color.fromARGB(255, 120, 255, 255),
+  ], effect: MetaballsEffect.speedup(), name: 'SPEEDUP'),
+  ColorsEffectPair(colors: [
+    const Color.fromARGB(255, 255, 60, 120),
+    const Color.fromARGB(255, 237, 120, 255),
+  ], effect: MetaballsEffect.ripple(), name: 'RIPPLE'),
+  ColorsEffectPair(colors: [
+    const Color.fromARGB(255, 120, 217, 255),
+    const Color.fromARGB(255, 255, 234, 214),
+  ], effect: null, name: 'NONE'),
+];
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -29,10 +65,10 @@ class _LoginPageState extends State<LoginPage> {
     String password = '';
     final url = Uri.parse('http://localhost:8000/login/');
     http.Client client = http.Client();
-    if (client is BrowserClient) {
-      //logger.finest('client.withCredentials');
-      client.withCredentials = true;
-    }
+    // if (client is BrowserClient) {
+    //   //logger.finest('client.withCredentials');
+    //   client.withCredentials = true;
+    // }
     // <!-- http.Response response = await http.post(
     http.Response response = await client.post(
       url,
@@ -75,31 +111,65 @@ class _LoginPageState extends State<LoginPage> {
     Future.microtask(() {
       focusNode.requestFocus();
       // 자바스크립트 호출
-      dynamic ret = js.context.callMethod("fixPasswordCss", []); // index.html에서 fixPasswordCss 참조
+      /*dynamic ret = */ //js.context.callMethod("fixPasswordCss", []); // index.html에서 fixPasswordCss 참조
     });
   }
 
+  int colorEffectIndex = 0;
+
   Widget _getChild() {
-    return Container(
-      decoration: BoxDecoration(
-        image: DecorationImage(
-          fit: BoxFit.cover,
-          image: AssetImage('background.jpg'), // 배경 이미지
-        ),
-      ),
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        body: Center(
-          child: Column(
+    return
+        // GestureDetector(
+        // onDoubleTap: () {
+        //   setState(() {
+        //     colorEffectIndex = (colorEffectIndex + 1) % colorsAndEffects.length;
+        //   });
+        // },
+        // child:
+        Container(
+      decoration: const BoxDecoration(
+          gradient: RadialGradient(center: Alignment.bottomCenter, radius: 1.5, colors: [
+        Color.fromARGB(255, 13, 35, 61),
+        Colors.black,
+      ])),
+      child: Metaballs(
+        effect: colorsAndEffects[colorEffectIndex].effect,
+        glowRadius: 1,
+        glowIntensity: 0.6,
+        maxBallRadius: 50,
+        minBallRadius: 20,
+        metaballs: 40,
+        color: Colors.grey,
+        gradient: LinearGradient(
+            colors: colorsAndEffects[colorEffectIndex].colors, begin: Alignment.bottomRight, end: Alignment.topLeft),
+        child: //Container(
+            // decoration: BoxDecoration(
+            //   image: DecorationImage(
+            //     fit: BoxFit.cover,
+            //     image: AssetImage('background.jpg'), // 배경 이미지
+            //   ),
+            // ),
+            //child: Scaffold(
+            //backgroundColor: Colors.transparent,
+            //body:
+            Center(
+          child: AutofillGroup(
+    child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SizedBox(
                 width: 400,
                 child: TextField(
+                  autofillHints: const [AutofillHints.email],
+                  onTap: () {
+                    setState(() {
+                      colorEffectIndex = 1;
+                    });
+                  },
                   controller: _loginEmailTextEditingController,
                   decoration: const InputDecoration(
                     filled: true,
-                    fillColor: Color(0x99FFFFFF),//Colors.white,
+                    fillColor: Color(0x99FFFFFF), //Colors.white,
                     hintText: 'Email',
                     border: OutlineInputBorder(),
                     prefixIcon: Icon(Icons.email),
@@ -111,6 +181,12 @@ class _LoginPageState extends State<LoginPage> {
               SizedBox(
                 width: 400,
                 child: TextField(
+                  autofillHints: const [AutofillHints.password],
+                  onTap: () {
+                    setState(() {
+                      colorEffectIndex = 2;
+                    });
+                  },
                   onChanged: (_) async {
                     if (kIsWeb) {
                       // only web ==> remove eye-icon of password-field in MS-Edge-Browser
@@ -121,7 +197,7 @@ class _LoginPageState extends State<LoginPage> {
                   controller: _loginPasswordTextEditingController,
                   decoration: InputDecoration(
                     filled: true,
-                    fillColor: Color(0x99FFFFFF),//Colors.white,
+                    fillColor: Color(0x99FFFFFF), //Colors.white,
                     hintText: 'Password',
                     border: OutlineInputBorder(),
                     prefixIcon: Icon(Icons.password),
@@ -144,9 +220,14 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 12.0),
               ElevatedButton(
                 child: Text('Login'),
-                onPressed: () { _login().whenComplete(() {
-                  Routemaster.of(context).push(AppRoutes.timeSheetPage);
-                }); },
+                onPressed: () {
+                  // _login().whenComplete(() {
+                  //   Routemaster.of(context).push(AppRoutes.timeSheetPage);
+                  // });
+                  setState(() {
+                    colorEffectIndex = 0;
+                  });
+                },
               ),
               const SizedBox(height: 12.0),
               ElevatedButton(
@@ -157,16 +238,23 @@ class _LoginPageState extends State<LoginPage> {
             ],
           ),
         ),
+            ),
       ),
+      //),
+      //),
+      //),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return CretaScaffold(
-      title: 'Time Sheet Login',
-      context: context,
+    return Material(
       child: _getChild(),
-    ).create();
+    );
+    //   CretaScaffold(
+    //   title: 'Time Sheet Login',
+    //   context: context,
+    //   child: _getChild(),
+    // ).create();
   }
-}// TODO Implement this library.
+} // TODO Implement this library.
