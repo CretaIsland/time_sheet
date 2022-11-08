@@ -53,6 +53,17 @@
         return appRunner.runApp();
       });
     });
+    window.fixPasswordCss = () => {
+	  // css 생성
+      let style = document.createElement('style');
+      style.innerHTML = '::-ms-reveal { display: none; }'; // ms엣지에서 password 보기 아이콘 숨기기
+
+	  // shadow_root 찾기
+	  var shadow = document.querySelector("body > flt-glass-pane");
+	  var form = shadow.shadowRoot;
+	  // shadow_root에 css 추가
+      form.appendChild(style);
+    }
   </script>
 </body>
 </html>
