@@ -36,6 +36,9 @@ dependencies:
   logging: ^1.0.2
   flutter_speed_dial: ^6.1.0+1
   http: ^0.13.5
+  table_calendar: ^3.0.8
+  intl: ^0.17.0
+  metaballs: ^1.4.2
   intl: ^0.17.0
   widget_and_text_animator: ^1.0.9
 

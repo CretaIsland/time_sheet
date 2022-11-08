@@ -2,13 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 //import 'package:hycop/hycop.dart';
 import 'package:routemaster/routemaster.dart';
+import 'package:intl/date_symbol_data_local.dart';
 
 import 'common/logger.dart';
 import 'routes.dart';
 
 void main() {
   setupLogger();
-  runApp(const ProviderScope(child: MainRouteApp()));
+  Paint.enableDithering = true;
+  initializeDateFormatting().then((_) => runApp(const ProviderScope(child: MainRouteApp())));
 }
 
 class MainRouteApp extends ConsumerStatefulWidget {
