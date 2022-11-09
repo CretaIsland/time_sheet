@@ -5,11 +5,42 @@ import 'package:intl/intl.dart';
 import 'package:widget_and_text_animator/widget_and_text_animator.dart';
 
 import '../common/creta_scaffold.dart';
+import '../common/logger.dart';
 import '../routes.dart';
 import 'time_slot_item.dart';
 
+class TimeSlotModel {
+  TimeSlotModel({
+    required this.timeSlot,
+    this.projectCode1,
+    this.projectCode2,
+  });
+  String timeSlot;
+  String? projectCode1;
+  String? projectCode2;
+}
+
 class TimeSheetPage extends StatefulWidget {
   const TimeSheetPage({super.key});
+
+  static List<String> favorateList = [];
+  static List<String> projectList = [
+    "AAAA",
+    "BAAA",
+    "CAAA",
+    "DAAA",
+    "EAAA",
+    "FRRR",
+    "GHHH",
+    "HEEE",
+    "XXXX",
+    "ZZZZ",
+    "KKKK",
+    "LLLL",
+    "ZZZ1",
+    "1234",
+    "3456",
+  ];
 
   @override
   State<TimeSheetPage> createState() => _TimeSheetPageState();
@@ -18,9 +49,17 @@ class TimeSheetPage extends StatefulWidget {
 class _TimeSheetPageState extends State<TimeSheetPage> {
   int _dateMove = 0;
   bool _moveToRight = false;
+  String? _today;
+  String? _weekday;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
-    String today = _getToday();
+    _getToday();
     return CretaScaffold(
       gotoToday: () {
         setState(() {
@@ -42,80 +81,116 @@ class _TimeSheetPageState extends State<TimeSheetPage> {
             AppRoutes.push(context, AppRoutes.login);
           },
           icon: Icon(Icons.arrow_back)),
-      child: Column(
-        children: [
-          Expanded(
-            flex: 1,
-            child: Container(
-              color: Colors.white,
-              alignment: AlignmentDirectional.center,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  IconButton(
-                      onPressed: _toPast,
-                      icon: Icon(
-                        Icons.arrow_back_ios,
-                        size: 32,
-                      )),
-                  TextButton(
-                    onPressed: () {
-                      setState(() {
-                        _dateMove = 0;
-                      });
-                    },
-                    child: Text(
-                      today,
-                      style: TextStyle(
-                        fontSize: 24,
-                        color: _dateMove == 0 ? Colors.black : Colors.blue[500]!,
-                      ),
+      child: _mainPage(),
+    ).create();
+  }
+
+  Widget _mainPage() {
+    return FutureBuilder<List<TimeSlotModel>>(
+        future: _getTimeSheetData(),
+        builder: (context, AsyncSnapshot<List<TimeSlotModel>> snapshot) {
+          if (snapshot.hasError) {
+            //error가 발생하게 될 경우 반환하게 되는 부분
+            logger.severe("data fetch error");
+            return const Center(child: Text('data fetch error'));
+          }
+          if (snapshot.hasData == false) {
+            logger.severe("No data founded");
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+          if (snapshot.connectionState == ConnectionState.done) {
+            logger.finest("book founded ${snapshot.data!.length}");
+            // if (snapshot.data!.isEmpty) {
+            //   return const Center(child: Text('no book founded'));
+            // }
+            return _drawPage();
+          }
+          return Container();
+        });
+  }
+
+  Future<List<TimeSlotModel>> _getTimeSheetData() async {
+    logger.finest('_getTimeSheetData($_today)');
+    _createSample();
+    return sampleList;
+  }
+
+  Widget _drawPage() {
+    return Column(
+      children: [
+        Expanded(
+          flex: 1,
+          child: Container(
+            color: Colors.white,
+            alignment: AlignmentDirectional.center,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                IconButton(
+                    onPressed: _toPast,
+                    icon: Icon(
+                      Icons.arrow_back_ios,
+                      size: 32,
+                    )),
+                TextButton(
+                  onPressed: () {
+                    setState(() {
+                      _dateMove = 0;
+                    });
+                  },
+                  child: Text(
+                    '$_today$_weekday',
+                    style: TextStyle(
+                      fontSize: 24,
+                      color: _dateMove == 0 ? Colors.black : Colors.blue[500]!,
                     ),
                   ),
-                  IconButton(
-                      onPressed: _toFuture,
-                      icon: Icon(
-                        Icons.arrow_forward_ios,
-                        size: 32,
-                      )),
-                ],
-              ),
+                ),
+                IconButton(
+                    onPressed: _toFuture,
+                    icon: Icon(
+                      Icons.arrow_forward_ios,
+                      size: 32,
+                    )),
+              ],
             ),
           ),
-          Expanded(
-            flex: 11,
-            child: GestureDetector(
-              onPanUpdate: (details) {
-                // Swiping in right direction.
-                if (details.delta.dx > 0) {
-                  _toFuture();
-                }
-                // Swiping in left direction.
-                if (details.delta.dx < 0) {
-                  _toPast();
-                }
-              },
-              child: WidgetAnimator(
-                incomingEffect: _moveToRight
-                    ? WidgetTransitionEffects.incomingScaleUp(
-                        rotation: 0.2,
-                        curve: Curves.easeInQuad,
-                      )
-                    : WidgetTransitionEffects.incomingScaleUp(
-                        rotation: -0.2,
-                        curve: Curves.easeInQuad,
-                      ),
-                // WidgetTransitionEffects.incomingSlideInFromRight(
-                //     curve: Curves.easeInQuad, scale: 0.6)
-                // : WidgetTransitionEffects.incomingSlideInFromLeft(
-                //     curve: Curves.easeInQuad, scale: 0.6),
-                child: _timeSheetView(),
-              ),
+        ),
+        Expanded(
+          flex: 11,
+          child: GestureDetector(
+            onPanUpdate: (details) {
+              // Swiping in right direction.
+              if (details.delta.dx > 0) {
+                _toPast();
+              }
+              // Swiping in left direction.
+              if (details.delta.dx < 0) {
+                _toFuture();
+              }
+            },
+            child: WidgetAnimator(
+              incomingEffect: _moveToRight
+                  ? WidgetTransitionEffects.incomingScaleUp(
+                      rotation: 0.2,
+                      curve: Curves.easeInQuad,
+                    )
+                  : WidgetTransitionEffects.incomingScaleUp(
+                      rotation: -0.2,
+                      curve: Curves.easeInQuad,
+                    ),
+              // WidgetTransitionEffects.incomingSlideInFromRight(
+              //     curve: Curves.easeInQuad, scale: 0.6)
+              // : WidgetTransitionEffects.incomingSlideInFromLeft(
+              //     curve: Curves.easeInQuad, scale: 0.6),
+              child: _timeSheetView(),
             ),
           ),
-        ],
-      ),
-    ).create();
+        ),
+      ],
+    );
   }
 
   void _toPast() {
@@ -152,14 +227,15 @@ class _TimeSheetPageState extends State<TimeSheetPage> {
     sampleList.add(TimeSlotModel(timeSlot: '19', projectCode1: 'AAAA'));
     sampleList.add(TimeSlotModel(timeSlot: '20', projectCode1: 'AAAA'));
     sampleList.add(TimeSlotModel(timeSlot: '21', projectCode2: 'BBBB'));
+    sampleList.add(TimeSlotModel(timeSlot: '*'));
   }
 
   Widget _timeSheetView() {
-    _createSample();
+    //_createSample();
     return ListView.builder(
       shrinkWrap: true,
       //initialItemCount: 15,
-      itemCount: 15,
+      itemCount: 16,
       itemBuilder: (
         context,
         index,
@@ -168,10 +244,33 @@ class _TimeSheetPageState extends State<TimeSheetPage> {
         return TimeSlotItem(
           item: sampleList[index],
           //animation: animation,
-          onDelete: () {},
-          onSplit: () {},
-          onPaint: () {},
-          onSaveClicked: () {},
+          onPaint: () {
+            bool changed = false;
+            for (int i = index + 1; i < sampleList.length; i++) {
+              if (sampleList[i].timeSlot == '12') {
+                continue;
+              }
+              if (sampleList[i].projectCode1 != null) {
+                break;
+              }
+              if (sampleList[i].projectCode2 != null) {
+                break;
+              }
+              String? project1 = sampleList[index].projectCode1;
+              String? project2 = sampleList[index].projectCode2;
+              if (project1 != null) {
+                sampleList[i].projectCode1 = project1;
+                changed = true;
+              }
+              if (project2 != null) {
+                sampleList[i].projectCode2 = project2;
+                changed = true;
+              }
+            }
+            if (changed) {
+              setState(() {});
+            }
+          },
         );
       },
     );
@@ -191,7 +290,7 @@ class _TimeSheetPageState extends State<TimeSheetPage> {
   //   });
   // }
 
-  String _getToday() {
+  void _getToday() {
     DateTime now = DateTime.now();
     if (_dateMove > 0) {
       now = now.add(Duration(days: _dateMove));
@@ -200,7 +299,7 @@ class _TimeSheetPageState extends State<TimeSheetPage> {
       now = now.subtract(Duration(days: -1 * _dateMove));
     }
     DateFormat formatter = DateFormat('yyyy-MM-dd');
-    String strToday = formatter.format(now);
+    _today = formatter.format(now);
     String weekTemp = DateFormat('EEEE').format(now);
     switch (weekTemp) {
       case 'Monday':
@@ -225,6 +324,6 @@ class _TimeSheetPageState extends State<TimeSheetPage> {
         weekTemp = '일';
         break;
     }
-    return '$strToday($weekTemp)';
+    _weekday = '($weekTemp)';
   }
 }

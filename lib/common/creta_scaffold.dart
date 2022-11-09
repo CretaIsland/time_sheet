@@ -34,6 +34,7 @@ class CretaScaffold {
       key: gkey,
       appBar: cretaAppBar(context, title, leading, actions),
       floatingActionButton: cretaDial(context),
+      floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
       body: Container(
         //color: Colors.amber,
         child: child,
@@ -61,6 +62,7 @@ class CretaScaffold {
     if (AppRoutes.isCurrentPage(context, AppRoutes.timeSheetPage)) {
       return SpeedDial(
         //key: GlobalKey(),
+        //backgroundColor: Colors.blue[700]!,
         animatedIcon: AnimatedIcons.menu_close,
         children: _getDialList(context),
       );
