@@ -64,6 +64,7 @@ class _LoginPageState extends State<LoginPage> {
     http.Client client = http.Client();
     CrossCommonJob ccj = CrossCommonJob();
     ccj.changeHttpWithCredentials(client);
+    // <!-- http.Response response = await http.post(
     http.Response response = await client.post(
       url,
       headers: <String, String>{
@@ -124,7 +125,9 @@ class _LoginPageState extends State<LoginPage> {
         metaballs: 40,
         color: Colors.grey,
         gradient: LinearGradient(
-            colors: colorsAndEffects[colorEffectIndex].colors, begin: Alignment.bottomRight, end: Alignment.topLeft),
+            colors: colorsAndEffects[colorEffectIndex].colors,
+            begin: Alignment.bottomRight,
+            end: Alignment.topLeft),
         child: /*Container(
             decoration: BoxDecoration(
               image: DecorationImage(
@@ -140,66 +143,63 @@ class _LoginPageState extends State<LoginPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SizedBox(
-                  width: 400,
-                  child: TextField(
-                    autofillHints: const [AutofillHints.email],
-                    onTap: () {
-                      setState(() {
-                        colorEffectIndex = 2;
-                      });
-                    },
-                    controller: _loginEmailTextEditingController,
-                    decoration: const InputDecoration(
-                      filled: true,
-                      fillColor: Color(0x99FFFFFF), //Colors.white,
-                      hintText: 'Email',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.email),
-                    ),
-                    //style: const TextStyle(fontSize: 12.0),
-                  ),
+              SizedBox(
+              width: 300,
+              child: TextField(
+                autofillHints: const [AutofillHints.email],
+                onTap: () {
+                  setState(() {
+                    colorEffectIndex = 2;
+                  });
+                },
+                controller: _loginEmailTextEditingController,
+                decoration: const InputDecoration(
+                  filled: true,
+                  fillColor: Color(0x99FFFFFF), //Colors.white,
+                  hintText: 'Email',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.email),
                 ),
-                const SizedBox(height: 12.0),
-                SizedBox(
-                  width: 400,
-                  child: TextField(
-                    autofillHints: const [AutofillHints.password],
-                    onTap: () {
-                      setState(() {
-                        colorEffectIndex = 1;
-                      });
-                    },
-                    onChanged: (_) async {
-                      //if (kIsWeb) {
-                      // only web ==> remove eye-icon of password-field in MS-Edge-Browser
-                      fixEdgePasswordRevealButton(passwordFocusNode);
-                      //}
-                    },
-                    obscureText: _isHidden,
-                    controller: _loginPasswordTextEditingController,
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: Color(0x99FFFFFF), //Colors.white,
-                      hintText: 'Password',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.password),
-                      suffixIcon: MouseRegion(
-                          cursor: SystemMouseCursors.click,
-                          child: GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                _isHidden = !_isHidden;
-                              });
-                            },
-                            child: Icon(
-                              _isHidden ? Icons.visibility : Icons.visibility_off,
-                            ),
-                          )),
-                    ),
-                    //style: const TextStyle(fontSize: 12.0),
-                  ),
+                //style: const TextStyle(fontSize: 12.0),
+              ),
+            ),
+            const SizedBox(height: 12.0),
+            SizedBox(
+              width: 300,
+              child: TextField(
+                autofillHints: const [AutofillHints.password],
+                onTap: () {
+                  setState(() {
+                    colorEffectIndex = 1;
+                  });
+                },
+                onChanged: (_) async {
+                  fixEdgePasswordRevealButton(passwordFocusNode);
+                },
+                obscureText: _isHidden,
+                controller: _loginPasswordTextEditingController,
+                decoration: InputDecoration(
+                  filled: true,
+                  fillColor: Color(0x99FFFFFF), //Colors.white,
+                  hintText: 'Password',
+                  border: OutlineInputBorder(),
+                  prefixIcon: Icon(Icons.password),
+                  suffixIcon: MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _isHidden = !_isHidden;
+                          });
+                        },
+                        child: Icon(
+                          _isHidden ? Icons.visibility : Icons.visibility_off,
+                        ),
+                      )),
                 ),
+                //style: const TextStyle(fontSize: 12.0),
+              ),
+            ),
                 const SizedBox(height: 12.0),
                 ElevatedButton(
                   child: Text('Login'),

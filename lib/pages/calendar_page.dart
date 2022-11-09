@@ -19,8 +19,6 @@ class _CalendarPageState extends State<CalendarPage> {
   final Set<DateTime> _incompleteDays = {};
 
   void onDaySelected(DateTime selectedDay, DateTime focusedDay) {
-    //final headerText = DateFormat.yMd('ko_KR').format(selectedDay);
-    //setState(() {});
     setState(() {
       if (_completeDays.contains(selectedDay)) {
         _completeDays.remove(selectedDay);
@@ -42,10 +40,10 @@ class _CalendarPageState extends State<CalendarPage> {
     _focusedDay = DateTime.now();
   }
 
+
   @override
   void initState() {
     super.initState();
-
     List<DateTime> complateDtList = [
       DateTime(2022, 11, 1),
       DateTime(2022, 11, 2),
