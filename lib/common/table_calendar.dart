@@ -19,6 +19,10 @@ class TableCalendarWidget {
     equals: isSameDay,
     hashCode: getHashCode,
   );
+  final Set<DateTime> _weekendDays = LinkedHashSet<DateTime>(
+    equals: isSameDay,
+    hashCode: getHashCode,
+  );
 
   late PageController pageController;
   final CalendarFormat _calendarFormat = CalendarFormat.month;
@@ -27,18 +31,23 @@ class TableCalendarWidget {
   // DateTime? _rangeEnd;
 
   TableCalendarWidget(
-      Set<DateTime> selectedDays,
-      DateTime focusedDay, {
-        required this.onTodayButtonTap,
-        required this.onDaySelected,
-        //required this.pageController,
-      }) {
+    DateTime focusedDay,
+    Set<DateTime> selectedDays,
+    Set<DateTime> weekendDays, {
+    required this.onTodayButtonTap,
+    required this.onDaySelected,
+    //required this.pageController,
+  }) {
     //_selectedDays.add(_focusedDay.value);
     //_selectedEvents = ValueNotifier(_getEventsForDay(_focusedDay.value));
     //_selectedDays.add(DateTime.now());
     _selectedDays.clear();
-    for(var e in selectedDays) {
+    for (var e in selectedDays) {
       _selectedDays.add(e);
+    }
+    _weekendDays.clear();
+    for (var e in weekendDays) {
+      _weekendDays.add(e);
     }
   }
 
@@ -132,10 +141,16 @@ class TableCalendarWidget {
           daysOfWeekHeight: 30,
           rowHeight: 60,
           calendarStyle: CalendarStyle(
-            todayDecoration: BoxDecoration(color: const Color(0xFFFF4444), shape: BoxShape.circle),
+            todayDecoration: BoxDecoration(color: const Color(0xFF44FF44), shape: BoxShape.circle),
             weekendTextStyle: const TextStyle(color: Color(0xFFFF0000)),
+            holidayDecoration: const BoxDecoration(
+              border: Border.fromBorderSide(
+                BorderSide(color: Color(0xFFFF4444), width: 1.4),
+              ),
+              shape: BoxShape.circle,
+            ),
             //weekNumberTextStyle : const TextStyle(fontSize: 16, color: const Color(0xFF00FF00)),
-            outsideTextStyle: const TextStyle(color: Color(0xFF00FF00)),
+            //outsideTextStyle: const TextStyle(color: Color(0xFF00FF00)),
             rowDecoration: const BoxDecoration(shape: BoxShape.circle),
           ),
           firstDay: kFirstDay,
@@ -148,11 +163,12 @@ class TableCalendarWidget {
           calendarFormat: _calendarFormat,
           //rangeSelectionMode: _rangeSelectionMode,
           //eventLoader: _getEventsForDay,
-          holidayPredicate: (day) {
-            // Every 20th day of the month will be treated as a holiday
-            if (day.day % 7 == 1 || day.day % 7 == 2) return true;
-            return day.day == 20;
-          },
+          holidayPredicate: (day)=> _weekendDays.contains(day),
+          // {
+          //   // Every 20th day of the month will be treated as a holiday
+          //   if (day.day % 7 == 1 || day.day % 7 == 2) return true;
+          //   return day.day == 20;
+          // },
           onDaySelected: (selectedDay, focusedDay) => onDaySelected(selectedDay, focusedDay), //_onDaySelected,
           //onRangeSelected: _onRangeSelected,
           onCalendarCreated: (controller) => pageController = controller,
@@ -195,6 +211,11 @@ class _CalendarHeader extends StatelessWidget {
       child: Row(
         children: [
           const SizedBox(width: 16.0),
+          IconButton(
+            icon: Icon(Icons.chevron_left),
+            onPressed: onLeftArrowTap,
+          ),
+          const Spacer(),
           SizedBox(
             width: 150.0,
             child: Text(
@@ -202,26 +223,23 @@ class _CalendarHeader extends StatelessWidget {
               style: TextStyle(fontSize: 26.0),
             ),
           ),
-          IconButton(
-            icon: Icon(Icons.calendar_today, size: 20.0),
-            visualDensity: VisualDensity.compact,
-            onPressed: onTodayButtonTap,
-          ),
+          // IconButton(
+          //   icon: Icon(Icons.calendar_today, size: 20.0),
+          //   visualDensity: VisualDensity.compact,
+          //   onPressed: onTodayButtonTap,
+          // ),
+          const Spacer(),
           // if (clearButtonVisible)
           //   IconButton(
           //     icon: Icon(Icons.clear, size: 20.0),
           //     visualDensity: VisualDensity.compact,
           //     onPressed: onClearButtonTap,
           //   ),
-          const Spacer(),
-          IconButton(
-            icon: Icon(Icons.chevron_left),
-            onPressed: onLeftArrowTap,
-          ),
           IconButton(
             icon: Icon(Icons.chevron_right),
             onPressed: onRightArrowTap,
           ),
+          const SizedBox(width: 16.0),
         ],
       ),
     );

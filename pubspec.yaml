@@ -39,7 +39,6 @@ dependencies:
   table_calendar: ^3.0.8
   intl: ^0.17.0
   metaballs: ^1.4.2
-  intl: ^0.17.0
   widget_and_text_animator: ^1.0.9
 
   #hycop: ^0.0.5

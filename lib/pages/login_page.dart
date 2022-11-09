@@ -3,14 +3,11 @@
 import 'package:flutter/material.dart';
 import 'package:time_sheet/routes.dart';
 import 'package:http/http.dart' as http;
-//import 'package:http/browser_client.dart';
 import 'package:routemaster/routemaster.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:metaballs/metaballs.dart';
 import 'dart:convert';
-//import 'dart:js' as js;
-
-import '../common/creta_scaffold.dart';
+import '../common/cross_common_job.dart';
+//import '../common/creta_scaffold.dart';
 
 class ColorsEffectPair {
   final List<Color> colors;
@@ -65,11 +62,8 @@ class _LoginPageState extends State<LoginPage> {
     String password = '';
     final url = Uri.parse('http://localhost:8000/login/');
     http.Client client = http.Client();
-    // if (client is BrowserClient) {
-    //   //logger.finest('client.withCredentials');
-    //   client.withCredentials = true;
-    // }
-    // <!-- http.Response response = await http.post(
+    CrossCommonJob ccj = CrossCommonJob();
+    ccj.changeHttpWithCredentials(client);
     http.Response response = await client.post(
       url,
       headers: <String, String>{
@@ -108,25 +102,14 @@ class _LoginPageState extends State<LoginPage> {
     focusNode.unfocus();
     if (addPasswordCss) return;
     addPasswordCss = true; // 한번만 실행
-    Future.microtask(() {
-      focusNode.requestFocus();
-      // 자바스크립트 호출
-      /*dynamic ret = */ //js.context.callMethod("fixPasswordCss", []); // index.html에서 fixPasswordCss 참조
-    });
+    CrossCommonJob ccj = CrossCommonJob();
+    ccj.fixEdgePasswordRevealButton(focusNode);
   }
 
-  int colorEffectIndex = 0;
+  int colorEffectIndex = 2;
 
   Widget _getChild() {
-    return
-        // GestureDetector(
-        // onDoubleTap: () {
-        //   setState(() {
-        //     colorEffectIndex = (colorEffectIndex + 1) % colorsAndEffects.length;
-        //   });
-        // },
-        // child:
-        Container(
+    return Container(
       decoration: const BoxDecoration(
           gradient: RadialGradient(center: Alignment.bottomCenter, radius: 1.5, colors: [
         Color.fromARGB(255, 13, 35, 61),
@@ -142,119 +125,118 @@ class _LoginPageState extends State<LoginPage> {
         color: Colors.grey,
         gradient: LinearGradient(
             colors: colorsAndEffects[colorEffectIndex].colors, begin: Alignment.bottomRight, end: Alignment.topLeft),
-        child: //Container(
-            // decoration: BoxDecoration(
-            //   image: DecorationImage(
-            //     fit: BoxFit.cover,
-            //     image: AssetImage('background.jpg'), // 배경 이미지
-            //   ),
-            // ),
-            //child: Scaffold(
-            //backgroundColor: Colors.transparent,
-            //body:
-            Center(
-          child: AutofillGroup(
-    child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              SizedBox(
-                width: 400,
-                child: TextField(
-                  autofillHints: const [AutofillHints.email],
-                  onTap: () {
-                    setState(() {
-                      colorEffectIndex = 1;
-                    });
-                  },
-                  controller: _loginEmailTextEditingController,
-                  decoration: const InputDecoration(
-                    filled: true,
-                    fillColor: Color(0x99FFFFFF), //Colors.white,
-                    hintText: 'Email',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.email),
-                  ),
-                  //style: const TextStyle(fontSize: 12.0),
-                ),
+        child: /*Container(
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                fit: BoxFit.cover,
+                image: AssetImage('background.jpg'), // 배경 이미지
               ),
-              const SizedBox(height: 12.0),
-              SizedBox(
-                width: 400,
-                child: TextField(
-                  autofillHints: const [AutofillHints.password],
-                  onTap: () {
-                    setState(() {
-                      colorEffectIndex = 2;
-                    });
-                  },
-                  onChanged: (_) async {
-                    if (kIsWeb) {
+            ),
+            child: Scaffold(
+            backgroundColor: Colors.transparent,
+            body: */
+        Center(
+          child: AutofillGroup(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(
+                  width: 400,
+                  child: TextField(
+                    autofillHints: const [AutofillHints.email],
+                    onTap: () {
+                      setState(() {
+                        colorEffectIndex = 2;
+                      });
+                    },
+                    controller: _loginEmailTextEditingController,
+                    decoration: const InputDecoration(
+                      filled: true,
+                      fillColor: Color(0x99FFFFFF), //Colors.white,
+                      hintText: 'Email',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.email),
+                    ),
+                    //style: const TextStyle(fontSize: 12.0),
+                  ),
+                ),
+                const SizedBox(height: 12.0),
+                SizedBox(
+                  width: 400,
+                  child: TextField(
+                    autofillHints: const [AutofillHints.password],
+                    onTap: () {
+                      setState(() {
+                        colorEffectIndex = 1;
+                      });
+                    },
+                    onChanged: (_) async {
+                      //if (kIsWeb) {
                       // only web ==> remove eye-icon of password-field in MS-Edge-Browser
                       fixEdgePasswordRevealButton(passwordFocusNode);
-                    }
-                  },
-                  obscureText: _isHidden,
-                  controller: _loginPasswordTextEditingController,
-                  decoration: InputDecoration(
-                    filled: true,
-                    fillColor: Color(0x99FFFFFF), //Colors.white,
-                    hintText: 'Password',
-                    border: OutlineInputBorder(),
-                    prefixIcon: Icon(Icons.password),
-                    suffixIcon: MouseRegion(
-                        cursor: SystemMouseCursors.click,
-                        child: GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              _isHidden = !_isHidden;
-                            });
-                          },
-                          child: Icon(
-                            _isHidden ? Icons.visibility : Icons.visibility_off,
-                          ),
-                        )),
+                      //}
+                    },
+                    obscureText: _isHidden,
+                    controller: _loginPasswordTextEditingController,
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: Color(0x99FFFFFF), //Colors.white,
+                      hintText: 'Password',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.password),
+                      suffixIcon: MouseRegion(
+                          cursor: SystemMouseCursors.click,
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _isHidden = !_isHidden;
+                              });
+                            },
+                            child: Icon(
+                              _isHidden ? Icons.visibility : Icons.visibility_off,
+                            ),
+                          )),
+                    ),
+                    //style: const TextStyle(fontSize: 12.0),
                   ),
-                  //style: const TextStyle(fontSize: 12.0),
                 ),
-              ),
-              const SizedBox(height: 12.0),
-              ElevatedButton(
-                child: Text('Login'),
-                onPressed: () {
-                  // _login().whenComplete(() {
-                  //   Routemaster.of(context).push(AppRoutes.timeSheetPage);
-                  // });
-                  setState(() {
-                    colorEffectIndex = 0;
-                  });
-                },
-              ),
-              const SizedBox(height: 12.0),
-              ElevatedButton(
-                child: Text('Next'),
-                onPressed: () => Routemaster.of(context).push(AppRoutes.timeSheetPage),
-              ),
-              const SizedBox(height: 20.0),
-            ],
+                const SizedBox(height: 12.0),
+                ElevatedButton(
+                  child: Text('Login'),
+                  onPressed: () {
+                    // _login().whenComplete(() {
+                    //   Routemaster.of(context).push(AppRoutes.timeSheetPage);
+                    // });
+                    setState(() {
+                      colorEffectIndex = 0;
+                    });
+                  },
+                ),
+                const SizedBox(height: 12.0),
+                ElevatedButton(
+                  child: Text('Next'),
+                  onPressed: () => Routemaster.of(context).push(AppRoutes.timeSheetPage),
+                ),
+                const SizedBox(height: 20.0),
+              ],
+            ),
           ),
         ),
-            ),
       ),
-      //),
-      //),
-      //),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    // return CretaScaffold(
+    //   title: 'Time Sheet Login',
+    //   context: context,
+    //   child: Material(
+    //     child: _getChild(),
+    //   ),
+    // ).create();
     return Material(
       child: _getChild(),
     );
-    //   CretaScaffold(
-    //   title: 'Time Sheet Login',
-    //   context: context,
-    //   child: _getChild(),
-    // ).create();
   }
 } // TODO Implement this library.

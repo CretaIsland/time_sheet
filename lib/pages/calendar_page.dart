@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import '../common/creta_scaffold.dart';
 import '../common/table_calendar.dart';
+import '../common/logger.dart';
 import '../routes.dart';
 
 class CalendarPage extends StatefulWidget {
@@ -12,17 +14,18 @@ class CalendarPage extends StatefulWidget {
 }
 
 class _CalendarPageState extends State<CalendarPage> {
-
-  Set<DateTime> _selectedDays = {};
   DateTime _focusedDay = DateTime.now();
-  late PageController pageController;
+  final Set<DateTime> _completeDays = {};
+  final Set<DateTime> _incompleteDays = {};
 
   void onDaySelected(DateTime selectedDay, DateTime focusedDay) {
+    //final headerText = DateFormat.yMd('ko_KR').format(selectedDay);
+    //setState(() {});
     setState(() {
-      if (_selectedDays.contains(selectedDay)) {
-        _selectedDays.remove(selectedDay);
+      if (_completeDays.contains(selectedDay)) {
+        _completeDays.remove(selectedDay);
       } else {
-        _selectedDays.add(selectedDay);
+        _completeDays.add(selectedDay);
       }
 
       // _focusedDay = focusedDay;
@@ -39,6 +42,24 @@ class _CalendarPageState extends State<CalendarPage> {
     _focusedDay = DateTime.now();
   }
 
+  @override
+  void initState() {
+    super.initState();
+
+    List<DateTime> complateDtList = [
+      DateTime(2022, 11, 1),
+      DateTime(2022, 11, 2),
+      DateTime(2022, 11, 3),
+      DateTime(2022, 11, 4),
+    ];
+    _completeDays.addAll(complateDtList);
+
+    List<DateTime> incomplateDtList = [
+      DateTime(2022, 11, 7),
+      DateTime(2022, 11, 8),
+    ];
+    _incompleteDays.addAll(incomplateDtList);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,8 +73,8 @@ class _CalendarPageState extends State<CalendarPage> {
             AppRoutes.push(context, AppRoutes.timeSheetPage);
           },
           icon: const Icon(Icons.arrow_back)),
-      child:               TableCalendarWidget(_selectedDays, _focusedDay,
-          onDaySelected: onDaySelected, onTodayButtonTap: onTodayButtonTap)
+      child: TableCalendarWidget(_focusedDay, _completeDays, _incompleteDays,
+              onDaySelected: onDaySelected, onTodayButtonTap: onTodayButtonTap)
           .build(),
     ).create();
   }
