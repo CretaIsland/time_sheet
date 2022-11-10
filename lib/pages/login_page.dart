@@ -57,7 +57,7 @@ class _LoginPageState extends State<LoginPage> {
 
   bool _isHidden = true;
 
-  Future<void> _login() async {
+  Future<void> login() async {
     String userId = '';
     String password = '';
     final url = Uri.parse('http://localhost:8000/login/');
@@ -109,7 +109,7 @@ class _LoginPageState extends State<LoginPage> {
 
   int colorEffectIndex = 2;
 
-  Widget _getChild() {
+  Widget _getChild(BuildContext context) {
     return Container(
       decoration: const BoxDecoration(
           gradient: RadialGradient(center: Alignment.bottomCenter, radius: 1.5, colors: [
@@ -210,6 +210,7 @@ class _LoginPageState extends State<LoginPage> {
                     setState(() {
                       colorEffectIndex = 0;
                     });
+                    login();
                   },
                 ),
                 const SizedBox(height: 12.0),
@@ -227,6 +228,11 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     // return CretaScaffold(
     //   title: 'Time Sheet Login',
@@ -236,7 +242,7 @@ class _LoginPageState extends State<LoginPage> {
     //   ),
     // ).create();
     return Material(
-      child: _getChild(),
+      child: _getChild(context),
     );
   }
 } // TODO Implement this library.
