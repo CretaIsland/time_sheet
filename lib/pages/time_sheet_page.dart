@@ -13,25 +13,6 @@ import 'time_slot_item.dart';
 class TimeSheetPage extends StatefulWidget {
   const TimeSheetPage({super.key});
 
-  static List<String> favorateList = [];
-  static List<String> projectList = [
-    "AAAA",
-    "BAAA",
-    "CAAA",
-    "DAAA",
-    "EAAA",
-    "FRRR",
-    "GHHH",
-    "HEEE",
-    "XXXX",
-    "ZZZZ",
-    "KKKK",
-    "LLLL",
-    "ZZZ1",
-    "1234",
-    "3456",
-  ];
-
   @override
   State<TimeSheetPage> createState() => _TimeSheetPageState();
 }
@@ -40,7 +21,7 @@ class _TimeSheetPageState extends State<TimeSheetPage> {
   int _dateMove = 0;
   bool _refresh = false;
   bool _moveToRight = false;
-  //String? _today;
+  String? _today;
   String? _weekday;
 
   @override
@@ -103,14 +84,14 @@ class _TimeSheetPageState extends State<TimeSheetPage> {
   }
 
   Future<List<TimeSlotModel>> _getTimeSheetData(BuildContext context) async {
-    logger.finest('_getTimeSheetData(${DataManager.showDate})');
+    logger.finest('_getTimeSheetData($_today)');
 
     List<TimeSlotModel> dailyList = [];
     DataManager.initDailyTimeSlot(dailyList);
     logger.finest('dailyList=(${dailyList.length})');
 
-    if (_refresh == true || DataManager.timeSlotMap[DataManager.showDate] == null) {
-      var retval = await DataManager.getTimeSlots(context);
+    if (_refresh == true || DataManager.timeSlotMap[_today] == null) {
+      var retval = await DataManager.getTimeSlots(context, _today!);
       if (retval == null) {
         return dailyList;
       }
@@ -118,7 +99,7 @@ class _TimeSheetPageState extends State<TimeSheetPage> {
     }
     logger.finest('getTimeSlots() succeed');
 
-    List<TimeSlotModel>? gettingList = DataManager.timeSlotMap[DataManager.showDate];
+    List<TimeSlotModel>? gettingList = DataManager.timeSlotMap[_today!];
     if (gettingList == null) {
       return dailyList;
     }
@@ -158,7 +139,7 @@ class _TimeSheetPageState extends State<TimeSheetPage> {
                     });
                   },
                   child: Text(
-                    '${DataManager.showDate}$_weekday',
+                    '${_today!}$_weekday',
                     style: TextStyle(
                       fontSize: 24,
                       color: _dateMove == 0 ? Colors.black : Colors.blue[500]!,
@@ -306,16 +287,24 @@ class _TimeSheetPageState extends State<TimeSheetPage> {
   // }
 
   void _getToday() {
-    DateTime now = DateTime.now();
-    if (_dateMove > 0) {
-      now = now.add(Duration(days: _dateMove));
+    if (DataManager.showDate != null) {
+      _today = DataManager.showDate;
+      DataManager.showDate = null;
+    } else {
+      DateTime now = DateTime.now();
+      if (_dateMove > 0) {
+        now = now.add(Duration(days: _dateMove));
+      }
+      if (_dateMove < 0) {
+        now = now.subtract(Duration(days: -1 * _dateMove));
+      }
+      DateFormat formatter = DateFormat('yyyy-MM-dd');
+      _today = formatter.format(now);
     }
-    if (_dateMove < 0) {
-      now = now.subtract(Duration(days: -1 * _dateMove));
-    }
-    DateFormat formatter = DateFormat('yyyy-MM-dd');
-    DataManager.showDate = formatter.format(now);
-    String weekTemp = DateFormat('EEEE').format(now);
+    //String weekTemp = DateFormat('EEEE').format(now);
+    DateTime tempDate = DateTime.parse(_today!);
+    String weekTemp = DateFormat('EEEE').format(tempDate);
+
     switch (weekTemp) {
       case 'Monday':
         weekTemp = '월';

@@ -159,11 +159,12 @@ class DataManager {
     return projectList;
   }
 
-  static Future<Map<String, List<TimeSlotModel>>?> getTimeSlots(BuildContext context) async {
+  static Future<Map<String, List<TimeSlotModel>>?> getTimeSlots(
+      BuildContext context, String today) async {
     // if (loginUser == null) {
     //   return null;
     // }
-    logger.finest('getTimeSlots($showDate)');
+    logger.finest('getTimeSlots($today)');
     // TO DO :  get from DB using API
     // ignore: unused_local_variable
     Map<String, dynamic> jsonMap = <String, dynamic>{};
