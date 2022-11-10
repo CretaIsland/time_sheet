@@ -21,8 +21,9 @@ class _TimeSheetPageState extends State<TimeSheetPage> {
   int _dateMove = 0;
   bool _refresh = false;
   bool _moveToRight = false;
-  String? _today;
+  String? _showDate;
   String? _weekday;
+  DateFormat formatter = DateFormat('yyyy-MM-dd');
 
   @override
   void initState() {
@@ -31,7 +32,7 @@ class _TimeSheetPageState extends State<TimeSheetPage> {
 
   @override
   Widget build(BuildContext context) {
-    _getToday();
+    _gotoDate();
     return CretaScaffold(
       refresh: () {
         setState(() {
@@ -84,14 +85,14 @@ class _TimeSheetPageState extends State<TimeSheetPage> {
   }
 
   Future<List<TimeSlotModel>> _getTimeSheetData(BuildContext context) async {
-    logger.finest('_getTimeSheetData($_today)');
+    logger.finest('_getTimeSheetData($_showDate)');
 
     List<TimeSlotModel> dailyList = [];
     DataManager.initDailyTimeSlot(dailyList);
     logger.finest('dailyList=(${dailyList.length})');
 
-    if (_refresh == true || DataManager.timeSlotMap[_today] == null) {
-      var retval = await DataManager.getTimeSlots(context, _today!);
+    if (_refresh == true || DataManager.timeSlotMap[_showDate] == null) {
+      var retval = await DataManager.getTimeSlots(context, _showDate!);
       if (retval == null) {
         return dailyList;
       }
@@ -99,7 +100,7 @@ class _TimeSheetPageState extends State<TimeSheetPage> {
     }
     logger.finest('getTimeSlots() succeed');
 
-    List<TimeSlotModel>? gettingList = DataManager.timeSlotMap[_today!];
+    List<TimeSlotModel>? gettingList = DataManager.timeSlotMap[_showDate!];
     if (gettingList == null) {
       return dailyList;
     }
@@ -139,54 +140,62 @@ class _TimeSheetPageState extends State<TimeSheetPage> {
                     });
                   },
                   child: Text(
-                    '${_today!}$_weekday',
+                    '${_showDate!}$_weekday',
                     style: TextStyle(
                       fontSize: 24,
                       color: _dateMove == 0 ? Colors.black : Colors.blue[500]!,
                     ),
                   ),
                 ),
-                IconButton(
-                    onPressed: _toFuture,
-                    icon: Icon(
-                      Icons.arrow_forward_ios,
-                      size: 32,
-                    )),
+                (_getTodayString() != _showDate)
+                    ? IconButton(
+                        onPressed: _toFuture,
+                        icon: Icon(
+                          Icons.arrow_forward_ios,
+                          size: 32,
+                        ))
+                    : IconButton(
+                        onPressed: () {},
+                        icon: Icon(
+                          color: Colors.grey[100]!,
+                          Icons.arrow_forward_ios,
+                          size: 32,
+                        ))
               ],
             ),
           ),
         ),
         Expanded(
           flex: 11,
-          child: GestureDetector(
-            onPanUpdate: (details) {
-              // Swiping in right direction.
-              if (details.delta.dx > 0) {
-                _toPast();
-              }
-              // Swiping in left direction.
-              if (details.delta.dx < 0) {
-                _toFuture();
-              }
-            },
-            child: WidgetAnimator(
-              incomingEffect: _moveToRight
-                  ? WidgetTransitionEffects.incomingScaleUp(
-                      rotation: 0.2,
-                      curve: Curves.easeInQuad,
-                    )
-                  : WidgetTransitionEffects.incomingScaleUp(
-                      rotation: -0.2,
-                      curve: Curves.easeInQuad,
-                    ),
-              // WidgetTransitionEffects.incomingSlideInFromRight(
-              //     curve: Curves.easeInQuad, scale: 0.6)
-              // : WidgetTransitionEffects.incomingSlideInFromLeft(
-              //     curve: Curves.easeInQuad, scale: 0.6),
-              child: _timeSheetView(dailyList),
-            ),
+          //child: GestureDetector(
+          // onPanUpdate: (details) {
+          //   // Swiping in right direction.
+          //   if (details.delta.dx > 0) {
+          //     _toPast();
+          //   }
+          //   // Swiping in left direction.
+          //   if (details.delta.dx < 0) {
+          //     _toFuture();
+          //   }
+          // },
+          child: WidgetAnimator(
+            incomingEffect: _moveToRight
+                ? WidgetTransitionEffects.incomingScaleUp(
+                    rotation: 0.2,
+                    curve: Curves.easeInQuad,
+                  )
+                : WidgetTransitionEffects.incomingScaleUp(
+                    rotation: -0.2,
+                    curve: Curves.easeInQuad,
+                  ),
+            // WidgetTransitionEffects.incomingSlideInFromRight(
+            //     curve: Curves.easeInQuad, scale: 0.6)
+            // : WidgetTransitionEffects.incomingSlideInFromLeft(
+            //     curve: Curves.easeInQuad, scale: 0.6),
+            child: _timeSheetView(dailyList),
           ),
         ),
+        //),
       ],
     );
   }
@@ -286,23 +295,32 @@ class _TimeSheetPageState extends State<TimeSheetPage> {
   //   });
   // }
 
-  void _getToday() {
+  String _getTodayString() {
+    return formatter.format(DateTime.now());
+  }
+
+  void _gotoDate() {
+    DateTime now = DateTime.now();
+
     if (DataManager.showDate != null) {
-      _today = DataManager.showDate;
+      _showDate = DataManager.showDate;
       DataManager.showDate = null;
+      // now 와 today 와의 차이만큼 dateMove 값을 채워야함.
+      DateTime tempDate = DateTime.parse(_showDate!);
+      Duration diff = tempDate.difference(now);
+      // diff.inDays now 보다 과거면 음수가 나오고 미래면 양수가 나온다.
+      _dateMove += diff.inDays;
     } else {
-      DateTime now = DateTime.now();
       if (_dateMove > 0) {
         now = now.add(Duration(days: _dateMove));
       }
       if (_dateMove < 0) {
         now = now.subtract(Duration(days: -1 * _dateMove));
       }
-      DateFormat formatter = DateFormat('yyyy-MM-dd');
-      _today = formatter.format(now);
+      _showDate = formatter.format(now);
     }
-    //String weekTemp = DateFormat('EEEE').format(now);
-    DateTime tempDate = DateTime.parse(_today!);
+
+    DateTime tempDate = DateTime.parse(_showDate!);
     String weekTemp = DateFormat('EEEE').format(tempDate);
 
     switch (weekTemp) {
