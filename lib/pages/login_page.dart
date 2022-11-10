@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
+import 'package:time_sheet/model/data_model.dart';
 import 'package:time_sheet/routes.dart';
 import 'package:http/http.dart' as http;
 import 'package:routemaster/routemaster.dart';
@@ -138,68 +139,68 @@ class _LoginPageState extends State<LoginPage> {
             child: Scaffold(
             backgroundColor: Colors.transparent,
             body: */
-        Center(
+            Center(
           child: AutofillGroup(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-              SizedBox(
-              width: 300,
-              child: TextField(
-                autofillHints: const [AutofillHints.email],
-                onTap: () {
-                  setState(() {
-                    colorEffectIndex = 2;
-                  });
-                },
-                controller: _loginEmailTextEditingController,
-                decoration: const InputDecoration(
-                  filled: true,
-                  fillColor: Color(0x99FFFFFF), //Colors.white,
-                  hintText: 'Email',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.email),
+                SizedBox(
+                  width: 300,
+                  child: TextField(
+                    autofillHints: const [AutofillHints.email],
+                    onTap: () {
+                      setState(() {
+                        colorEffectIndex = 2;
+                      });
+                    },
+                    controller: _loginEmailTextEditingController,
+                    decoration: const InputDecoration(
+                      filled: true,
+                      fillColor: Color(0x99FFFFFF), //Colors.white,
+                      hintText: 'Email',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.email),
+                    ),
+                    //style: const TextStyle(fontSize: 12.0),
+                  ),
                 ),
-                //style: const TextStyle(fontSize: 12.0),
-              ),
-            ),
-            const SizedBox(height: 12.0),
-            SizedBox(
-              width: 300,
-              child: TextField(
-                autofillHints: const [AutofillHints.password],
-                onTap: () {
-                  setState(() {
-                    colorEffectIndex = 1;
-                  });
-                },
-                onChanged: (_) async {
-                  fixEdgePasswordRevealButton(passwordFocusNode);
-                },
-                obscureText: _isHidden,
-                controller: _loginPasswordTextEditingController,
-                decoration: InputDecoration(
-                  filled: true,
-                  fillColor: Color(0x99FFFFFF), //Colors.white,
-                  hintText: 'Password',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.password),
-                  suffixIcon: MouseRegion(
-                      cursor: SystemMouseCursors.click,
-                      child: GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _isHidden = !_isHidden;
-                          });
-                        },
-                        child: Icon(
-                          _isHidden ? Icons.visibility : Icons.visibility_off,
-                        ),
-                      )),
+                const SizedBox(height: 12.0),
+                SizedBox(
+                  width: 300,
+                  child: TextField(
+                    autofillHints: const [AutofillHints.password],
+                    onTap: () {
+                      setState(() {
+                        colorEffectIndex = 1;
+                      });
+                    },
+                    onChanged: (_) async {
+                      fixEdgePasswordRevealButton(passwordFocusNode);
+                    },
+                    obscureText: _isHidden,
+                    controller: _loginPasswordTextEditingController,
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: Color(0x99FFFFFF), //Colors.white,
+                      hintText: 'Password',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.password),
+                      suffixIcon: MouseRegion(
+                          cursor: SystemMouseCursors.click,
+                          child: GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _isHidden = !_isHidden;
+                              });
+                            },
+                            child: Icon(
+                              _isHidden ? Icons.visibility : Icons.visibility_off,
+                            ),
+                          )),
+                    ),
+                    //style: const TextStyle(fontSize: 12.0),
+                  ),
                 ),
-                //style: const TextStyle(fontSize: 12.0),
-              ),
-            ),
                 const SizedBox(height: 12.0),
                 ElevatedButton(
                   child: Text('Login'),
@@ -216,7 +217,15 @@ class _LoginPageState extends State<LoginPage> {
                 const SizedBox(height: 12.0),
                 ElevatedButton(
                   child: Text('Next'),
-                  onPressed: () => Routemaster.of(context).push(AppRoutes.timeSheetPage),
+                  onPressed: () async {
+                    await DataManager.getAlarms(context);
+                    // ignore: use_build_context_synchronously
+                    await DataManager.getMyFavorite(context);
+                    // ignore: use_build_context_synchronously
+                    await DataManager.getProjectCodes(context);
+                    // ignore: use_build_context_synchronously
+                    Routemaster.of(context).push(AppRoutes.timeSheetPage);
+                  },
                 ),
                 const SizedBox(height: 20.0),
               ],

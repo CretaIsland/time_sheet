@@ -13,33 +13,15 @@ import 'time_slot_item.dart';
 class TimeSheetPage extends StatefulWidget {
   const TimeSheetPage({super.key});
 
-  static List<String> favorateList = [];
-  static List<String> projectList = [
-    "AAAA",
-    "BAAA",
-    "CAAA",
-    "DAAA",
-    "EAAA",
-    "FRRR",
-    "GHHH",
-    "HEEE",
-    "XXXX",
-    "ZZZZ",
-    "KKKK",
-    "LLLL",
-    "ZZZ1",
-    "1234",
-    "3456",
-  ];
-
   @override
   State<TimeSheetPage> createState() => _TimeSheetPageState();
 }
 
 class _TimeSheetPageState extends State<TimeSheetPage> {
   int _dateMove = 0;
+  bool _refresh = false;
   bool _moveToRight = false;
-  //String? _today;
+  String? _today;
   String? _weekday;
 
   @override
@@ -51,9 +33,9 @@ class _TimeSheetPageState extends State<TimeSheetPage> {
   Widget build(BuildContext context) {
     _getToday();
     return CretaScaffold(
-      gotoToday: () {
+      refresh: () {
         setState(() {
-          _dateMove = 0;
+          _refresh = true;
         });
       },
       title: 'Its time to do something crazy',
@@ -77,7 +59,7 @@ class _TimeSheetPageState extends State<TimeSheetPage> {
 
   Widget _mainPage() {
     return FutureBuilder<List<TimeSlotModel>>(
-        future: _getTimeSheetData(),
+        future: _getTimeSheetData(context),
         builder: (context, AsyncSnapshot<List<TimeSlotModel>> snapshot) {
           if (snapshot.hasError) {
             //error가 발생하게 될 경우 반환하게 되는 부분
@@ -85,29 +67,55 @@ class _TimeSheetPageState extends State<TimeSheetPage> {
             return const Center(child: Text('data fetch error'));
           }
           if (snapshot.hasData == false) {
-            logger.severe("No data founded");
+            //logger.severe("No data founded");
             return const Center(
               child: CircularProgressIndicator(),
             );
           }
           if (snapshot.connectionState == ConnectionState.done) {
-            logger.finest("book founded ${snapshot.data!.length}");
+            logger.finest("data founded ${snapshot.data!.length}...");
             // if (snapshot.data!.isEmpty) {
             //   return const Center(child: Text('no book founded'));
             // }
-            return _drawPage();
+            return _drawPage(snapshot.data!);
           }
           return Container();
         });
   }
 
-  Future<List<TimeSlotModel>> _getTimeSheetData() async {
-    logger.finest('_getTimeSheetData(${DataManager.showDate})');
-    _createSample();
-    return sampleList;
+  Future<List<TimeSlotModel>> _getTimeSheetData(BuildContext context) async {
+    logger.finest('_getTimeSheetData($_today)');
+
+    List<TimeSlotModel> dailyList = [];
+    DataManager.initDailyTimeSlot(dailyList);
+    logger.finest('dailyList=(${dailyList.length})');
+
+    if (_refresh == true || DataManager.timeSlotMap[_today] == null) {
+      var retval = await DataManager.getTimeSlots(context, _today!);
+      if (retval == null) {
+        return dailyList;
+      }
+      _refresh = false;
+    }
+    logger.finest('getTimeSlots() succeed');
+
+    List<TimeSlotModel>? gettingList = DataManager.timeSlotMap[_today!];
+    if (gettingList == null) {
+      return dailyList;
+    }
+    for (var ele in gettingList) {
+      for (TimeSlotModel model in dailyList) {
+        if (model.timeSlot == ele.timeSlot) {
+          model.projectCode1 = ele.projectCode1;
+          model.projectCode2 = ele.projectCode2;
+          break;
+        }
+      }
+    }
+    return dailyList;
   }
 
-  Widget _drawPage() {
+  Widget _drawPage(List<TimeSlotModel> dailyList) {
     return Column(
       children: [
         Expanded(
@@ -131,7 +139,7 @@ class _TimeSheetPageState extends State<TimeSheetPage> {
                     });
                   },
                   child: Text(
-                    '${DataManager.showDate}$_weekday',
+                    '${_today!}$_weekday',
                     style: TextStyle(
                       fontSize: 24,
                       color: _dateMove == 0 ? Colors.black : Colors.blue[500]!,
@@ -175,7 +183,7 @@ class _TimeSheetPageState extends State<TimeSheetPage> {
               //     curve: Curves.easeInQuad, scale: 0.6)
               // : WidgetTransitionEffects.incomingSlideInFromLeft(
               //     curve: Curves.easeInQuad, scale: 0.6),
-              child: _timeSheetView(),
+              child: _timeSheetView(dailyList),
             ),
           ),
         ),
@@ -199,61 +207,59 @@ class _TimeSheetPageState extends State<TimeSheetPage> {
     });
   }
 
-  List<TimeSlotModel> sampleList = [];
+  //   void _createSample() {
+  //   dailyList.add(TimeSlotModel(timeSlot: '07', projectCode2: 'BBBB'));
+  //   dailyList.add(TimeSlotModel(timeSlot: '08', projectCode1: 'AAAA'));
+  //   dailyList.add(TimeSlotModel(timeSlot: '09'));
+  //   dailyList.add(TimeSlotModel(timeSlot: '10', projectCode1: 'AAAA'));
+  //   dailyList.add(TimeSlotModel(timeSlot: '11', projectCode1: 'AAAA', projectCode2: 'BBBB'));
+  //   dailyList.add(TimeSlotModel(timeSlot: '12', projectCode1: 'AAAA'));
+  //   dailyList.add(TimeSlotModel(timeSlot: '13', projectCode1: 'AAAA'));
+  //   dailyList.add(TimeSlotModel(timeSlot: '14', projectCode1: 'AAAA'));
+  //   dailyList.add(TimeSlotModel(timeSlot: '15', projectCode1: 'AAAA'));
+  //   dailyList.add(TimeSlotModel(timeSlot: '16', projectCode1: 'AAAA'));
+  //   dailyList.add(TimeSlotModel(timeSlot: '17', projectCode1: 'AAAA'));
+  //   dailyList.add(TimeSlotModel(timeSlot: '18', projectCode1: 'AAAA', projectCode2: 'BBBB'));
+  //   dailyList.add(TimeSlotModel(timeSlot: '19', projectCode1: 'AAAA'));
+  //   dailyList.add(TimeSlotModel(timeSlot: '20', projectCode1: 'AAAA'));
+  //   dailyList.add(TimeSlotModel(timeSlot: '21', projectCode2: 'BBBB'));
+  //   dailyList.add(TimeSlotModel(timeSlot: '*'));
+  // }
 
-  void _createSample() {
-    sampleList.add(TimeSlotModel(timeSlot: '07', projectCode2: 'BBBB'));
-    sampleList.add(TimeSlotModel(timeSlot: '08', projectCode1: 'AAAA'));
-    sampleList.add(TimeSlotModel(timeSlot: '09'));
-    sampleList.add(TimeSlotModel(timeSlot: '10', projectCode1: 'AAAA'));
-    sampleList.add(TimeSlotModel(timeSlot: '11', projectCode1: 'AAAA', projectCode2: 'BBBB'));
-    sampleList.add(TimeSlotModel(timeSlot: '12', projectCode1: 'AAAA'));
-    sampleList.add(TimeSlotModel(timeSlot: '13', projectCode1: 'AAAA'));
-    sampleList.add(TimeSlotModel(timeSlot: '14', projectCode1: 'AAAA'));
-    sampleList.add(TimeSlotModel(timeSlot: '15', projectCode1: 'AAAA'));
-    sampleList.add(TimeSlotModel(timeSlot: '16', projectCode1: 'AAAA'));
-    sampleList.add(TimeSlotModel(timeSlot: '17', projectCode1: 'AAAA'));
-    sampleList.add(TimeSlotModel(timeSlot: '18', projectCode1: 'AAAA', projectCode2: 'BBBB'));
-    sampleList.add(TimeSlotModel(timeSlot: '19', projectCode1: 'AAAA'));
-    sampleList.add(TimeSlotModel(timeSlot: '20', projectCode1: 'AAAA'));
-    sampleList.add(TimeSlotModel(timeSlot: '21', projectCode2: 'BBBB'));
-    sampleList.add(TimeSlotModel(timeSlot: '*'));
-  }
-
-  Widget _timeSheetView() {
+  Widget _timeSheetView(List<TimeSlotModel> dailyList) {
     //_createSample();
     return ListView.builder(
       shrinkWrap: true,
       //initialItemCount: 15,
-      itemCount: 16,
+      itemCount: dailyList.length,
       itemBuilder: (
         context,
         index,
         /*animation*/
       ) {
         return TimeSlotItem(
-          item: sampleList[index],
+          item: dailyList[index],
           //animation: animation,
           onPaint: () {
             bool changed = false;
-            for (int i = index + 1; i < sampleList.length; i++) {
-              if (sampleList[i].timeSlot == '12') {
+            for (int i = index + 1; i < dailyList.length; i++) {
+              if (dailyList[i].timeSlot == '12') {
                 continue;
               }
-              if (sampleList[i].projectCode1 != null) {
+              if (dailyList[i].projectCode1 != null) {
                 break;
               }
-              if (sampleList[i].projectCode2 != null) {
+              if (dailyList[i].projectCode2 != null) {
                 break;
               }
-              String? project1 = sampleList[index].projectCode1;
-              String? project2 = sampleList[index].projectCode2;
+              String? project1 = dailyList[index].projectCode1;
+              String? project2 = dailyList[index].projectCode2;
               if (project1 != null) {
-                sampleList[i].projectCode1 = project1;
+                dailyList[i].projectCode1 = project1;
                 changed = true;
               }
               if (project2 != null) {
-                sampleList[i].projectCode2 = project2;
+                dailyList[i].projectCode2 = project2;
                 changed = true;
               }
             }
@@ -270,7 +276,7 @@ class _TimeSheetPageState extends State<TimeSheetPage> {
   //   _createSample();
   //   return List.generate(15, (index) {
   //     return TimeSlotItem(
-  //       item: sampleList[index],
+  //       item: dailyList[index],
   //       //animation: animation,
   //       onDelete: () {},
   //       onSplit: () {},
@@ -281,16 +287,24 @@ class _TimeSheetPageState extends State<TimeSheetPage> {
   // }
 
   void _getToday() {
-    DateTime now = DateTime.now();
-    if (_dateMove > 0) {
-      now = now.add(Duration(days: _dateMove));
+    if (DataManager.showDate != null) {
+      _today = DataManager.showDate;
+      DataManager.showDate = null;
+    } else {
+      DateTime now = DateTime.now();
+      if (_dateMove > 0) {
+        now = now.add(Duration(days: _dateMove));
+      }
+      if (_dateMove < 0) {
+        now = now.subtract(Duration(days: -1 * _dateMove));
+      }
+      DateFormat formatter = DateFormat('yyyy-MM-dd');
+      _today = formatter.format(now);
     }
-    if (_dateMove < 0) {
-      now = now.subtract(Duration(days: -1 * _dateMove));
-    }
-    DateFormat formatter = DateFormat('yyyy-MM-dd');
-    DataManager.showDate = formatter.format(now);
-    String weekTemp = DateFormat('EEEE').format(now);
+    //String weekTemp = DateFormat('EEEE').format(now);
+    DateTime tempDate = DateTime.parse(_today!);
+    String weekTemp = DateFormat('EEEE').format(tempDate);
+
     switch (weekTemp) {
       case 'Monday':
         weekTemp = '월';

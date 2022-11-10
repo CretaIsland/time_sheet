@@ -9,7 +9,6 @@ import 'package:dropdown_plus/dropdown_plus.dart';
 import 'package:simple_tags/simple_tags.dart';
 import '../common/logger.dart';
 import '../model/data_model.dart';
-import 'time_sheet_page.dart';
 
 class TimeSlotItem extends StatefulWidget {
   final TimeSlotModel item;
@@ -111,15 +110,17 @@ class _TimeSlotItemState extends State<TimeSlotItem> {
             color: Colors.amber,
             onPressed: () {
               if (_controller.value != null) {
-                _justSelected = _controller.value!;
-                if (TimeSheetPage.favorateList.isEmpty ||
-                    TimeSheetPage.favorateList.first != _justSelected!) {
-                  if (TimeSheetPage.favorateList.contains(_justSelected!)) {
-                    TimeSheetPage.favorateList.remove(_justSelected!);
+                String temp = _controller.value!;
+                int idx = temp.indexOf('/');
+                _justSelected = temp.substring(0, idx);
+                if (DataManager.myFavoriteList.isEmpty ||
+                    DataManager.myFavoriteList.first != _justSelected!) {
+                  if (DataManager.myFavoriteList.contains(_justSelected!)) {
+                    DataManager.myFavoriteList.remove(_justSelected!);
                   }
-                  TimeSheetPage.favorateList.insert(0, _justSelected!);
-                  if (TimeSheetPage.favorateList.length >= 10) {
-                    TimeSheetPage.favorateList.removeAt(TimeSheetPage.favorateList.length - 1);
+                  DataManager.myFavoriteList.insert(0, _justSelected!);
+                  if (DataManager.myFavoriteList.length >= 10) {
+                    DataManager.myFavoriteList.removeAt(DataManager.myFavoriteList.length - 1);
                   }
                 }
                 _controller.value = null;
@@ -206,7 +207,7 @@ class _TimeSlotItemState extends State<TimeSlotItem> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12.0),
       child: SimpleTags(
-        content: TimeSheetPage.favorateList,
+        content: DataManager.myFavoriteList,
         wrapSpacing: 4,
         wrapRunSpacing: 4,
         onTagPress: (tag) {
@@ -249,7 +250,7 @@ class _TimeSlotItemState extends State<TimeSlotItem> {
   Widget _searchProject() {
     return TextDropdownFormField(
       controller: _controller,
-      options: TimeSheetPage.projectList,
+      options: DataManager.projectDescList,
       decoration: const InputDecoration(
           border: OutlineInputBorder(),
           suffixIcon: Icon(Icons.arrow_drop_down),
