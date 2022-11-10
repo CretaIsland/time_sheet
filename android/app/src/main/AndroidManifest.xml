@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.time_sheet">
+    package="com.sqisoft.time_sheet">
    <application
         android:label="time_sheet"
         android:name="${applicationName}"

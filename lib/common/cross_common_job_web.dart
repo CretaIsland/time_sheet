@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/browser_client.dart';
 import 'cross_common_job.dart';
-import 'dart:js' as js;
+import "package:universal_html/js.dart" as js;
 
 class CrossCommonJobWeb implements CrossCommonJob {
   @override
