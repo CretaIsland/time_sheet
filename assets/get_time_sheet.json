@@ -1,0 +1,267 @@
+{
+	"err_msg" : "succeed",  
+	"count"  : 5,
+    "data" :  [
+		{
+			"date" : "2022-11-07",
+			"count" : 9,
+			"list"  : 
+			[
+				{
+					"time_slot" : "09",
+					"project_code1" : "MOND",
+					"project_code2" : "MOND"
+				},
+				{
+					"time_slot" : "10",
+					"project_code1" : "",
+					"project_code2" : "BCDE"
+				},
+				{
+					"time_slot" : "11",
+					"project_code1" : "CDEF",
+					"project_code2" : "DEFG"
+				},
+				{
+					"time_slot" : "13",
+					"project_code1" : "DEFG",
+					"project_code2" : "DEFG"
+				},
+				{
+					"time_slot" : "14",
+					"project_code1" : "EFGH",
+					"project_code2" : "EFGH"
+				},
+				{
+					"time_slot" : "15",
+					"project_code1" : "FGHI",
+					"project_code2" : "GHIL"
+				},
+				{
+					"time_slot" : "16",
+					"project_code1" : "GHIL",
+					"project_code2" : "GHIL"
+				},
+				{
+					"time_slot" : "17",
+					"project_code1" : "HILM",
+					"project_code2" : "HILM"
+				},
+				{
+					"time_slot" : "18",
+					"project_code1" : "ILMN",
+					"project_code2" : "ILMN"
+				}
+			]
+		}, 
+		{
+			"date" : "2022-11-08",
+			"count" : 9,
+			"list"  : 
+			[
+				{
+					"time_slot" : "09",
+					"project_code1" : "TUES",
+					"project_code2" : "TUES"
+				},
+				{
+					"time_slot" : "10",
+					"project_code1" : "",
+					"project_code2" : "BCDE"
+				},
+				{
+					"time_slot" : "11",
+					"project_code1" : "CDEF",
+					"project_code2" : "DEFG"
+				},
+				{
+					"time_slot" : "13",
+					"project_code1" : "DEFG",
+					"project_code2" : "DEFG"
+				},
+				{
+					"time_slot" : "14",
+					"project_code1" : "EFGH",
+					"project_code2" : "EFGH"
+				},
+				{
+					"time_slot" : "15",
+					"project_code1" : "FGHI",
+					"project_code2" : "GHIL"
+				},
+				{
+					"time_slot" : "16",
+					"project_code1" : "GHIL",
+					"project_code2" : "GHIL"
+				},
+				{
+					"time_slot" : "17",
+					"project_code1" : "HILM",
+					"project_code2" : "HILM"
+				},
+				{
+					"time_slot" : "18",
+					"project_code1" : "ILMN",
+					"project_code2" : "ILMN"
+				}
+			]
+		}, 
+		{
+			"date" : "2022-11-09",
+			"count" : 9,
+			"list"  : 
+			[
+				{
+					"time_slot" : "09",
+					"project_code1" : "WEDN",
+					"project_code2" : "WEDN"
+				},
+				{
+					"time_slot" : "10",
+					"project_code1" : "",
+					"project_code2" : "BCDE"
+				},
+				{
+					"time_slot" : "11",
+					"project_code1" : "CDEF",
+					"project_code2" : "DEFG"
+				},
+				{
+					"time_slot" : "13",
+					"project_code1" : "DEFG",
+					"project_code2" : "DEFG"
+				},
+				{
+					"time_slot" : "14",
+					"project_code1" : "EFGH",
+					"project_code2" : "EFGH"
+				},
+				{
+					"time_slot" : "15",
+					"project_code1" : "FGHI",
+					"project_code2" : "GHIL"
+				},
+				{
+					"time_slot" : "16",
+					"project_code1" : "GHIL",
+					"project_code2" : "GHIL"
+				},
+				{
+					"time_slot" : "17",
+					"project_code1" : "HILM",
+					"project_code2" : "HILM"
+				},
+				{
+					"time_slot" : "18",
+					"project_code1" : "ILMN",
+					"project_code2" : "ILMN"
+				}
+			]
+		},
+		{
+			"date" : "2022-11-10",
+			"count" : 9,
+			"list"  : 
+			[
+				{
+					"time_slot" : "08",
+					"project_code1" : "",
+					"project_code2" : "THUR"
+				},
+				{
+					"time_slot" : "09",
+					"project_code1" : "BCDE",
+					"project_code2" : "BCDE"
+				},
+				{
+					"time_slot" : "11",
+					"project_code1" : "CDEF",
+					"project_code2" : "DEFG"
+				},
+				{
+					"time_slot" : "13",
+					"project_code1" : "DEFG",
+					"project_code2" : "DEFG"
+				},
+				{
+					"time_slot" : "14",
+					"project_code1" : "HL-P",
+					"project_code2" : "HL-P"
+				},
+				{
+					"time_slot" : "15",
+					"project_code1" : "HL-P",
+					"project_code2" : "HL-P"
+				},
+				{
+					"time_slot" : "16",
+					"project_code1" : "HL-P",
+					"project_code2" : "HL-P"
+				},
+				{
+					"time_slot" : "17",
+					"project_code1" : "HL-P",
+					"project_code2" : "HL-P"
+				},
+				{
+					"time_slot" : "18",
+					"project_code1" : "HL-P",
+					"project_code2" : ""
+				}
+			]
+		},
+		{
+			"date" : "2022-11-11",
+			"count" : 9,
+			"list"  : 
+			[
+				{
+					"time_slot" : "09",
+					"project_code1" : "FRID",
+					"project_code2" : "FRID"
+				},
+				{
+					"time_slot" : "10",
+					"project_code1" : "",
+					"project_code2" : "BCDE"
+				},
+				{
+					"time_slot" : "11",
+					"project_code1" : "CDEF",
+					"project_code2" : "DEFG"
+				},
+				{
+					"time_slot" : "13",
+					"project_code1" : "DEFG",
+					"project_code2" : "DEFG"
+				},
+				{
+					"time_slot" : "14",
+					"project_code1" : "EFGH",
+					"project_code2" : "EFGH"
+				},
+				{
+					"time_slot" : "15",
+					"project_code1" : "FGHI",
+					"project_code2" : "GHIL"
+				},
+				{
+					"time_slot" : "16",
+					"project_code1" : "GHIL",
+					"project_code2" : "GHIL"
+				},
+				{
+					"time_slot" : "17",
+					"project_code1" : "HILM",
+					"project_code2" : "HILM"
+				},
+				{
+					"time_slot" : "18",
+					"project_code1" : "ILMN",
+					"project_code2" : "ILMN"
+				}
+			]
+		}
+	]					
+}
+
