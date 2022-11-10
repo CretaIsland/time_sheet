@@ -8,6 +8,7 @@ import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:dropdown_plus/dropdown_plus.dart';
 import 'package:simple_tags/simple_tags.dart';
 import '../common/logger.dart';
+import '../model/data_model.dart';
 import 'time_sheet_page.dart';
 
 class TimeSlotItem extends StatefulWidget {

@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, avoid_print
+// ignore_for_file: prefer_const_constructors, avoid_print, depend_on_referenced_packages
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -6,19 +6,9 @@ import 'package:widget_and_text_animator/widget_and_text_animator.dart';
 
 import '../common/creta_scaffold.dart';
 import '../common/logger.dart';
+import '../model/data_model.dart';
 import '../routes.dart';
 import 'time_slot_item.dart';
-
-class TimeSlotModel {
-  TimeSlotModel({
-    required this.timeSlot,
-    this.projectCode1,
-    this.projectCode2,
-  });
-  String timeSlot;
-  String? projectCode1;
-  String? projectCode2;
-}
 
 class TimeSheetPage extends StatefulWidget {
   const TimeSheetPage({super.key});
@@ -49,7 +39,7 @@ class TimeSheetPage extends StatefulWidget {
 class _TimeSheetPageState extends State<TimeSheetPage> {
   int _dateMove = 0;
   bool _moveToRight = false;
-  String? _today;
+  //String? _today;
   String? _weekday;
 
   @override
@@ -112,7 +102,7 @@ class _TimeSheetPageState extends State<TimeSheetPage> {
   }
 
   Future<List<TimeSlotModel>> _getTimeSheetData() async {
-    logger.finest('_getTimeSheetData($_today)');
+    logger.finest('_getTimeSheetData(${DataManager.showDate})');
     _createSample();
     return sampleList;
   }
@@ -141,7 +131,7 @@ class _TimeSheetPageState extends State<TimeSheetPage> {
                     });
                   },
                   child: Text(
-                    '$_today$_weekday',
+                    '${DataManager.showDate}$_weekday',
                     style: TextStyle(
                       fontSize: 24,
                       color: _dateMove == 0 ? Colors.black : Colors.blue[500]!,
@@ -299,7 +289,7 @@ class _TimeSheetPageState extends State<TimeSheetPage> {
       now = now.subtract(Duration(days: -1 * _dateMove));
     }
     DateFormat formatter = DateFormat('yyyy-MM-dd');
-    _today = formatter.format(now);
+    DataManager.showDate = formatter.format(now);
     String weekTemp = DateFormat('EEEE').format(now);
     switch (weekTemp) {
       case 'Monday':
