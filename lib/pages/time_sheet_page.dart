@@ -247,7 +247,7 @@ class _TimeSheetPageState extends State<TimeSheetPage> {
         /*animation*/
       ) {
         return TimeSlotItem(
-          item: dailyList[index],
+          model: dailyList[index],
           //animation: animation,
           onPaint: () {
             bool changed = false;

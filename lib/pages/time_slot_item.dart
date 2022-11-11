@@ -11,12 +11,12 @@ import '../common/logger.dart';
 import '../model/data_model.dart';
 
 class TimeSlotItem extends StatefulWidget {
-  final TimeSlotModel item;
+  final TimeSlotModel model;
   //final Animation<double> animation;
   final VoidCallback onPaint;
   const TimeSlotItem({
     Key? key,
-    required this.item,
+    required this.model,
     //required this.animation,
     required this.onPaint,
   }) : super(key: key);
@@ -44,7 +44,7 @@ class _TimeSlotItemState extends State<TimeSlotItem> {
   Widget build(BuildContext context) {
     return
         //SizeTransition(
-        //  key: ValueKey(widget.item.timeSlot),
+        //  key: ValueKey(widget.model.timeSlot),
         //  sizeFactor: widget.animation,
         // child:
         Container(
@@ -57,14 +57,15 @@ class _TimeSlotItemState extends State<TimeSlotItem> {
       ),
       child: ListTile(
         minVerticalPadding: 0,
-        tileColor:
-            widget.item.timeSlot == '12' || widget.item.timeSlot == '*' ? null : Colors.grey[300]!,
+        tileColor: widget.model.timeSlot == '12' || widget.model.timeSlot == '*'
+            ? null
+            : Colors.grey[300]!,
         dense: true,
         contentPadding: const EdgeInsets.only(left: 16, right: 4),
         visualDensity: VisualDensity.compact,
         leading:
-            Text(widget.item.timeSlot, style: TextStyle(fontSize: 32, color: Colors.grey[500]!)),
-        //title: (_editModeMap[widget.item.timeSlot] ?? false) ? _editTitle() : _getTitle(),
+            Text(widget.model.timeSlot, style: TextStyle(fontSize: 32, color: Colors.grey[500]!)),
+        //title: (_editModeMap[widget.model.timeSlot] ?? false) ? _editTitle() : _getTitle(),
         title: _getTitle(),
         onTap: () {
           logger.finest('onTap');
@@ -74,7 +75,7 @@ class _TimeSlotItemState extends State<TimeSlotItem> {
         // onLongPress: () {
         //   setState(() {
         //     _editModeMap.clear();
-        //     _editModeMap[widget.item.timeSlot] = true;
+        //     _editModeMap[widget.model.timeSlot] = true;
         //   });
         // },
       ),
@@ -141,16 +142,16 @@ class _TimeSlotItemState extends State<TimeSlotItem> {
     if (isOk && _justSelected != null && ttype != TimeSlotType.none) {
       setState(() {
         if (ttype == TimeSlotType.after30) {
-          widget.item.projectCode2 = _justSelected;
+          widget.model.projectCode2 = _justSelected;
           return;
         }
         if (ttype == TimeSlotType.before30) {
-          widget.item.projectCode1 = _justSelected;
+          widget.model.projectCode1 = _justSelected;
           return;
         }
         if (ttype == TimeSlotType.wholeHour) {
-          widget.item.projectCode1 = _justSelected;
-          widget.item.projectCode2 = _justSelected;
+          widget.model.projectCode1 = _justSelected;
+          widget.model.projectCode2 = _justSelected;
           return;
         }
       });
@@ -185,7 +186,7 @@ class _TimeSlotItemState extends State<TimeSlotItem> {
     // return TextFormField(
     //   onEditingComplete: () {
     //     if (_controller.text.isNotEmpty) {
-    //       widget.item.projectCode1 = _controller.text;
+    //       widget.model.projectCode1 = _controller.text;
     //       widget.onSaveClicked.call();
     //     }
     //     setState(() {
@@ -260,11 +261,11 @@ class _TimeSlotItemState extends State<TimeSlotItem> {
   }
 
   Widget _getTitle() {
-    if (widget.item.timeSlot == '*') {
+    if (widget.model.timeSlot == '*') {
       return Text('Thank you for your time',
           style: TextStyle(fontSize: 24, color: Colors.grey[500]!));
     }
-    if (widget.item.timeSlot == '12') {
+    if (widget.model.timeSlot == '12') {
       return Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
@@ -289,7 +290,7 @@ class _TimeSlotItemState extends State<TimeSlotItem> {
         ],
       );
     }
-    if (widget.item.projectCode1 == null && widget.item.projectCode2 == null) {
+    if (widget.model.projectCode1 == null && widget.model.projectCode2 == null) {
       return Row(
         children: [
           _showProjectCode(
@@ -319,7 +320,7 @@ class _TimeSlotItemState extends State<TimeSlotItem> {
         ],
       );
     }
-    if (widget.item.projectCode1 != null && widget.item.projectCode2 == null) {
+    if (widget.model.projectCode1 != null && widget.model.projectCode2 == null) {
       return Row(
         children: [
           _showProjectCode(
@@ -327,7 +328,7 @@ class _TimeSlotItemState extends State<TimeSlotItem> {
             bgColor: Colors.blue[100]!,
             fgColor: Colors.blue,
             ttype: TimeSlotType.before30,
-            title: widget.item.projectCode1!,
+            title: widget.model.projectCode1!,
             fontSize: 32,
           ),
           _showProjectCode(
@@ -343,7 +344,7 @@ class _TimeSlotItemState extends State<TimeSlotItem> {
         ],
       );
     }
-    if (widget.item.projectCode1 == null && widget.item.projectCode2 != null) {
+    if (widget.model.projectCode1 == null && widget.model.projectCode2 != null) {
       return Row(
         children: [
           _showProjectCode(
@@ -359,7 +360,7 @@ class _TimeSlotItemState extends State<TimeSlotItem> {
             bgColor: Colors.blue[300]!,
             fgColor: Colors.white,
             ttype: TimeSlotType.after30,
-            title: widget.item.projectCode2!,
+            title: widget.model.projectCode2!,
             fontSize: 32,
           ),
           _paintButton(),
@@ -367,7 +368,7 @@ class _TimeSlotItemState extends State<TimeSlotItem> {
         ],
       );
     }
-    if (widget.item.projectCode1 == widget.item.projectCode2) {
+    if (widget.model.projectCode1 == widget.model.projectCode2) {
       return Row(
         children: [
           _showProjectCode(
@@ -375,7 +376,7 @@ class _TimeSlotItemState extends State<TimeSlotItem> {
             bgColor: Colors.blue[100]!,
             fgColor: Colors.blue,
             ttype: TimeSlotType.wholeHour,
-            title: widget.item.projectCode1!,
+            title: widget.model.projectCode1!,
             fontSize: 32,
           ),
           _paintButton(),
@@ -390,7 +391,7 @@ class _TimeSlotItemState extends State<TimeSlotItem> {
           bgColor: Colors.blue[200]!,
           fgColor: Colors.white,
           ttype: TimeSlotType.before30,
-          title: widget.item.projectCode1!,
+          title: widget.model.projectCode1!,
           fontSize: 32,
         ),
         _showProjectCode(
@@ -398,7 +399,7 @@ class _TimeSlotItemState extends State<TimeSlotItem> {
           bgColor: Colors.blue[300]!,
           fgColor: Colors.white,
           ttype: TimeSlotType.after30,
-          title: widget.item.projectCode2!,
+          title: widget.model.projectCode2!,
           fontSize: 32,
         ),
         _paintButton(),
@@ -440,8 +441,8 @@ class _TimeSlotItemState extends State<TimeSlotItem> {
       child: IconButton(
         onPressed: () {
           setState(() {
-            widget.item.projectCode1 = null;
-            widget.item.projectCode2 = null;
+            widget.model.projectCode1 = null;
+            widget.model.projectCode2 = null;
           });
         },
         icon: const Icon(
@@ -482,14 +483,14 @@ class _TimeSlotItemState extends State<TimeSlotItem> {
   // }
 
   // String _getText() {
-  //   if (widget.item.projectCode1 != null) {
-  //     if (widget.item.projectCode2 != null) {
-  //       return '${widget.item.projectCode1} / ${widget.item.projectCode2}';
+  //   if (widget.model.projectCode1 != null) {
+  //     if (widget.model.projectCode2 != null) {
+  //       return '${widget.model.projectCode1} / ${widget.model.projectCode2}';
   //     }
-  //     return '${widget.item.projectCode1}';
+  //     return '${widget.model.projectCode1}';
   //   }
-  //   if (widget.item.projectCode2 != null) {
-  //     return '----- / ${widget.item.projectCode2}';
+  //   if (widget.model.projectCode2 != null) {
+  //     return '----- / ${widget.model.projectCode2}';
   //   }
   //   return '';
   // }

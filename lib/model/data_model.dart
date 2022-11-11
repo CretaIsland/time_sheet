@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'dart:core';
 
 import 'package:flutter/material.dart';
+import 'package:time_sheet/api/api_service.dart';
 
 import '../common/logger.dart';
 
@@ -32,6 +33,21 @@ class TimeSlotModel {
     this.projectCode1,
     this.projectCode2,
   });
+
+  String _toJson(String date) {
+    Map<String, String> aMap = {};
+    aMap['date'] = date;
+    aMap['time_slot'] = timeSlot;
+    aMap['project_code1'] = (projectCode1 != null) ? projectCode1! : '';
+    aMap['project_code2'] = (projectCode2 != null) ? projectCode2! : '';
+    return jsonEncode(aMap);
+  }
+
+  Future<bool> save(String date) async {
+    String jsonString = _toJson(date);
+    ApiService.setTimeSheet(DataManager.loginUser!.sabun!, jsonString);
+    return false;
+  }
 }
 
 class AlarmModel {
