@@ -3,6 +3,8 @@
 
 import 'dart:collection';
 
+import 'package:flutter/material.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:table_calendar/table_calendar.dart';
 
 /// Example event class.
@@ -50,3 +52,34 @@ List<DateTime> daysInRange(DateTime first, DateTime last) {
 final kToday = DateTime.now();
 final kFirstDay = DateTime(kToday.year, kToday.month - 3, kToday.day);
 final kLastDay = DateTime(kToday.year, kToday.month + 3, kToday.day);
+
+Future<bool> yesNoDialog(BuildContext context, String question) async {
+  bool isOK = false;
+  await Alert(
+      context: context,
+      title: question,
+      closeIcon: const Icon(Icons.close_outlined),
+      buttons: [
+        DialogButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          child: const Text(
+            "Cancel",
+            style: TextStyle(color: Colors.white, fontSize: 20),
+          ),
+        ),
+        DialogButton(
+          color: Colors.amber,
+          onPressed: () {
+            isOK = true;
+            Navigator.pop(context);
+          },
+          child: const Text(
+            "OK",
+            style: TextStyle(color: Colors.white, fontSize: 20),
+          ),
+        ),
+      ]).show();
+  return isOK;
+}

@@ -1,9 +1,13 @@
 // ignore_for_file: non_constant_identifier_names, prefer_const_constructors
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:time_sheet/model/slot_manager.dart';
 import '../../routes.dart';
+import '../model/data_model.dart';
 import 'logger.dart';
+import 'utils.dart';
 
 class CretaScaffold {
   final String title;
@@ -82,15 +86,19 @@ class CretaScaffold {
         child: Icon(Icons.copy_outlined),
         label: '어제 것으로 복사하기',
         onTap: () {
-          showSnackBar(gkey.currentContext!, '아직 구현되지 않았음');
+          _copyYesterDay();
         },
       ));
       retval.add(SpeedDialChild(
         child: Icon(Icons.calendar_month),
-        label: '달력으로 보기',
-        onTap: () {
-          //AppRoutes.pop(context);
-          AppRoutes.push(gkey.currentContext!, AppRoutes.calendarPage);
+        label: '끝내기',
+        onTap: () async {
+          bool isOK = await yesNoDialog(context, "정말로 앱을 끝내시겠습니까 ?");
+          if (isOK == true) {
+            SystemNavigator.pop();
+          }
+          // //AppRoutes.pop(context);
+          // AppRoutes.push(gkey.currentContext!, AppRoutes.calendarPage);
         },
       ));
     }
@@ -124,5 +132,21 @@ class CretaScaffold {
     }
 
     return retval;
+  }
+
+  void _copyYesterDay() {
+    logger.finest('currentDate is ${slotManagerHolder!.currentDate}');
+    DateTime curentDate = DateTime.parse(slotManagerHolder!.currentDate);
+    DateTime yesterday = curentDate.subtract(Duration(days: 1));
+    String yesterdayStr = DataManager.formatter.format(yesterday);
+    if (slotManagerHolder!.currentDate == yesterdayStr) {
+      // 썸머타임때문에 같은날짜가 될 수 있다.  만약 같다면 하루 더 뺀다.
+      yesterday = yesterday.subtract(Duration(days: 1));
+      yesterdayStr = DataManager.formatter.format(yesterday);
+    }
+    List<TimeSlotModel> yesterDayList = slotManagerHolder!.getDate(yesterdayStr);
+    logger.finest('yesterday is $yesterdayStr');
+    slotManagerHolder!.copyToCurrentDate(yesterDayList);
+    slotManagerHolder!.notify();
   }
 }
