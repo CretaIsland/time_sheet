@@ -4,7 +4,9 @@ import 'dart:convert';
 import 'dart:core';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:time_sheet/api/api_service.dart';
+import 'package:time_sheet/model/slot_manager.dart';
 
 import '../common/logger.dart';
 
@@ -33,7 +35,6 @@ class TimeSlotModel {
     this.projectCode1,
     this.projectCode2,
   });
-
   String _toJson(String date) {
     Map<String, String> aMap = {};
     aMap['date'] = date;
@@ -58,25 +59,21 @@ class AlarmModel {
 }
 
 class DataManager {
+  static DateFormat formatter = DateFormat('yyyy-MM-dd');
+
   static UserModel? loginUser;
   static String? showDate;
   static List<String> myFavoriteList = [];
   static List<ProjectModel> projectList = [];
   static List<String> projectDescList = [];
-  static Map<String, List<TimeSlotModel>> timeSlotMap = <String, List<TimeSlotModel>>{};
   static List<AlarmModel> alarmList = [];
+
+  static isUserLogin() => DataManager.loginUser != null && DataManager.loginUser!.hm_name != null;
 
   static Future<Map<String, dynamic>> loadJson(BuildContext context, String jsonFile) async {
     String jsonString = await DefaultAssetBundle.of(context).loadString('assets/$jsonFile');
     //logger.finest('json=$jsonString');
     return jsonDecode(jsonString);
-  }
-
-  static void initDailyTimeSlot(List<TimeSlotModel> retval) {
-    for (int i = 7; i < 22; i++) {
-      retval.add(TimeSlotModel(timeSlot: (i < 10) ? "0${i.toString()}" : i.toString()));
-    }
-    retval.add(TimeSlotModel(timeSlot: '*'));
   }
 
   static bool _validCheck(Map<String, dynamic> jsonMap) {
@@ -175,12 +172,11 @@ class DataManager {
     return projectList;
   }
 
-  static Future<Map<String, List<TimeSlotModel>>?> getTimeSlots(
-      BuildContext context, String today) async {
+  static Future<Map<String, List<TimeSlotModel>>?> getTimeSlots(BuildContext context) async {
     // if (loginUser == null) {
     //   return null;
     // }
-    logger.finest('getTimeSlots($today)');
+    logger.finest('getTimeSlots(${slotManagerHolder!.currentDate})');
     // TO DO :  get from DB using API
     // ignore: unused_local_variable
     Map<String, dynamic> jsonMap = <String, dynamic>{};
@@ -196,7 +192,6 @@ class DataManager {
 
     List<dynamic> dataList = jsonMap['data'];
 
-    timeSlotMap.clear();
     logger.finest('dataList = ${dataList.length}');
     for (var daily in dataList) {
       String? date = daily['date'];
@@ -204,6 +199,8 @@ class DataManager {
         logger.warning('no date info founded');
         continue;
       }
+      slotManagerHolder!.clearDate(date);
+
       int? count = daily['count'];
       if (count == null || count == 0) {
         logger.warning('no timeslot info founded');
@@ -214,21 +211,22 @@ class DataManager {
       if (list == null || list.isEmpty) {
         continue;
       }
-      List<TimeSlotModel> eleList = [];
+      //List<TimeSlotModel> eleList = [];
       for (var ele in list) {
         if (ele['time_slot'] == null) {
           continue;
         }
         logger.finest('TimeSlotModel added');
-        eleList.add(TimeSlotModel(
-          timeSlot: ele['time_slot']!,
-          projectCode1: ele['project_code1'],
-          projectCode2: ele['project_code2'],
-        ));
+        slotManagerHolder!.addDate(
+            date,
+            TimeSlotModel(
+              timeSlot: ele['time_slot']!,
+              projectCode1: ele['project_code1'],
+              projectCode2: ele['project_code2'],
+            ));
       }
-      timeSlotMap[date] = eleList;
     }
-    return timeSlotMap;
+    return slotManagerHolder!.get();
   }
 
   static Future<List<AlarmModel>> getAlarms(BuildContext context) async {
@@ -251,7 +249,6 @@ class DataManager {
     }
     List<dynamic> dataList = jsonMap['data'];
 
-    timeSlotMap.clear();
     logger.finest('dataList = ${dataList.length}');
     for (var daily in dataList) {
       String? date = daily['date'];

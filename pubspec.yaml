@@ -47,7 +47,8 @@ dependencies:
   rflutter_alert: ^2.0.4
   dropdown_plus: ^0.0.9
   simple_tags: ^0.0.4
-
+  provider: ^6.0.1
+  morphing_text: ^1.0.1
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
@@ -107,3 +108,4 @@ flutter:
   assets:
     - assets/
     - assets/background.jpg
+    - assets/lunchBreakBanner.jpg

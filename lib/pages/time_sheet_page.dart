@@ -1,12 +1,16 @@
 // ignore_for_file: prefer_const_constructors, avoid_print, depend_on_referenced_packages
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:time_sheet/common/utils.dart';
 import 'package:widget_and_text_animator/widget_and_text_animator.dart';
 
 import '../common/creta_scaffold.dart';
 import '../common/logger.dart';
 import '../model/data_model.dart';
+import '../model/slot_manager.dart';
 import '../routes.dart';
 import 'time_slot_item.dart';
 
@@ -19,43 +23,50 @@ class TimeSheetPage extends StatefulWidget {
 
 class _TimeSheetPageState extends State<TimeSheetPage> {
   int _dateMove = 0;
-  bool _refresh = false;
+  //bool _refresh = false;
   bool _moveToRight = false;
-  String? _showDate;
+  //String? _showDate;
   String? _weekday;
-  DateFormat formatter = DateFormat('yyyy-MM-dd');
 
   @override
   void initState() {
+    slotManagerHolder = SlotManager();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     _gotoDate();
-    return CretaScaffold(
-      refresh: () {
-        setState(() {
-          _refresh = true;
-        });
-      },
-      title: 'Its time to do something crazy',
-      context: context,
-      actions: [
-        IconButton(
-            onPressed: () {
-              AppRoutes.push(context, AppRoutes.settingPage);
+    return ChangeNotifierProvider<SlotManager>.value(
+        value: slotManagerHolder!,
+        builder: (context, widget) {
+          return CretaScaffold(
+            refresh: () {
+              setState(() {
+                slotManagerHolder!.initCurrentDate();
+              });
             },
-            icon: Icon(Icons.settings))
-      ],
-      leading: IconButton(
-          onPressed: () {
-            //AppRoutes.pop(context);
-            AppRoutes.push(context, AppRoutes.login);
-          },
-          icon: Icon(Icons.arrow_back)),
-      child: _mainPage(),
-    ).create();
+            title: DataManager.isUserLogin() ? DataManager.loginUser!.hm_name! : 'Unknown user',
+            context: context,
+            actions: [
+              IconButton(
+                  onPressed: () async {
+                    bool isOK = await yesNoDialog(context, "정말로 앱을 끝내시겠습니까 ?");
+                    if (isOK == true) {
+                      SystemNavigator.pop();
+                    }
+                  },
+                  icon: Icon(Icons.close_outlined))
+            ],
+            leading: IconButton(
+                onPressed: () {
+                  //AppRoutes.pop(context);
+                  AppRoutes.push(context, AppRoutes.login);
+                },
+                icon: Icon(Icons.arrow_back)),
+            child: _mainPage(),
+          ).create();
+        });
   }
 
   Widget _mainPage() {
@@ -85,35 +96,11 @@ class _TimeSheetPageState extends State<TimeSheetPage> {
   }
 
   Future<List<TimeSlotModel>> _getTimeSheetData(BuildContext context) async {
-    logger.finest('_getTimeSheetData($_showDate)');
-
-    List<TimeSlotModel> dailyList = [];
-    DataManager.initDailyTimeSlot(dailyList);
-    logger.finest('dailyList=(${dailyList.length})');
-
-    if (_refresh == true || DataManager.timeSlotMap[_showDate] == null) {
-      var retval = await DataManager.getTimeSlots(context, _showDate!);
-      if (retval == null) {
-        return dailyList;
-      }
-      _refresh = false;
+    logger.finest('_getTimeSheetData(${slotManagerHolder!.currentDate})');
+    if (slotManagerHolder!.isCurrentEmpty()) {
+      await DataManager.getTimeSlots(context);
     }
-    logger.finest('getTimeSlots() succeed');
-
-    List<TimeSlotModel>? gettingList = DataManager.timeSlotMap[_showDate!];
-    if (gettingList == null) {
-      return dailyList;
-    }
-    for (var ele in gettingList) {
-      for (TimeSlotModel model in dailyList) {
-        if (model.timeSlot == ele.timeSlot) {
-          model.projectCode1 = ele.projectCode1;
-          model.projectCode2 = ele.projectCode2;
-          break;
-        }
-      }
-    }
-    return dailyList;
+    return slotManagerHolder!.getCurrentDate();
   }
 
   Widget _drawPage(List<TimeSlotModel> dailyList) {
@@ -133,21 +120,35 @@ class _TimeSheetPageState extends State<TimeSheetPage> {
                       Icons.arrow_back_ios,
                       size: 32,
                     )),
-                TextButton(
-                  onPressed: () {
-                    setState(() {
-                      _dateMove = 0;
-                    });
-                  },
-                  child: Text(
-                    '${_showDate!}$_weekday',
-                    style: TextStyle(
-                      fontSize: 24,
-                      color: _dateMove == 0 ? Colors.black : Colors.blue[500]!,
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          _dateMove = 0;
+                        });
+                      },
+                      child: Text(
+                        '${slotManagerHolder!.currentDate}$_weekday',
+                        style: TextStyle(
+                          fontSize: 24,
+                          color: _dateMove == 0 ? Colors.black : Colors.blue[500]!,
+                        ),
+                      ),
                     ),
-                  ),
+                    ElevatedButton(
+                      //visualDensity: VisualDensity.compact,
+                      onPressed: () {
+                        AppRoutes.push(context, AppRoutes.calendarPage);
+                      },
+                      child: Icon(Icons.calendar_month),
+                      //padding: EdgeInsets.all(0),
+                    )
+                  ],
                 ),
-                (_getTodayString() != _showDate)
+                (_getTodayString() != slotManagerHolder!.currentDate)
                     ? IconButton(
                         onPressed: _toFuture,
                         icon: Icon(
@@ -216,28 +217,9 @@ class _TimeSheetPageState extends State<TimeSheetPage> {
     });
   }
 
-  //   void _createSample() {
-  //   dailyList.add(TimeSlotModel(timeSlot: '07', projectCode2: 'BBBB'));
-  //   dailyList.add(TimeSlotModel(timeSlot: '08', projectCode1: 'AAAA'));
-  //   dailyList.add(TimeSlotModel(timeSlot: '09'));
-  //   dailyList.add(TimeSlotModel(timeSlot: '10', projectCode1: 'AAAA'));
-  //   dailyList.add(TimeSlotModel(timeSlot: '11', projectCode1: 'AAAA', projectCode2: 'BBBB'));
-  //   dailyList.add(TimeSlotModel(timeSlot: '12', projectCode1: 'AAAA'));
-  //   dailyList.add(TimeSlotModel(timeSlot: '13', projectCode1: 'AAAA'));
-  //   dailyList.add(TimeSlotModel(timeSlot: '14', projectCode1: 'AAAA'));
-  //   dailyList.add(TimeSlotModel(timeSlot: '15', projectCode1: 'AAAA'));
-  //   dailyList.add(TimeSlotModel(timeSlot: '16', projectCode1: 'AAAA'));
-  //   dailyList.add(TimeSlotModel(timeSlot: '17', projectCode1: 'AAAA'));
-  //   dailyList.add(TimeSlotModel(timeSlot: '18', projectCode1: 'AAAA', projectCode2: 'BBBB'));
-  //   dailyList.add(TimeSlotModel(timeSlot: '19', projectCode1: 'AAAA'));
-  //   dailyList.add(TimeSlotModel(timeSlot: '20', projectCode1: 'AAAA'));
-  //   dailyList.add(TimeSlotModel(timeSlot: '21', projectCode2: 'BBBB'));
-  //   dailyList.add(TimeSlotModel(timeSlot: '*'));
-  // }
-
   Widget _timeSheetView(List<TimeSlotModel> dailyList) {
     //_createSample();
-    return ListView.builder(
+    ListView listView = ListView.builder(
       shrinkWrap: true,
       //initialItemCount: 15,
       itemCount: dailyList.length,
@@ -246,39 +228,48 @@ class _TimeSheetPageState extends State<TimeSheetPage> {
         index,
         /*animation*/
       ) {
-        return TimeSlotItem(
-          model: dailyList[index],
-          //animation: animation,
-          onPaint: () {
-            bool changed = false;
-            for (int i = index + 1; i < dailyList.length; i++) {
-              if (dailyList[i].timeSlot == '12') {
-                continue;
+        return Consumer<SlotManager>(builder: (context, slotManager, child) {
+          return TimeSlotItem(
+            itemKey: GlobalKey<TimeSlotItemState>(),
+            model: dailyList[index],
+            //animation: animation,
+            onCopy: () {
+              bool changed = false;
+              for (int i = index + 1; i < dailyList.length; i++) {
+                if (dailyList[i].timeSlot == '12') {
+                  continue;
+                }
+                if (index < 12 && dailyList[i].timeSlot == '19') {
+                  break; // 18시이후는 자동도배해주지 않는다.
+                }
+                if (dailyList[i].projectCode1 != null) {
+                  break;
+                }
+                if (dailyList[i].projectCode2 != null) {
+                  break;
+                }
+                String? project1 = dailyList[index].projectCode1;
+                String? project2 = dailyList[index].projectCode2;
+                if (project2 != null) {
+                  dailyList[i].projectCode1 = project2;
+                  dailyList[i].projectCode2 = project2;
+                  changed = true;
+                } else if (project1 != null) {
+                  dailyList[index].projectCode2 = project1;
+                  dailyList[i].projectCode1 = project1;
+                  dailyList[i].projectCode2 = project1;
+                  changed = true;
+                }
               }
-              if (dailyList[i].projectCode1 != null) {
-                break;
+              if (changed) {
+                slotManagerHolder!.notify();
               }
-              if (dailyList[i].projectCode2 != null) {
-                break;
-              }
-              String? project1 = dailyList[index].projectCode1;
-              String? project2 = dailyList[index].projectCode2;
-              if (project1 != null) {
-                dailyList[i].projectCode1 = project1;
-                changed = true;
-              }
-              if (project2 != null) {
-                dailyList[i].projectCode2 = project2;
-                changed = true;
-              }
-            }
-            if (changed) {
-              setState(() {});
-            }
-          },
-        );
+            },
+          );
+        });
       },
     );
+    return listView;
   }
 
   // List<Widget> _timeSheetView() {
@@ -296,17 +287,17 @@ class _TimeSheetPageState extends State<TimeSheetPage> {
   // }
 
   String _getTodayString() {
-    return formatter.format(DateTime.now());
+    return DataManager.formatter.format(DateTime.now());
   }
 
   void _gotoDate() {
     DateTime now = DateTime.now();
 
     if (DataManager.showDate != null) {
-      _showDate = DataManager.showDate;
+      slotManagerHolder!.currentDate = DataManager.showDate!;
       DataManager.showDate = null;
       // now 와 today 와의 차이만큼 dateMove 값을 채워야함.
-      DateTime tempDate = DateTime.parse(_showDate!);
+      DateTime tempDate = DateTime.parse(slotManagerHolder!.currentDate);
       Duration diff = tempDate.difference(now);
       // diff.inDays now 보다 과거면 음수가 나오고 미래면 양수가 나온다.
       _dateMove += diff.inDays;
@@ -317,10 +308,10 @@ class _TimeSheetPageState extends State<TimeSheetPage> {
       if (_dateMove < 0) {
         now = now.subtract(Duration(days: -1 * _dateMove));
       }
-      _showDate = formatter.format(now);
+      slotManagerHolder!.currentDate = DataManager.formatter.format(now);
     }
 
-    DateTime tempDate = DateTime.parse(_showDate!);
+    DateTime tempDate = DateTime.parse(slotManagerHolder!.currentDate);
     String weekTemp = DateFormat('EEEE').format(tempDate);
 
     switch (weekTemp) {
