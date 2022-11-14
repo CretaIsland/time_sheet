@@ -37,6 +37,14 @@ class ApiService {
     return jsonDecode('{ "errMsg" : "$errMsg" }');
   }
 
+  static Future<dynamic> login(String userId, String pwd) async {
+    Map<String, String> body = {};
+    body['userId'] = userId;
+    body['pwd'] = pwd;
+
+    return _apiCall(ApiConstants.baseUrl + ApiConstants.login, body);
+  }
+
   static Future<dynamic> setTimeSheet(String sabun, String jsonData) async {
     Map<String, String> body = {};
     body['id'] = sabun;

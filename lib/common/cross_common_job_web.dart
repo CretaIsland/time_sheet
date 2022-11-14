@@ -20,6 +20,12 @@ class CrossCommonJobWeb implements CrossCommonJob {
       /*dynamic ret = */ js.context.callMethod("fixPasswordCss", []); // index.html에서 fixPasswordCss 참조
     });
   }
+
+  @override
+  bool isSupportLocalStorage() {
+    // sqflite do not support for web
+    return false;
+  }
 }
 
 CrossCommonJob getCrossCommonJob() => CrossCommonJobWeb();

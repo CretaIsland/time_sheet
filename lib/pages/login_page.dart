@@ -1,14 +1,18 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
-import 'package:time_sheet/model/data_model.dart';
-import 'package:time_sheet/routes.dart';
-import 'package:http/http.dart' as http;
 import 'package:routemaster/routemaster.dart';
 import 'package:metaballs/metaballs.dart';
-import 'dart:convert';
+import 'package:loading_indicator/loading_indicator.dart';
+//import 'dart:convert';
+//import 'dart:collection';
+import 'dart:async';
+import '../routes.dart';
 import '../common/cross_common_job.dart';
 //import '../common/creta_scaffold.dart';
+//import '../common/logger.dart';
+import '../api/api_service.dart';
+import '../model/data_model.dart';
 
 class ColorsEffectPair {
   final List<Color> colors;
@@ -57,10 +61,170 @@ class _LoginPageState extends State<LoginPage> {
   final _loginPasswordTextEditingController = TextEditingController();
 
   bool _isHidden = true;
+  String _errMsg = '';
+  bool _loginProcessing = false;
 
-  Future<void> login() async {
-    String userId = '';
-    String password = '';
+  void _gotoNextPage() {
+    Routemaster.of(context).push(AppRoutes.timeSheetPage);
+  }
+
+  Future<bool> login({String userId = '', String password = ''}) async {
+    if (userId.isEmpty) {
+      userId = _loginEmailTextEditingController.text;
+    }
+    if (password.isEmpty) {
+      password = _loginPasswordTextEditingController.text;
+    }
+
+    try {
+      // login
+      dynamic loginResult = await ApiService.login(userId, password).catchError((error, stackTrace) {
+        setState(() {
+          colorEffectIndex = 0;
+          _loginProcessing = false;
+          _errMsg = 'login Exception !!!';
+        });
+        return false;
+      });
+      Map<String, dynamic> loginData = loginResult;
+      String userErrMsg = loginData['err_msg'] ?? '';
+      if (userErrMsg.compareTo('succeed') != 0 || loginData['data'] == null) {
+        // something error
+        setState(() {
+          colorEffectIndex = 0;
+          _loginProcessing = false;
+          _errMsg = userErrMsg;
+        });
+        return false;
+      }
+      Map<String, String> userData = Map<String, String>.from(loginData['data']);
+      UserModel userModel = UserModel(userId: userId);
+      userModel.sabun = userData['id'] ?? ''; // 사번
+      userModel.hm_name = userData['hm_name'] ?? ''; // 이름
+      userModel.tm_id = userData['tm_id'] ?? ''; // 부서
+      if (userModel.sabun!.isEmpty) {
+        // something error
+        setState(() {
+          colorEffectIndex = 0;
+          _loginProcessing = false;
+          _errMsg = 'no sabun !!!';
+        });
+        return false;
+      }
+
+      // alarm
+      dynamic alarmResult = await ApiService.getAlarmRecord(userModel.sabun!).catchError((error, stackTrace) {
+        setState(() {
+          colorEffectIndex = 0;
+          _loginProcessing = false;
+          _errMsg = 'getAlarmRecord Exception !!!';
+        });
+        return false;
+      });
+      Map<String, dynamic> alarmData = Map<String, dynamic>.from(alarmResult); //jsonDecode(alarmResult);
+      String alarmErrMsg = alarmData['err_msg'] ?? '';
+      if (alarmErrMsg.compareTo('succeed') != 0 || alarmData['data'] == null) {
+        // something error
+        setState(() {
+          colorEffectIndex = 0;
+          _loginProcessing = false;
+          _errMsg = alarmErrMsg;
+        });
+        return false;
+      }
+      List<AlarmModel> alarmModelList = [];
+      List<dynamic> dataList = alarmData['data']; //jsonDecode(alarmData['data']);
+      //int alarmCount = loginData['count'] ?? 0;
+      for (var ele in dataList) {
+        Map<String, dynamic> alarm = Map<String, dynamic>.from(ele); //jsonDecode(ele);
+        String alarmDate = alarm['date'] ?? '';
+        if (alarmDate.isEmpty) continue;
+        if (alarm['list'] == null) continue;
+        List<dynamic> timeList = List<dynamic>.from(alarm['list']!);
+        for (var eleTime in timeList) {
+          AlarmModel alarm = AlarmModel(date: alarmDate, timeSlot: eleTime);
+          alarmModelList.add(alarm);
+        }
+      }
+
+      // favorites
+      dynamic favorResult = await ApiService.getMyFavorite(userModel.sabun!).catchError((error, stackTrace) {
+        setState(() {
+          colorEffectIndex = 0;
+          _loginProcessing = false;
+          _errMsg = 'getMyFavorite Exception !!!';
+        });
+        return false;
+      });
+      Map<String, dynamic> favorData = Map<String, dynamic>.from(favorResult); //jsonDecode(favorResult);
+      String favorErrMsg = favorData['err_msg'] ?? '';
+      if (favorErrMsg.compareTo('succeed') != 0 || favorData['data'] == null) {
+        // something error
+        setState(() {
+          colorEffectIndex = 0;
+          _loginProcessing = false;
+          _errMsg = favorErrMsg;
+        });
+        return false;
+      }
+      List<String> favorList = [];
+      List<dynamic> favorDataList = favorData['data']; //jsonDecode(favorData['data']!);
+      for (var eleFavor in favorDataList) {
+        favorList.add(eleFavor);
+      }
+
+      //project list;
+      dynamic projectResult = await ApiService.getProjectList(userModel.sabun!).catchError((error, stackTrace) {
+        setState(() {
+          colorEffectIndex = 0;
+          _loginProcessing = false;
+          _errMsg = 'getProjectList Exception !!!';
+        });
+        return false;
+      });
+      Map<String, dynamic> projectData = Map<String, dynamic>.from(projectResult); //jsonDecode(projectResult);
+      String projectErrMsg = projectData['err_msg'] ?? '';
+      if (projectErrMsg.compareTo('succeed') != 0 || projectData['data'] == null) {
+        // something error
+        setState(() {
+          colorEffectIndex = 0;
+          _loginProcessing = false;
+          _errMsg = projectErrMsg;
+        });
+        return false;
+      }
+      List<ProjectModel> projectModelList = [];
+      List<dynamic> projectList = projectData['data']; //jsonDecode(projectData['data']);
+      //int alarmCount = projectData['count'] ?? 0;
+      for (var ele in projectList) {
+        Map<String, String> project = ele; //jsonDecode(ele);
+        if (project['code'] == null || project['name'] == null) continue;
+        ProjectModel proj = ProjectModel(code: project['code']!, name: project['name']!);
+        projectModelList.add(proj);
+      }
+
+      //
+      DataManager.loginUser = userModel;
+      DataManager.alarmList = alarmModelList;
+      DataManager.myFavoriteList = favorList;
+      DataManager.projectList = projectModelList;
+
+      Timer.periodic(const Duration(seconds: 1), (timer) {
+        timer.cancel();
+        _gotoNextPage();
+      });
+    } catch (e) {
+      //logger.severe('It is not json file');
+      setState(() {
+        colorEffectIndex = 0;
+        _loginProcessing = false;
+        _errMsg = 'something error !!!';
+      });
+      return false;
+    }
+
+    return true;
+/*
     final url = Uri.parse('http://localhost:8000/login/');
     http.Client client = http.Client();
     CrossCommonJob ccj = CrossCommonJob();
@@ -85,6 +249,7 @@ class _LoginPageState extends State<LoginPage> {
 
     if (jsonData.isEmpty) {
       // no data !!!
+      _errMsg = 'empty !!!';
     } else {
       // bool logined = jsonData['logined'] ?? false;
       // String userId = jsonData['user_id'] ?? '';
@@ -95,7 +260,10 @@ class _LoginPageState extends State<LoginPage> {
       //   HycopFactory.serverType = ServerType.fromString(serverType);
       //   return true;
       // }
+      return true;
     }
+    return false;
+ */
   }
 
   bool addPasswordCss = false;
@@ -126,111 +294,126 @@ class _LoginPageState extends State<LoginPage> {
         metaballs: 40,
         color: Colors.grey,
         gradient: LinearGradient(
-            colors: colorsAndEffects[colorEffectIndex].colors,
-            begin: Alignment.bottomRight,
-            end: Alignment.topLeft),
-        child: /*Container(
-            decoration: BoxDecoration(
-              image: DecorationImage(
-                fit: BoxFit.cover,
-                image: AssetImage('background.jpg'), // 배경 이미지
-              ),
-            ),
-            child: Scaffold(
-            backgroundColor: Colors.transparent,
-            body: */
-            Center(
-          child: AutofillGroup(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                SizedBox(
-                  width: 300,
-                  child: TextField(
-                    autofillHints: const [AutofillHints.email],
-                    onTap: () {
-                      setState(() {
-                        colorEffectIndex = 2;
-                      });
-                    },
-                    controller: _loginEmailTextEditingController,
-                    decoration: const InputDecoration(
-                      filled: true,
-                      fillColor: Color(0x99FFFFFF), //Colors.white,
-                      hintText: 'Email',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.email),
-                    ),
-                    //style: const TextStyle(fontSize: 12.0),
-                  ),
-                ),
-                const SizedBox(height: 12.0),
-                SizedBox(
-                  width: 300,
-                  child: TextField(
-                    autofillHints: const [AutofillHints.password],
-                    onTap: () {
-                      setState(() {
-                        colorEffectIndex = 1;
-                      });
-                    },
-                    onChanged: (_) async {
-                      fixEdgePasswordRevealButton(passwordFocusNode);
-                    },
-                    obscureText: _isHidden,
-                    controller: _loginPasswordTextEditingController,
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: Color(0x99FFFFFF), //Colors.white,
-                      hintText: 'Password',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.password),
-                      suffixIcon: MouseRegion(
-                          cursor: SystemMouseCursors.click,
-                          child: GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                _isHidden = !_isHidden;
-                              });
-                            },
-                            child: Icon(
-                              _isHidden ? Icons.visibility : Icons.visibility_off,
+            colors: colorsAndEffects[colorEffectIndex].colors, begin: Alignment.bottomRight, end: Alignment.topLeft),
+        child: Center(
+          child: (_loginProcessing)
+              ? Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: const [
+                    Text('Connecting...'),
+                    SizedBox(
+                      width: 100,
+                      height: 100,
+                      child: LoadingIndicator(
+                        indicatorType: Indicator.circleStrokeSpin,
+                        colors: [Colors.white],
+                        strokeWidth: 3,
+                        //backgroundColor: Colors.black,
+                        //pathBackgroundColor: Colors.black
+                      ),
+                    )
+                  ],
+                )
+              : AutofillGroup(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        width: 300,
+                        child: TextField(
+                          autofillHints: const [AutofillHints.email],
+                          onTap: () {
+                            setState(() {
+                              colorEffectIndex = 2;
+                            });
+                          },
+                          controller: _loginEmailTextEditingController,
+                          decoration: const InputDecoration(
+                            filled: true,
+                            fillColor: Color(0x99FFFFFF), //Colors.white,
+                            hintText: 'Email',
+                            border: OutlineInputBorder(),
+                            prefixIcon: Icon(Icons.email),
+                          ),
+                          //style: const TextStyle(fontSize: 12.0),
+                        ),
+                      ),
+                      const SizedBox(height: 12.0),
+                      SizedBox(
+                        width: 300,
+                        child: TextField(
+                          autofillHints: const [AutofillHints.password],
+                          onTap: () {
+                            setState(() {
+                              colorEffectIndex = 1;
+                            });
+                          },
+                          onChanged: (_) async {
+                            fixEdgePasswordRevealButton(passwordFocusNode);
+                          },
+                          obscureText: _isHidden,
+                          controller: _loginPasswordTextEditingController,
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: Color(0x99FFFFFF), //Colors.white,
+                            hintText: 'Password',
+                            border: OutlineInputBorder(),
+                            prefixIcon: Icon(Icons.password),
+                            suffixIcon: MouseRegion(
+                                cursor: SystemMouseCursors.click,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      _isHidden = !_isHidden;
+                                    });
+                                  },
+                                  child: Icon(
+                                    _isHidden ? Icons.visibility : Icons.visibility_off,
+                                  ),
+                                )),
+                          ),
+                          //style: const TextStyle(fontSize: 12.0),
+                        ),
+                      ),
+                      const SizedBox(height: 12.0),
+                      ElevatedButton(
+                        child: Text('Login'),
+                        onPressed: () {
+                          // _login().whenComplete(() {
+                          //   Routemaster.of(context).push(AppRoutes.timeSheetPage);
+                          // });
+                          setState(() {
+                            colorEffectIndex = 0;
+                            _loginProcessing = true;
+                            login();
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 12.0),
+                      ElevatedButton(
+                        child: Text('Next'),
+                        onPressed: () async {
+                          await DataManager.getAlarms(context);
+                          // ignore: use_build_context_synchronously
+                          await DataManager.getMyFavorite(context);
+                          // ignore: use_build_context_synchronously
+                          await DataManager.getProjectCodes(context);
+                          // ignore: use_build_context_synchronously
+                          Routemaster.of(context).push(AppRoutes.timeSheetPage);
+                        },
+                      ),
+                      const SizedBox(height: 20.0),
+                      _errMsg.isNotEmpty
+                          ? Text(
+                              _errMsg,
+                              style: const TextStyle(color: Colors.red, fontWeight: FontWeight.w600),
+                            )
+                          : const SizedBox(
+                              height: 10,
                             ),
-                          )),
-                    ),
-                    //style: const TextStyle(fontSize: 12.0),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 12.0),
-                ElevatedButton(
-                  child: Text('Login'),
-                  onPressed: () {
-                    // _login().whenComplete(() {
-                    //   Routemaster.of(context).push(AppRoutes.timeSheetPage);
-                    // });
-                    setState(() {
-                      colorEffectIndex = 0;
-                    });
-                    login();
-                  },
-                ),
-                const SizedBox(height: 12.0),
-                ElevatedButton(
-                  child: Text('Next'),
-                  onPressed: () async {
-                    await DataManager.getAlarms(context);
-                    // ignore: use_build_context_synchronously
-                    await DataManager.getMyFavorite(context);
-                    // ignore: use_build_context_synchronously
-                    await DataManager.getProjectCodes(context);
-                    // ignore: use_build_context_synchronously
-                    Routemaster.of(context).push(AppRoutes.timeSheetPage);
-                  },
-                ),
-                const SizedBox(height: 20.0),
-              ],
-            ),
-          ),
         ),
       ),
     );
@@ -239,6 +422,19 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     super.initState();
+
+    CrossCommonJob ccj = CrossCommonJob();
+    if (ccj.isSupportLocalStorage()) {
+      //
+      // get id&pwd from sqlite
+      //
+      String id = 'id';
+      String pwd = 'pwd';
+
+      _loginProcessing = true;
+      login(userId: id, password: pwd);
+    }
+    colorEffectIndex = 4;
   }
 
   @override

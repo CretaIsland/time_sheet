@@ -25,6 +25,24 @@ class CrossCommonJobMobile implements CrossCommonJob {
       // do nothing
     }
   }
+
+  @override
+  bool isSupportLocalStorage() {
+    if (Platform.isAndroid) {
+      return true;
+    } else if (Platform.isIOS) {
+      return true;
+    } else if (Platform.isLinux) {
+      // do nothing
+    } else if (Platform.isMacOS) {
+      return true;
+    } else if (Platform.isWindows) {
+      // do nothing
+    } else {
+      // do nothing
+    }
+    return false;
+  }
 }
 
 CrossCommonJob getCrossCommonJob() => CrossCommonJobMobile();

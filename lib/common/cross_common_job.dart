@@ -6,8 +6,8 @@ import 'cross_common_job_stub.dart'
 
 abstract class CrossCommonJob {
   void changeHttpWithCredentials(http.Client client);
-
   void fixEdgePasswordRevealButton(FocusNode focusNode);
+  bool isSupportLocalStorage();
 
   factory CrossCommonJob() => getCrossCommonJob();
 }

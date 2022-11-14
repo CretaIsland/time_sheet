@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:routemaster/routemaster.dart';
 //import 'package:intl/intl.dart';
 
 import '../common/creta_scaffold.dart';
 import '../common/table_calendar.dart';
 //import '../common/logger.dart';
 import '../routes.dart';
+import 'package:time_sheet/model/data_model.dart';
 
 class CalendarPage extends StatefulWidget {
   const CalendarPage({super.key});
@@ -19,20 +22,24 @@ class _CalendarPageState extends State<CalendarPage> {
   final Set<DateTime> _incompleteDays = {};
 
   void onDaySelected(DateTime selectedDay, DateTime focusedDay) {
-    setState(() {
-      if (_completeDays.contains(selectedDay)) {
-        _completeDays.remove(selectedDay);
-      } else {
-        _completeDays.add(selectedDay);
-      }
-
-      // _focusedDay = focusedDay;
-      //
-      // _focusedDay.value = focusedDay;
-      // _rangeStart = null;
-      // _rangeEnd = null;
-      // _rangeSelectionMode = RangeSelectionMode.toggledOff;
-    });
+    // setState(() {
+    //   if (_completeDays.contains(selectedDay)) {
+    //     _completeDays.remove(selectedDay);
+    //   } else {
+    //     _completeDays.add(selectedDay);
+    //   }
+    //
+    //   // _focusedDay = focusedDay;
+    //   //
+    //   // _focusedDay.value = focusedDay;
+    //   // _rangeStart = null;
+    //   // _rangeEnd = null;
+    //   // _rangeSelectionMode = RangeSelectionMode.toggledOff;
+    // });
+    DateFormat formatter = DateFormat('yyyy-MM-dd');
+    String selDayStr = formatter.format(selectedDay);
+    DataManager.showDate = selDayStr;
+    Routemaster.of(context).push(AppRoutes.timeSheetPage);
   }
 
   void onTodayButtonTap() {
