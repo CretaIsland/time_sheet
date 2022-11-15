@@ -7,6 +7,7 @@ class ApiConstants {
   static String getAlarmRecord = '/getAlarmRecord';
   static String getMyFavorite = '/getMyFavorite';
   static String getProjectList = '/getProjectList';
+  static String getTeamList = '/getTeamList';
   static String addMyFavorite = '/addMyFavorite';
   static String deleteMyFovorite = '/deleteMyFovorite';
 }

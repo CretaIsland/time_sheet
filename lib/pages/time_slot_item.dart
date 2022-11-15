@@ -9,6 +9,7 @@ import 'package:dropdown_plus/dropdown_plus.dart';
 import 'package:simple_tags/simple_tags.dart';
 import 'package:morphing_text/morphing_text.dart';
 import '../common/logger.dart';
+import '../common/team_select.dart';
 import '../model/data_model.dart';
 
 class TimeSlotItem extends StatefulWidget {
@@ -42,6 +43,7 @@ class TimeSlotItemState extends State<TimeSlotItem> {
   //static final Map<String, bool> _editModeMap = {};
   //final TextEditingController _controller = TextEditingController();
   final DropdownEditingController<String> _controller = DropdownEditingController<String>();
+
   String? _justSelected;
   // ignore: prefer_final_fields
   double _spreadRadius = 1;
@@ -108,6 +110,7 @@ class TimeSlotItemState extends State<TimeSlotItem> {
 
   void _editTitle(TimeSlotType ttype) async {
     logger.finest('_editTitle(${ttype.toString()}');
+    //bool isMy = true;
 
     bool? isOk = await Alert(
         context: context,
@@ -116,6 +119,8 @@ class TimeSlotItemState extends State<TimeSlotItem> {
           children: <Widget>[
             _favorateProject(),
             _searchProject(),
+            SizedBox(height: 20),
+            TeamSelectWidget(controller: _controller),
           ],
         ),
         closeIcon: const Icon(Icons.close_outlined),
@@ -180,51 +185,6 @@ class TimeSlotItemState extends State<TimeSlotItem> {
       });
       _justSelected = null;
     }
-
-    // Dialogs.materialDialog(
-    //     msg: 'Are you sure ? you can\'t undo this',
-    //     title: "Delete",
-    //     color: Colors.white,
-    //     context: context,
-    //     actions: [
-    //       IconsOutlineButton(
-    //         onPressed: () {
-    //           Navigator.of(context).pop();
-    //         },
-    //         text: 'Cancel',
-    //         iconData: Icons.cancel_outlined,
-    //         textStyle: const TextStyle(color: Colors.grey),
-    //         iconColor: Colors.grey,
-    //       ),
-    //       IconsButton(
-    //         onPressed: () {},
-    //         text: 'Delete',
-    //         iconData: Icons.delete,
-    //         color: Colors.red,
-    //         textStyle: const TextStyle(color: Colors.white),
-    //         iconColor: Colors.white,
-    //       ),
-    //     ]);
-
-    // return TextFormField(
-    //   onEditingComplete: () {
-    //     if (_controller.text.isNotEmpty) {
-    //       widget.model.projectCode1 = _controller.text;
-    //       widget.onSaveClicked.call();
-    //     }
-    //     setState(() {
-    //       _editModeMap.clear();
-    //     });
-    //   },
-    //   controller: _controller,
-    //   decoration: InputDecoration(hintText: _getText()),
-    //   validator: (value) {
-    //     if (value == null || value.isEmpty) {
-    //       return 'Cannot be empty';
-    //     }
-    //     return null;
-    //   },
-    // );
   }
 
   Widget _favorateProject() {
@@ -278,7 +238,7 @@ class TimeSlotItemState extends State<TimeSlotItem> {
       decoration: const InputDecoration(
           border: OutlineInputBorder(),
           suffixIcon: Icon(Icons.arrow_drop_down),
-          labelText: "Project Code 검색"),
+          labelText: "내 부서 프로젝트 선택"),
       dropdownHeight: 240,
     );
   }

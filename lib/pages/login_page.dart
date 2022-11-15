@@ -7,6 +7,7 @@ import 'package:loading_indicator/loading_indicator.dart';
 //import 'dart:convert';
 //import 'dart:collection';
 import 'dart:async';
+import '../common/logger.dart';
 import '../routes.dart';
 import '../common/cross_common_job.dart';
 //import '../common/creta_scaffold.dart';
@@ -65,10 +66,17 @@ class _LoginPageState extends State<LoginPage> {
   bool _loginProcessing = false;
 
   void _gotoNextPage() {
-    Routemaster.of(context).push(AppRoutes.timeSheetPage);
+    if (DataManager.alarmList.isNotEmpty) {
+      // 알람이 있을 경우 셋팅 페이지로 이동한다.
+      Routemaster.of(context).push(AppRoutes.settingPage);
+    } else {
+      Routemaster.of(context).push(AppRoutes.timeSheetPage);
+    }
   }
 
   Future<bool> login({String userId = '', String password = ''}) async {
+    logger.finest('login');
+
     if (userId.isEmpty) {
       userId = _loginEmailTextEditingController.text;
     }
@@ -78,7 +86,8 @@ class _LoginPageState extends State<LoginPage> {
 
     try {
       // login
-      dynamic loginResult = await ApiService.login(userId, password).catchError((error, stackTrace) {
+      dynamic loginResult =
+          await ApiService.login(userId, password).catchError((error, stackTrace) {
         setState(() {
           colorEffectIndex = 0;
           _loginProcessing = false;
@@ -111,9 +120,10 @@ class _LoginPageState extends State<LoginPage> {
         });
         return false;
       }
-
+      logger.finest('get alarm(${userModel.sabun!})');
       // alarm
-      dynamic alarmResult = await ApiService.getAlarmRecord(userModel.sabun!).catchError((error, stackTrace) {
+      dynamic alarmResult =
+          await ApiService.getAlarmRecord(userModel.sabun!).catchError((error, stackTrace) {
         setState(() {
           colorEffectIndex = 0;
           _loginProcessing = false;
@@ -121,7 +131,8 @@ class _LoginPageState extends State<LoginPage> {
         });
         return false;
       });
-      Map<String, dynamic> alarmData = Map<String, dynamic>.from(alarmResult); //jsonDecode(alarmResult);
+      Map<String, dynamic> alarmData =
+          Map<String, dynamic>.from(alarmResult); //jsonDecode(alarmResult);
       String alarmErrMsg = alarmData['err_msg'] ?? '';
       if (alarmErrMsg.compareTo('succeed') != 0 || alarmData['data'] == null) {
         // something error
@@ -146,9 +157,41 @@ class _LoginPageState extends State<LoginPage> {
           alarmModelList.add(alarm);
         }
       }
+      logger.finest('get alarm(${userModel.sabun!})=${alarmModelList.length}');
 
+      logger.finest('get teams()');
+      // Teams
+      dynamic teamResult = await ApiService.getTeamList().catchError((error, stackTrace) {
+        setState(() {
+          colorEffectIndex = 0;
+          _loginProcessing = false;
+          _errMsg = 'getTeam Exception !!!';
+        });
+        return false;
+      });
+      Map<String, dynamic> teamData =
+          Map<String, dynamic>.from(teamResult); //jsonDecode(teamResult);
+      String teamErrMsg = teamData['err_msg'] ?? '';
+      if (teamErrMsg.compareTo('succeed') != 0 || teamData['data'] == null) {
+        // something error
+        setState(() {
+          colorEffectIndex = 0;
+          _loginProcessing = false;
+          _errMsg = teamErrMsg;
+        });
+        return false;
+      }
+      List<String> teamList = [];
+      List<dynamic> teamDataList = teamData['data']; //jsonDecode(teamData['data']!);
+      for (var eleFavor in teamDataList) {
+        teamList.add(eleFavor);
+      }
+      logger.finest('get teamList()=${teamList.length}');
+
+      logger.finest('get favorites(${userModel.sabun!})');
       // favorites
-      dynamic favorResult = await ApiService.getMyFavorite(userModel.sabun!).catchError((error, stackTrace) {
+      dynamic favorResult =
+          await ApiService.getMyFavorite(userModel.sabun!).catchError((error, stackTrace) {
         setState(() {
           colorEffectIndex = 0;
           _loginProcessing = false;
@@ -156,7 +199,8 @@ class _LoginPageState extends State<LoginPage> {
         });
         return false;
       });
-      Map<String, dynamic> favorData = Map<String, dynamic>.from(favorResult); //jsonDecode(favorResult);
+      Map<String, dynamic> favorData =
+          Map<String, dynamic>.from(favorResult); //jsonDecode(favorResult);
       String favorErrMsg = favorData['err_msg'] ?? '';
       if (favorErrMsg.compareTo('succeed') != 0 || favorData['data'] == null) {
         // something error
@@ -172,9 +216,12 @@ class _LoginPageState extends State<LoginPage> {
       for (var eleFavor in favorDataList) {
         favorList.add(eleFavor);
       }
+      logger.finest('get favorList(${userModel.sabun!})=${favorList.length}');
 
       //project list;
-      dynamic projectResult = await ApiService.getProjectList(userModel.sabun!).catchError((error, stackTrace) {
+      logger.finest('get project(${userModel.tm_id!})');
+      dynamic projectResult =
+          await ApiService.getProjectList(userModel.tm_id!).catchError((error, stackTrace) {
         setState(() {
           colorEffectIndex = 0;
           _loginProcessing = false;
@@ -182,7 +229,8 @@ class _LoginPageState extends State<LoginPage> {
         });
         return false;
       });
-      Map<String, dynamic> projectData = Map<String, dynamic>.from(projectResult); //jsonDecode(projectResult);
+      Map<String, dynamic> projectData =
+          Map<String, dynamic>.from(projectResult); //jsonDecode(projectResult);
       String projectErrMsg = projectData['err_msg'] ?? '';
       if (projectErrMsg.compareTo('succeed') != 0 || projectData['data'] == null) {
         // something error
@@ -195,14 +243,42 @@ class _LoginPageState extends State<LoginPage> {
       }
       List<ProjectModel> projectModelList = [];
       List<String> projectDescList = [];
+
       List<dynamic> projectList = projectData['data']; //jsonDecode(projectData['data']);
+      List<dynamic>? projectOthers = projectData['others']; //jsonDecode(projectData['data']);
       //int alarmCount = projectData['count'] ?? 0;
+      logger.finest('get projectList=${projectList.length}');
       for (var ele in projectList) {
         Map<String, String> project = Map<String, String>.from(ele); //jsonDecode(ele);
         if (project['code'] == null || project['name'] == null) continue;
         ProjectModel proj = ProjectModel(code: project['code']!, name: project['name']!);
         projectModelList.add(proj);
         projectDescList.add('${proj.code}/${proj.name}');
+      }
+      if (projectOthers != null) {
+        for (var ele in projectOthers) {
+          Map<String, String> project = Map<String, String>.from(ele); //jsonDecode(ele);
+          if (project['code'] == null || project['name'] == null || project['tm_id'] == null) {
+            continue;
+          }
+          //logger.finest('${project['tm_id']!}, ${project['code']!}');
+
+          ProjectModel proj = ProjectModel(code: project['code']!, name: project['name']!);
+
+          String tmId = project['tm_id']!;
+          for (var team in teamList) {
+            if (team.length > tmId.length && team.substring(0, tmId.length) == tmId) {
+              tmId = team;
+              break;
+            }
+          }
+          if (DataManager.projectOthers[tmId] == null) {
+            logger.finest(project['tm_id']!);
+            DataManager.projectOthers[tmId] = [];
+          }
+          DataManager.projectOthers[tmId]!.add('${proj.code}/${proj.name}');
+        }
+        logger.finest('projectOthers= ${DataManager.projectOthers.keys.length}');
       }
 
       //
@@ -211,6 +287,7 @@ class _LoginPageState extends State<LoginPage> {
       DataManager.myFavoriteList = favorList;
       DataManager.projectList = projectModelList;
       DataManager.projectDescList = projectDescList;
+      DataManager.teamList = teamList;
 
       Timer.periodic(const Duration(seconds: 1), (timer) {
         timer.cancel();
@@ -257,7 +334,9 @@ class _LoginPageState extends State<LoginPage> {
         metaballs: 40,
         color: Colors.grey,
         gradient: LinearGradient(
-            colors: colorsAndEffects[colorEffectIndex].colors, begin: Alignment.bottomRight, end: Alignment.topLeft),
+            colors: colorsAndEffects[colorEffectIndex].colors,
+            begin: Alignment.bottomRight,
+            end: Alignment.topLeft),
         child: Center(
           child: (_loginProcessing)
               ? Column(
@@ -360,7 +439,7 @@ class _LoginPageState extends State<LoginPage> {
                           // ignore: use_build_context_synchronously
                           await DataManager.getMyFavorite(context);
                           // ignore: use_build_context_synchronously
-                          await DataManager.getProjectCodes(context);
+                          //await DataManager.getProjectCodes(context);
                           // ignore: use_build_context_synchronously
                           Routemaster.of(context).push(AppRoutes.timeSheetPage);
                         },
@@ -369,7 +448,8 @@ class _LoginPageState extends State<LoginPage> {
                       _errMsg.isNotEmpty
                           ? Text(
                               _errMsg,
-                              style: const TextStyle(color: Colors.red, fontWeight: FontWeight.w600),
+                              style:
+                                  const TextStyle(color: Colors.red, fontWeight: FontWeight.w600),
                             )
                           : const SizedBox(
                               height: 10,

@@ -76,9 +76,15 @@ class ApiService {
     return _apiCall(ApiConstants.baseUrl + ApiConstants.getMyFavorite, body);
   }
 
-  static Future<dynamic> getProjectList(String sabun) async {
+  static Future<dynamic> getTeamList() async {
     Map<String, String> body = {};
-    body['id'] = sabun;
+
+    return _apiCall(ApiConstants.baseUrl + ApiConstants.getTeamList, body);
+  }
+
+  static Future<dynamic> getProjectList(String tmId) async {
+    Map<String, String> body = {};
+    body['tm_id'] = tmId;
 
     return _apiCall(ApiConstants.baseUrl + ApiConstants.getProjectList, body);
   }

@@ -25,6 +25,12 @@ class ProjectModel {
   ProjectModel({required this.code, required this.name});
 }
 
+class TeamModel {
+  final String code;
+  final String name;
+  TeamModel({required this.code, required this.name});
+}
+
 class TimeSlotModel {
   final String timeSlot;
   String? projectCode1;
@@ -65,7 +71,9 @@ class DataManager {
   static String? showDate;
   static List<String> myFavoriteList = [];
   static List<ProjectModel> projectList = [];
+  static Map<String, List<String>> projectOthers = {};
   static List<String> projectDescList = [];
+  static List<String> teamList = [];
   static List<AlarmModel> alarmList = [];
 
   static isUserLogin() => DataManager.loginUser != null && DataManager.loginUser!.hm_name != null;
@@ -134,43 +142,43 @@ class DataManager {
     return myFavoriteList;
   }
 
-  static Future<List<ProjectModel>> getProjectCodes(BuildContext context) async {
-    logger.finest('getProjectCodes() start');
+  // static Future<List<ProjectModel>> getProjectCodes(BuildContext context) async {
+  //   logger.finest('getProjectCodes() start');
 
-    // if (loginUser == null) {
-    //   return [];
-    // }
-    // TO DO :  get from DB using API
-    // ignore: unused_local_variable
-    Map<String, dynamic> jsonMap = <String, dynamic>{};
-    try {
-      // ignore: unused_local_variable
-      jsonMap = await loadJson(context, 'get_project_list.json');
-    } catch (e) {
-      logger.severe('json parsing error : $e');
-      return [];
-    }
-    if (_validCheck(jsonMap) == false) {
-      return [];
-    }
+  //   // if (loginUser == null) {
+  //   //   return [];
+  //   // }
+  //   // TO DO :  get from DB using API
+  //   // ignore: unused_local_variable
+  //   Map<String, dynamic> jsonMap = <String, dynamic>{};
+  //   try {
+  //     // ignore: unused_local_variable
+  //     jsonMap = await loadJson(context, 'get_project_list.json');
+  //   } catch (e) {
+  //     logger.severe('json parsing error : $e');
+  //     return [];
+  //   }
+  //   if (_validCheck(jsonMap) == false) {
+  //     return [];
+  //   }
 
-    List<dynamic> dataList = jsonMap['data'];
-    projectList.clear();
-    projectDescList.clear();
-    logger.finest('dataList = ${dataList.length}');
-    for (var ele in dataList) {
-      String? code = ele['code'];
-      String? name = ele['name'];
-      if (code == null || name == null) {
-        continue;
-      }
-      logger.finest('project code=$code,name=$name founded');
-      projectList.add(ProjectModel(code: code, name: name));
-      projectDescList.add('$code/$name');
-    }
-    logger.finest('getProjectCodes() end');
-    return projectList;
-  }
+  //   List<dynamic> dataList = jsonMap['data'];
+  //   projectList.clear();
+  //   projectDescList.clear();
+  //   logger.finest('dataList = ${dataList.length}');
+  //   for (var ele in dataList) {
+  //     String? code = ele['code'];
+  //     String? name = ele['name'];
+  //     if (code == null || name == null) {
+  //       continue;
+  //     }
+  //     logger.finest('project code=$code,name=$name founded');
+  //     projectList.add(ProjectModel(code: code, name: name));
+  //     projectDescList.add('$code/$name');
+  //   }
+  //   logger.finest('getProjectCodes() end');
+  //   return projectList;
+  // }
 
   static Future<Map<String, List<TimeSlotModel>>?> getTimeSlots(BuildContext context) async {
     // if (loginUser == null) {
@@ -216,7 +224,7 @@ class DataManager {
         if (ele['time_slot'] == null) {
           continue;
         }
-        logger.finest('TimeSlotModel added');
+        //logger.finest('TimeSlotModel added');
         slotManagerHolder!.addDate(
             date,
             TimeSlotModel(

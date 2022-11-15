@@ -13,6 +13,7 @@ class AppRoutes {
   static const String settingPage = '/settingPage';
   static const String calendarPage = '/calendarPage';
   static const String login = '/login';
+  static String lastPage = '';
 
   static push(BuildContext context, String page) {
     Routemaster.of(context).push(page);

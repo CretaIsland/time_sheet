@@ -1,10 +1,8 @@
 // ignore_for_file: prefer_const_constructors, avoid_print, depend_on_referenced_packages
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
-import 'package:time_sheet/common/utils.dart';
 import 'package:widget_and_text_animator/widget_and_text_animator.dart';
 
 import '../common/creta_scaffold.dart';
@@ -46,24 +44,30 @@ class _TimeSheetPageState extends State<TimeSheetPage> {
                 slotManagerHolder!.initCurrentDate();
               });
             },
-            title: DataManager.isUserLogin() ? DataManager.loginUser!.hm_name! : 'Unknown user',
+            title: DataManager.isUserLogin()
+                ? '${DataManager.loginUser!.hm_name!}          '
+                : 'Unknown user',
             context: context,
-            actions: [
-              IconButton(
-                  onPressed: () async {
-                    bool isOK = await yesNoDialog(context, "정말로 앱을 끝내시겠습니까 ?");
-                    if (isOK == true) {
-                      SystemNavigator.pop();
-                    }
-                  },
-                  icon: Icon(Icons.close_outlined))
-            ],
-            leading: IconButton(
-                onPressed: () {
-                  //AppRoutes.pop(context);
-                  AppRoutes.push(context, AppRoutes.login);
-                },
-                icon: Icon(Icons.arrow_back)),
+            // actions: [
+            //   IconButton(
+            //       onPressed: () async {
+            //         bool isOK = await yesNoDialog(context, "정말로 앱을 끝내시겠습니까 ?");
+            //         if (isOK == true) {
+            //           SystemNavigator.pop();
+            //         }
+            //       },
+            //       icon: Icon(Icons.close_outlined))
+            // ],
+            leading: AppRoutes.lastPage == AppRoutes.settingPage
+                ? IconButton(
+                    onPressed: () {
+                      //AppRoutes.pop(context);
+                      String toGo = AppRoutes.lastPage;
+                      AppRoutes.lastPage = AppRoutes.timeSheetPage;
+                      AppRoutes.push(context, toGo);
+                    },
+                    icon: Icon(Icons.arrow_back))
+                : null,
             child: _mainPage(),
           ).create();
         });
