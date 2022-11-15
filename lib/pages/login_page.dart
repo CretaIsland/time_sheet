@@ -71,9 +71,25 @@ class _LoginPageState extends State<LoginPage> {
   Future<bool> login({String userId = '', String password = ''}) async {
     if (userId.isEmpty) {
       userId = _loginEmailTextEditingController.text;
+      if (userId.isEmpty) {
+        setState(() {
+          colorEffectIndex = 0;
+          _loginProcessing = false;
+          _errMsg = 'ID를 입력해주세요';
+        });
+        return false;
+      }
     }
     if (password.isEmpty) {
       password = _loginPasswordTextEditingController.text;
+      if (password.isEmpty) {
+        setState(() {
+          colorEffectIndex = 0;
+          _loginProcessing = false;
+          _errMsg = '비밀번호를 입력해주세요';
+        });
+        return false;
+      }
     }
 
     try {
@@ -239,9 +255,12 @@ class _LoginPageState extends State<LoginPage> {
     ccj.fixEdgePasswordRevealButton(focusNode);
   }
 
-  int colorEffectIndex = 2;
+  int colorEffectIndex = 4;
 
   Widget _getChild(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
+    double height = MediaQuery.of(context).size.height;
+
     return Container(
       decoration: const BoxDecoration(
           gradient: RadialGradient(center: Alignment.bottomCenter, radius: 1.5, colors: [
@@ -258,125 +277,202 @@ class _LoginPageState extends State<LoginPage> {
         color: Colors.grey,
         gradient: LinearGradient(
             colors: colorsAndEffects[colorEffectIndex].colors, begin: Alignment.bottomRight, end: Alignment.topLeft),
-        child: Center(
-          child: (_loginProcessing)
-              ? Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
-                    Text('Connecting...'),
-                    SizedBox(
-                      width: 100,
-                      height: 100,
-                      child: LoadingIndicator(
-                        indicatorType: Indicator.circleStrokeSpin,
-                        colors: [Colors.white],
-                        strokeWidth: 3,
-                        //backgroundColor: Colors.black,
-                        //pathBackgroundColor: Colors.black
-                      ),
-                    )
-                  ],
-                )
-              : AutofillGroup(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SizedBox(
-                        width: 300,
-                        child: TextField(
-                          autofillHints: const [AutofillHints.email],
-                          onTap: () {
-                            setState(() {
-                              colorEffectIndex = 2;
-                            });
-                          },
-                          controller: _loginEmailTextEditingController,
-                          decoration: const InputDecoration(
-                            filled: true,
-                            fillColor: Color(0x99FFFFFF), //Colors.white,
-                            hintText: 'Email',
-                            border: OutlineInputBorder(),
-                            prefixIcon: Icon(Icons.email),
+        child: SingleChildScrollView(
+          scrollDirection: Axis.vertical,
+          child: Center(
+            child: (_loginProcessing)
+                ? SizedBox(
+                    width: width,
+                    height: height,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        //Text('Connecting...'),
+                        SizedBox(
+                          width: 120,
+                          height: 120,
+                          child: LoadingIndicator(
+                            indicatorType: Indicator.circleStrokeSpin,
+                            colors: [Colors.white],
+                            strokeWidth: 5,
+                            //backgroundColor: Colors.black,
+                            //pathBackgroundColor: Colors.black
                           ),
-                          //style: const TextStyle(fontSize: 12.0),
-                        ),
-                      ),
-                      const SizedBox(height: 12.0),
-                      SizedBox(
-                        width: 300,
-                        child: TextField(
-                          autofillHints: const [AutofillHints.password],
-                          onTap: () {
-                            setState(() {
-                              colorEffectIndex = 1;
-                            });
-                          },
-                          onChanged: (_) async {
-                            fixEdgePasswordRevealButton(passwordFocusNode);
-                          },
-                          obscureText: _isHidden,
-                          controller: _loginPasswordTextEditingController,
-                          decoration: InputDecoration(
-                            filled: true,
-                            fillColor: Color(0x99FFFFFF), //Colors.white,
-                            hintText: 'Password',
-                            border: OutlineInputBorder(),
-                            prefixIcon: Icon(Icons.password),
-                            suffixIcon: MouseRegion(
-                                cursor: SystemMouseCursors.click,
-                                child: GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      _isHidden = !_isHidden;
-                                    });
-                                  },
-                                  child: Icon(
-                                    _isHidden ? Icons.visibility : Icons.visibility_off,
-                                  ),
-                                )),
-                          ),
-                          //style: const TextStyle(fontSize: 12.0),
-                        ),
-                      ),
-                      const SizedBox(height: 12.0),
-                      ElevatedButton(
-                        child: Text('Login'),
-                        onPressed: () {
-                          // _login().whenComplete(() {
-                          //   Routemaster.of(context).push(AppRoutes.timeSheetPage);
-                          // });
-                          setState(() {
-                            colorEffectIndex = 0;
-                            _loginProcessing = true;
-                            login();
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 12.0),
-                      ElevatedButton(
-                        child: Text('Next'),
-                        onPressed: () async {
-                          await DataManager.getAlarms(context);
-                          // ignore: use_build_context_synchronously
-                          await DataManager.getMyFavorite(context);
-                          // ignore: use_build_context_synchronously
-                          await DataManager.getProjectCodes(context);
-                          // ignore: use_build_context_synchronously
-                          Routemaster.of(context).push(AppRoutes.timeSheetPage);
-                        },
-                      ),
-                      const SizedBox(height: 20.0),
-                      _errMsg.isNotEmpty
-                          ? Text(
-                              _errMsg,
-                              style: const TextStyle(color: Colors.red, fontWeight: FontWeight.w600),
-                            )
-                          : const SizedBox(
-                              height: 10,
+                        )
+                      ],
+                    ),
+                  )
+                : AutofillGroup(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const SizedBox(height: 72.0),
+                        Opacity(
+                          opacity: 0.7,
+                          child: Text(
+                            'Time Sheet',
+                            //textScaleFactor: 1.0, // disables accessibility
+                            style: TextStyle(
+                              fontSize: 58.0,
+                              fontWeight: FontWeight.w800,
+                              color: Colors.white,
+                              shadows: [
+                                Shadow(
+                                  color: Colors.blue[300]!,
+                                  blurRadius: 10.0,
+                                  offset: Offset(5.0, 5.0),
+                                ),
+                                Shadow(
+                                  color: Colors.red[300]!,
+                                  blurRadius: 10.0,
+                                  offset: Offset(-5.0, 5.0),
+                                ),
+                              ],
                             ),
-                    ],
+                          ),
+                        ),
+                        const SizedBox(height: 60.0),
+                        SizedBox(
+                          width: 300,
+                          child: TextField(
+                            autofillHints: const [AutofillHints.email],
+                            onTap: () {
+                              setState(() {
+                                colorEffectIndex = 2;
+                              });
+                            },
+                            controller: _loginEmailTextEditingController,
+                            decoration: const InputDecoration(
+                              filled: true,
+                              fillColor: Color(0x99FFFFFF), //Colors.white,
+                              hintText: 'ID',
+                              border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(16.0))),
+                              prefixIcon: Icon(Icons.person),
+                            ),
+                            //style: const TextStyle(fontSize: 12.0),
+                          ),
+                        ),
+                        const SizedBox(height: 12.0),
+                        SizedBox(
+                          width: 300,
+                          child: TextField(
+                            autofillHints: const [AutofillHints.password],
+                            onTap: () {
+                              setState(() {
+                                colorEffectIndex = 1;
+                              });
+                            },
+                            onChanged: (_) async {
+                              fixEdgePasswordRevealButton(passwordFocusNode);
+                            },
+                            obscureText: _isHidden,
+                            controller: _loginPasswordTextEditingController,
+                            decoration: InputDecoration(
+                              filled: true,
+                              fillColor: Color(0x99FFFFFF), //Colors.white,
+                              hintText: 'Password',
+                              border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(16.0))),
+                              prefixIcon: Icon(Icons.password),
+                              suffixIcon: MouseRegion(
+                                  cursor: SystemMouseCursors.click,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        _isHidden = !_isHidden;
+                                      });
+                                    },
+                                    child: Icon(
+                                      _isHidden ? Icons.visibility : Icons.visibility_off,
+                                    ),
+                                  )),
+                            ),
+                            //style: const TextStyle(fontSize: 12.0),
+                          ),
+                        ),
+                        const SizedBox(height: 48.0),
+                        SizedBox(
+                          width: 120,
+                          height: 40,
+                          child: ElevatedButton(
+                            child: Text(
+                              'Login',
+                              style: TextStyle(
+                                fontSize: 18.0,
+                              ),
+                            ),
+                            onPressed: () {
+                              // _login().whenComplete(() {
+                              //   Routemaster.of(context).push(AppRoutes.timeSheetPage);
+                              // });
+                              setState(() {
+                                colorEffectIndex = 0;
+                                _loginProcessing = true;
+                                Timer.periodic(const Duration(seconds: 1), (timer) {
+                                  timer.cancel();
+                                  login();
+                                });
+                              });
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: 12.0),
+                        SizedBox(
+                          width: 120,
+                          height: 40,
+                          child: ElevatedButton(
+                            child: Text(
+                              'Next',
+                              style: TextStyle(
+                                fontSize: 18.0,
+                              ),
+                            ),
+                            onPressed: () async {
+                              await DataManager.getAlarms(context);
+                              // ignore: use_build_context_synchronously
+                              await DataManager.getMyFavorite(context);
+                              // ignore: use_build_context_synchronously
+                              await DataManager.getProjectCodes(context);
+                              // ignore: use_build_context_synchronously
+                              setState(() {
+                                colorEffectIndex = 0;
+                                _loginProcessing = true;
+                                Timer.periodic(const Duration(seconds: 1), (timer) {
+                                  timer.cancel();
+                                  Routemaster.of(context).push(AppRoutes.timeSheetPage);
+                                });
+                              });
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: 48.0),
+                        _errMsg.isNotEmpty
+                            ? Opacity(
+                                opacity: 0.5,
+                                child: Container(
+                                  width: 240,
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    color: Colors.red[200], //light blue
+                                    borderRadius: BorderRadius.all(Radius.circular(45)),
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: Text(
+                                    _errMsg,
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : const SizedBox(
+                                height: 10,
+                              ),
+                        const SizedBox(height: 12.0),
+                      ],
+                    ),
                   ),
-                ),
+          ),
         ),
       ),
     );
@@ -395,9 +491,12 @@ class _LoginPageState extends State<LoginPage> {
       String pwd = 'pwd';
 
       _loginProcessing = true;
-      login(userId: id, password: pwd);
+      colorEffectIndex = 0;
+      Timer.periodic(const Duration(seconds: 1), (timer) {
+        timer.cancel();
+        login(userId: id, password: pwd);
+      });
     }
-    colorEffectIndex = 4;
   }
 
   @override
