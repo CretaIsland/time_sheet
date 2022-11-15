@@ -197,7 +197,7 @@ class _LoginPageState extends State<LoginPage> {
       List<dynamic> projectList = projectData['data']; //jsonDecode(projectData['data']);
       //int alarmCount = projectData['count'] ?? 0;
       for (var ele in projectList) {
-        Map<String, String> project = ele; //jsonDecode(ele);
+        Map<String, String> project = Map<String, String>.from(ele); //jsonDecode(ele);
         if (project['code'] == null || project['name'] == null) continue;
         ProjectModel proj = ProjectModel(code: project['code']!, name: project['name']!);
         projectModelList.add(proj);
@@ -218,52 +218,12 @@ class _LoginPageState extends State<LoginPage> {
       setState(() {
         colorEffectIndex = 0;
         _loginProcessing = false;
-        _errMsg = 'something error !!!';
+        _errMsg = 'something error !!! (${e.toString()})';
       });
       return false;
     }
 
     return true;
-/*
-    final url = Uri.parse('http://localhost:8000/login/');
-    http.Client client = http.Client();
-    CrossCommonJob ccj = CrossCommonJob();
-    ccj.changeHttpWithCredentials(client);
-    // <!-- http.Response response = await http.post(
-    http.Response response = await client.post(
-      url,
-      headers: <String, String>{
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: <String, String>{
-        'user_id': userId,
-        'password': password,
-      },
-    ).catchError((error, stackTrace) {
-      // error !!!
-    });
-    // -->
-    var responseBody = utf8.decode(response.bodyBytes);
-    var jsonData = jsonDecode(responseBody);
-    //logger.finest('jsonData=$jsonData');
-
-    if (jsonData.isEmpty) {
-      // no data !!!
-      _errMsg = 'empty !!!';
-    } else {
-      // bool logined = jsonData['logined'] ?? false;
-      // String userId = jsonData['user_id'] ?? '';
-      // String serverType = jsonData['server_type'] ?? '';
-      // logger.finest('getSession($logined, $userId, $serverType)');
-      // if (logined) {
-      //   _currentLoginUser = UserModel(userData: {'userId': userId});
-      //   HycopFactory.serverType = ServerType.fromString(serverType);
-      //   return true;
-      // }
-      return true;
-    }
-    return false;
- */
   }
 
   bool addPasswordCss = false;
