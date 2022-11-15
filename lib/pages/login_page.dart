@@ -174,7 +174,8 @@ class _LoginPageState extends State<LoginPage> {
       }
 
       //project list;
-      dynamic projectResult = await ApiService.getProjectList(userModel.sabun!).catchError((error, stackTrace) {
+      //dynamic projectResult = await ApiService.getProjectList(userModel.sabun!).catchError((error, stackTrace) {
+      dynamic projectResult = await ApiService.getProjectList('120022').catchError((error, stackTrace) {
         setState(() {
           colorEffectIndex = 0;
           _loginProcessing = false;
@@ -194,6 +195,7 @@ class _LoginPageState extends State<LoginPage> {
         return false;
       }
       List<ProjectModel> projectModelList = [];
+      List<String> projectDescList = [];
       List<dynamic> projectList = projectData['data']; //jsonDecode(projectData['data']);
       //int alarmCount = projectData['count'] ?? 0;
       for (var ele in projectList) {
@@ -201,6 +203,7 @@ class _LoginPageState extends State<LoginPage> {
         if (project['code'] == null || project['name'] == null) continue;
         ProjectModel proj = ProjectModel(code: project['code']!, name: project['name']!);
         projectModelList.add(proj);
+        projectDescList.add('${proj.code}/${proj.name}');
       }
 
       //
@@ -208,6 +211,7 @@ class _LoginPageState extends State<LoginPage> {
       DataManager.alarmList = alarmModelList;
       DataManager.myFavoriteList = favorList;
       DataManager.projectList = projectModelList;
+      DataManager.projectDescList = projectDescList;
 
       Timer.periodic(const Duration(seconds: 1), (timer) {
         timer.cancel();
