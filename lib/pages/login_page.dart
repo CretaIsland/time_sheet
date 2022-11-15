@@ -174,8 +174,7 @@ class _LoginPageState extends State<LoginPage> {
       }
 
       //project list;
-      //dynamic projectResult = await ApiService.getProjectList(userModel.sabun!).catchError((error, stackTrace) {
-      dynamic projectResult = await ApiService.getProjectList('120022').catchError((error, stackTrace) {
+      dynamic projectResult = await ApiService.getProjectList(userModel.sabun!).catchError((error, stackTrace) {
         setState(() {
           colorEffectIndex = 0;
           _loginProcessing = false;
