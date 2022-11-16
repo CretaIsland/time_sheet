@@ -111,10 +111,11 @@ class _LoginPageState extends State<LoginPage> {
         });
         return false;
       });
+      logger.finest('login call end()');
       Map<String, dynamic> loginData = loginResult;
       String userErrMsg = loginData['err_msg'] ?? '';
       if (userErrMsg.compareTo('succeed') != 0 || loginData['data'] == null) {
-        // something error
+        logger.finest('login call errror($userErrMsg)');
         setState(() {
           colorEffectIndex = 0;
           _loginProcessing = false;
@@ -122,6 +123,7 @@ class _LoginPageState extends State<LoginPage> {
         });
         return false;
       }
+      logger.finest('login call succeed()');
       Map<String, String> userData = Map<String, String>.from(loginData['data']);
       UserModel userModel = UserModel(userId: userId);
       userModel.sabun = userData['id'] ?? ''; // 사번

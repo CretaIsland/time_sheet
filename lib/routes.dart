@@ -15,6 +15,17 @@ class AppRoutes {
   static const String login = '/login';
   static String lastPage = '';
 
+  static void naviPush(BuildContext context, Widget page) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (BuildContext context) {
+          return page;
+        },
+      ),
+    );
+  }
+
   static push(BuildContext context, String page) {
     Routemaster.of(context).push(page);
     logger.finest('push route=${Routemaster.of(context).currentRoute.fullPath}');

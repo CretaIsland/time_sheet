@@ -1,7 +1,7 @@
 import 'dart:convert';
-import 'dart:developer';
 import 'package:http/http.dart' as http;
 import '../common/cross_common_job.dart';
+import '../common/logger.dart';
 import 'api_constant.dart';
 
 class ApiService {
@@ -27,12 +27,14 @@ class ApiService {
         body: jsonEncode(body),
       );
       if (response.statusCode == 200) {
+        logger.finest('api call succeed');
         return jsonDecode(utf8.decode(response.bodyBytes));
       }
+      logger.finest('api call fail statusCode=${response.statusCode}');
       return jsonDecode('{ "errMsg" : "statusCode=${response.statusCode}" }');
     } catch (e) {
       errMsg = e.toString();
-      log(errMsg);
+      logger.finest('api call fail error=$errMsg');
     }
     return jsonDecode('{ "errMsg" : "$errMsg" }');
   }
@@ -42,23 +44,33 @@ class ApiService {
     body['userId'] = userId;
     body['pwd'] = pwd;
 
-    return _apiCall(ApiConstants.baseUrl + ApiConstants.login, body);
+    return _apiCall(ApiConstants.baseUrl + ApiConstants.login, body, useCross: true);
   }
 
   static Future<dynamic> setTimeSheet(String sabun, String jsonData) async {
+    logger.finest('setTimeSheet($sabun, $jsonData)');
+    final bytes = utf8.encode(jsonData);
+    final base64Str = base64.encode(bytes);
+
     Map<String, String> body = {};
     body['id'] = sabun;
-    body['data'] = jsonData;
+    body['data'] = base64Str;
+    logger.finest('setTimeSheet($sabun, $base64Str)');
 
     return _apiCall(ApiConstants.baseUrl + ApiConstants.setTimeSheet, body);
   }
 
   static Future<dynamic> getTimeSheet(String sabun, String dateFrom, String dateTo) async {
+    logger.finest('getTimeSheet($sabun, $dateFrom, $dateTo)');
+
+    final dateFromStr = base64.encode(utf8.encode(dateFrom));
+    final dateToStr = base64.encode(utf8.encode(dateTo));
+
     Map<String, String> body = {};
     body['id'] = sabun;
-    body['dateFrom'] = dateFrom;
-    body['dateTo'] = dateTo;
-
+    body['dateStart'] = dateFromStr;
+    body['dateEnd'] = dateToStr;
+    logger.finest('getTimeSheet($sabun, $dateFromStr, $dateToStr)');
     return _apiCall(ApiConstants.baseUrl + ApiConstants.getTimeSheet, body);
   }
 

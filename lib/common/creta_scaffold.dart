@@ -18,7 +18,7 @@ class CretaScaffold {
   Widget? leading;
   void Function()? gotoLeft;
   void Function()? gotoRight;
-  void Function()? refresh;
+  void Function()? refreshProject;
   void Function()? copyYesterday;
 
   CretaScaffold({
@@ -29,7 +29,7 @@ class CretaScaffold {
     this.leading,
     this.gotoLeft,
     this.gotoRight,
-    this.refresh,
+    this.refreshProject,
     this.copyYesterday,
   });
 
@@ -79,8 +79,8 @@ class CretaScaffold {
     if (AppRoutes.isCurrentPage(context, AppRoutes.timeSheetPage)) {
       retval.add(SpeedDialChild(
         child: Icon(Icons.calendar_month_outlined),
-        label: '데이터 다시 가져오기',
-        onTap: refresh,
+        label: '프로젝트 목록 다시 가져오기',
+        onTap: refreshProject,
       ));
       retval.add(SpeedDialChild(
         child: Icon(Icons.copy_outlined),

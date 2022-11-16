@@ -27,9 +27,11 @@ class _TeamSelectWidgetState extends State<TeamSelectWidget> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Divider(),
+        Divider(
+          height: 5,
+        ),
         DropdownButton<String>(
-          value: DataManager.projectOthers.keys.first,
+          value: _searchTeam,
           icon: Icon(Icons.arrow_downward),
           elevation: 16,
           style: const TextStyle(color: Colors.deepPurple),

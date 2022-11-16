@@ -39,10 +39,11 @@ class _TimeSheetPageState extends State<TimeSheetPage> {
         value: slotManagerHolder!,
         builder: (context, widget) {
           return CretaScaffold(
-            refresh: () {
-              setState(() {
-                slotManagerHolder!.initCurrentDate();
-              });
+            refreshProject: () {
+              DataManager.getProject();
+              // setState(() {
+              //   slotManagerHolder!.initCurrentDate();
+              // });
             },
             title: DataManager.isUserLogin()
                 ? '${DataManager.loginUser!.hm_name!}          '
@@ -101,8 +102,8 @@ class _TimeSheetPageState extends State<TimeSheetPage> {
 
   Future<List<TimeSlotModel>> _getTimeSheetData(BuildContext context) async {
     logger.finest('_getTimeSheetData(${slotManagerHolder!.currentDate})');
-    if (slotManagerHolder!.isCurrentEmpty()) {
-      await DataManager.getTimeSlots(context);
+    if (slotManagerHolder!.isNeverWritten(slotManagerHolder!.currentDate)) {
+      await DataManager.getTimeSheet();
     }
     return slotManagerHolder!.getCurrentDate();
   }
@@ -152,7 +153,7 @@ class _TimeSheetPageState extends State<TimeSheetPage> {
                     )
                   ],
                 ),
-                (_getTodayString() != slotManagerHolder!.currentDate)
+                (DataManager.getTodayString() != slotManagerHolder!.currentDate)
                     ? IconButton(
                         onPressed: _toFuture,
                         icon: Icon(
@@ -289,10 +290,6 @@ class _TimeSheetPageState extends State<TimeSheetPage> {
   //     );
   //   });
   // }
-
-  String _getTodayString() {
-    return DataManager.formatter.format(DateTime.now());
-  }
 
   void _gotoDate() {
     DateTime now = DateTime.now();
