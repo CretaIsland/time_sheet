@@ -314,7 +314,7 @@ class TimeSlotItemState extends State<TimeSlotItem> {
         alignment: AlignmentDirectional.center,
         //color: Colors.grey[300]!,
         child: Text(
-          '   Lunch Break',
+          'Lunch Break       ',
           overflow: TextOverflow.ellipsis,
           style: TextStyle(fontSize: 24, color: Colors.white, fontStyle: FontStyle.italic),
         ),
@@ -526,6 +526,7 @@ class TimeSlotItemState extends State<TimeSlotItem> {
         child: Padding(
           padding: const EdgeInsets.only(left: 8.0),
           child: IconButton(
+            highlightColor: Colors.blueAccent,
             padding: EdgeInsets.all(0),
             onPressed: () {
               setState(() {
@@ -535,7 +536,7 @@ class TimeSlotItemState extends State<TimeSlotItem> {
             },
             icon: const Icon(
               Icons.close_outlined,
-              //color: Colors.red,
+              color: Colors.blue,
               size: 24,
             ),
           ),
@@ -552,7 +553,7 @@ class TimeSlotItemState extends State<TimeSlotItem> {
         child: SizedBox(
           width: 24,
           child: IconButton(
-            highlightColor: Colors.red,
+            highlightColor: Colors.blueAccent,
             padding: EdgeInsets.all(0),
             onPressed: () {
               widget.onCopy.call();
@@ -560,7 +561,7 @@ class TimeSlotItemState extends State<TimeSlotItem> {
             },
             icon: const Icon(
               Icons.format_paint_outlined,
-              //color: Colors.red,
+              color: Colors.blue,
               size: 24,
             ),
           ),

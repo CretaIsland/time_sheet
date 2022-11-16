@@ -238,7 +238,16 @@ class _TimeSheetPageState extends State<TimeSheetPage> {
             itemKey: GlobalKey<TimeSlotItemState>(),
             model: dailyList[index],
             //animation: animation,
-            onCopy: () {
+            onCopy: () async {
+              String? project1 = dailyList[index].projectCode1;
+              String? project2 = dailyList[index].projectCode2;
+
+              if (project1 != null && project2 == null) {
+                project2 = project1;
+                dailyList[index].projectCode2 = project1;
+                await DataManager.setTimeSheet(dailyList[index].timeSlot, project1, project2);
+              }
+
               bool changed = false;
               for (int i = index + 1; i < dailyList.length; i++) {
                 if (dailyList[i].timeSlot == '12') {
@@ -253,8 +262,7 @@ class _TimeSheetPageState extends State<TimeSheetPage> {
                 if (dailyList[i].projectCode2 != null) {
                   break;
                 }
-                String? project1 = dailyList[index].projectCode1;
-                String? project2 = dailyList[index].projectCode2;
+
                 if (project2 != null) {
                   dailyList[i].projectCode1 = project2;
                   dailyList[i].projectCode2 = project2;
@@ -265,6 +273,8 @@ class _TimeSheetPageState extends State<TimeSheetPage> {
                   dailyList[i].projectCode2 = project1;
                   changed = true;
                 }
+                await DataManager.setTimeSheet(dailyList[i].timeSlot,
+                    dailyList[i].projectCode1 ?? '', dailyList[i].projectCode2 ?? '');
               }
               if (changed) {
                 slotManagerHolder!.notify();
