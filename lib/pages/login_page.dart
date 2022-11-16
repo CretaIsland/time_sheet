@@ -4,16 +4,13 @@ import 'package:flutter/material.dart';
 import 'package:routemaster/routemaster.dart';
 import 'package:metaballs/metaballs.dart';
 import 'package:loading_indicator/loading_indicator.dart';
-//import 'dart:convert';
-//import 'dart:collection';
 import 'dart:async';
 import '../common/logger.dart';
 import '../routes.dart';
 import '../common/cross_common_job.dart';
-//import '../common/creta_scaffold.dart';
-//import '../common/logger.dart';
 import '../api/api_service.dart';
 import '../model/data_model.dart';
+import '../common/sqlite_wapper.dart';
 
 class ColorsEffectPair {
   final List<Color> colors;
@@ -35,19 +32,19 @@ List<ColorsEffectPair> colorsAndEffects = [
   ColorsEffectPair(colors: [
     const Color.fromARGB(255, 0, 255, 106),
     const Color.fromARGB(255, 255, 251, 0),
-  ], effect: MetaballsEffect.grow(), name: 'GROW'),
+  ], effect: MetaballsEffect.follow(), name: 'FOLLOW'),
   ColorsEffectPair(colors: [
     const Color.fromARGB(255, 90, 60, 255),
     const Color.fromARGB(255, 120, 255, 255),
-  ], effect: MetaballsEffect.speedup(), name: 'SPEEDUP'),
+  ], effect: MetaballsEffect.follow(), name: 'FOLLOW'),
   ColorsEffectPair(colors: [
     const Color.fromARGB(255, 255, 60, 120),
     const Color.fromARGB(255, 237, 120, 255),
-  ], effect: MetaballsEffect.ripple(), name: 'RIPPLE'),
+  ], effect: MetaballsEffect.follow(), name: 'FOLLOW'),
   ColorsEffectPair(colors: [
     const Color.fromARGB(255, 120, 217, 255),
     const Color.fromARGB(255, 255, 234, 214),
-  ], effect: null, name: 'NONE'),
+  ], effect: MetaballsEffect.follow(), name: 'FOLLOW'),
 ];
 
 class LoginPage extends StatefulWidget {
@@ -64,6 +61,7 @@ class _LoginPageState extends State<LoginPage> {
   bool _isHidden = true;
   String _errMsg = '';
   bool _loginProcessing = false;
+  bool _initDb = false;
 
   void _gotoNextPage() {
     if (DataManager.alarmList.isNotEmpty) {
@@ -74,40 +72,16 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  Future<bool> login({String userId = '', String password = ''}) async {
+  Future<bool> login({required String userId, required String password}) async {
     logger.finest('login');
-
-    if (userId.isEmpty) {
-      userId = _loginEmailTextEditingController.text;
-      if (userId.isEmpty) {
-        setState(() {
-          colorEffectIndex = 0;
-          _loginProcessing = false;
-          _errMsg = 'ID를 입력해주세요';
-        });
-        return false;
-      }
-    }
-    if (password.isEmpty) {
-      password = _loginPasswordTextEditingController.text;
-      if (password.isEmpty) {
-        setState(() {
-          colorEffectIndex = 0;
-          _loginProcessing = false;
-          _errMsg = '비밀번호를 입력해주세요';
-        });
-        return false;
-      }
-    }
 
     try {
       // login
-      dynamic loginResult =
-          await ApiService.login(userId, password).catchError((error, stackTrace) {
+      dynamic loginResult = await ApiService.login(userId, password).catchError((error, stackTrace) {
         setState(() {
           colorEffectIndex = 0;
           _loginProcessing = false;
-          _errMsg = 'login Exception !!!';
+          _errMsg = '서버 접속에 실패했습니다';
         });
         return false;
       });
@@ -119,7 +93,7 @@ class _LoginPageState extends State<LoginPage> {
         setState(() {
           colorEffectIndex = 0;
           _loginProcessing = false;
-          _errMsg = userErrMsg;
+          _errMsg = 'ID 및 패스워드를 확인하세요';//userErrMsg;
         });
         return false;
       }
@@ -134,30 +108,28 @@ class _LoginPageState extends State<LoginPage> {
         setState(() {
           colorEffectIndex = 0;
           _loginProcessing = false;
-          _errMsg = 'no sabun !!!';
+          _errMsg = '사원정보가 없습니다';//'no sabun !!!';
         });
         return false;
       }
       logger.finest('get alarm(${userModel.sabun!})');
       // alarm
-      dynamic alarmResult =
-          await ApiService.getAlarmRecord(userModel.sabun!).catchError((error, stackTrace) {
+      dynamic alarmResult = await ApiService.getAlarmRecord(userModel.sabun!).catchError((error, stackTrace) {
         setState(() {
           colorEffectIndex = 0;
           _loginProcessing = false;
-          _errMsg = 'getAlarmRecord Exception !!!';
+          _errMsg = '알람정보 접속에 실패했습니다';//'getAlarmRecord Exception !!!';
         });
         return false;
       });
-      Map<String, dynamic> alarmData =
-          Map<String, dynamic>.from(alarmResult); //jsonDecode(alarmResult);
+      Map<String, dynamic> alarmData = Map<String, dynamic>.from(alarmResult); //jsonDecode(alarmResult);
       String alarmErrMsg = alarmData['err_msg'] ?? '';
       if (alarmErrMsg.compareTo('succeed') != 0 || alarmData['data'] == null) {
         // something error
         setState(() {
           colorEffectIndex = 0;
           _loginProcessing = false;
-          _errMsg = alarmErrMsg;
+          _errMsg = '잘못된 알람정보 입니다';//alarmErrMsg;
         });
         return false;
       }
@@ -183,19 +155,18 @@ class _LoginPageState extends State<LoginPage> {
         setState(() {
           colorEffectIndex = 0;
           _loginProcessing = false;
-          _errMsg = 'getTeam Exception !!!';
+          _errMsg = '팀정보 접속에 실패했습니다';//'getTeam Exception !!!';
         });
         return false;
       });
-      Map<String, dynamic> teamData =
-          Map<String, dynamic>.from(teamResult); //jsonDecode(teamResult);
+      Map<String, dynamic> teamData = Map<String, dynamic>.from(teamResult); //jsonDecode(teamResult);
       String teamErrMsg = teamData['err_msg'] ?? '';
       if (teamErrMsg.compareTo('succeed') != 0 || teamData['data'] == null) {
         // something error
         setState(() {
           colorEffectIndex = 0;
           _loginProcessing = false;
-          _errMsg = teamErrMsg;
+          _errMsg = '잘못된 팀정보 입니다';//teamErrMsg;
         });
         return false;
       }
@@ -208,24 +179,22 @@ class _LoginPageState extends State<LoginPage> {
 
       logger.finest('get favorites(${userModel.sabun!})');
       // favorites
-      dynamic favorResult =
-          await ApiService.getMyFavorite(userModel.sabun!).catchError((error, stackTrace) {
+      dynamic favorResult = await ApiService.getMyFavorite(userModel.sabun!).catchError((error, stackTrace) {
         setState(() {
           colorEffectIndex = 0;
           _loginProcessing = false;
-          _errMsg = 'getMyFavorite Exception !!!';
+          _errMsg = '즐겨찾기 접속에 실패했습니다';//'getMyFavorite Exception !!!';
         });
         return false;
       });
-      Map<String, dynamic> favorData =
-          Map<String, dynamic>.from(favorResult); //jsonDecode(favorResult);
+      Map<String, dynamic> favorData = Map<String, dynamic>.from(favorResult); //jsonDecode(favorResult);
       String favorErrMsg = favorData['err_msg'] ?? '';
       if (favorErrMsg.compareTo('succeed') != 0 || favorData['data'] == null) {
         // something error
         setState(() {
           colorEffectIndex = 0;
           _loginProcessing = false;
-          _errMsg = favorErrMsg;
+          _errMsg = '잘못된 즐겨찾기 정보입니다';//favorErrMsg;
         });
         return false;
       }
@@ -238,24 +207,22 @@ class _LoginPageState extends State<LoginPage> {
 
       //project list;
       logger.finest('get project(${userModel.tm_id!})');
-      dynamic projectResult =
-          await ApiService.getProjectList(userModel.tm_id!).catchError((error, stackTrace) {
+      dynamic projectResult = await ApiService.getProjectList(userModel.tm_id!).catchError((error, stackTrace) {
         setState(() {
           colorEffectIndex = 0;
           _loginProcessing = false;
-          _errMsg = 'getProjectList Exception !!!';
+          _errMsg = '프로젝트 접속에 실패했습니다';//'getProjectList Exception !!!';
         });
         return false;
       });
-      Map<String, dynamic> projectData =
-          Map<String, dynamic>.from(projectResult); //jsonDecode(projectResult);
+      Map<String, dynamic> projectData = Map<String, dynamic>.from(projectResult); //jsonDecode(projectResult);
       String projectErrMsg = projectData['err_msg'] ?? '';
       if (projectErrMsg.compareTo('succeed') != 0 || projectData['data'] == null) {
         // something error
         setState(() {
           colorEffectIndex = 0;
           _loginProcessing = false;
-          _errMsg = projectErrMsg;
+          _errMsg = '잘못된 프로젝트정보 입니다';//projectErrMsg;
         });
         return false;
       }
@@ -307,8 +274,9 @@ class _LoginPageState extends State<LoginPage> {
       DataManager.projectDescList = projectDescList;
       DataManager.teamList = teamList;
 
-      Timer.periodic(const Duration(seconds: 1), (timer) {
+      Timer.periodic(const Duration(seconds: 1), (timer) async {
         timer.cancel();
+        await SqliteWrapper.setAutologinInfo(userId, password);
         _gotoNextPage();
       });
     } catch (e) {
@@ -316,7 +284,7 @@ class _LoginPageState extends State<LoginPage> {
       setState(() {
         colorEffectIndex = 0;
         _loginProcessing = false;
-        _errMsg = 'something error !!! (${e.toString()})';
+        _errMsg = '접속중 오류가 발생하였습니다';//'something error !!! (${e.toString()})';
       });
       return false;
     }
@@ -334,265 +302,347 @@ class _LoginPageState extends State<LoginPage> {
     ccj.fixEdgePasswordRevealButton(focusNode);
   }
 
-  int colorEffectIndex = 4;
+  int colorEffectIndex = 2;
 
-  Widget _getChild(BuildContext context) {
-    double width = MediaQuery.of(context).size.width;
-    double height = MediaQuery.of(context).size.height;
-
-    return Container(
-      decoration: const BoxDecoration(
-          gradient: RadialGradient(center: Alignment.bottomCenter, radius: 1.5, colors: [
-        Color.fromARGB(255, 13, 35, 61),
-        Colors.black,
-      ])),
-      child: Metaballs(
-        effect: colorsAndEffects[colorEffectIndex].effect,
-        glowRadius: 1,
-        glowIntensity: 0.6,
-        maxBallRadius: 50,
-        minBallRadius: 20,
-        metaballs: 40,
-        color: Colors.grey,
-        gradient: LinearGradient(
-            colors: colorsAndEffects[colorEffectIndex].colors,
-            begin: Alignment.bottomRight,
-            end: Alignment.topLeft),
-        child: SingleChildScrollView(
-          scrollDirection: Axis.vertical,
-          child: Center(
-            child: (_loginProcessing)
-                ? SizedBox(
-                    width: width,
-                    height: height,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: const [
-                        //Text('Connecting...'),
-                        SizedBox(
-                          width: 120,
-                          height: 120,
-                          child: LoadingIndicator(
-                            indicatorType: Indicator.circleStrokeSpin,
-                            colors: [Colors.white],
-                            strokeWidth: 5,
-                            //backgroundColor: Colors.black,
-                            //pathBackgroundColor: Colors.black
-                          ),
-                        )
-                      ],
+  Widget _getChild(BuildContext context, double width, double height) {
+    return Center(
+      child: (_loginProcessing)
+          ? SizedBox(
+              width: width,
+              height: height,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: const [
+                  //Text('Connecting...'),
+                  SizedBox(
+                    width: 120,
+                    height: 120,
+                    child: LoadingIndicator(
+                      indicatorType: Indicator.circleStrokeSpin,
+                      colors: [Colors.white],
+                      strokeWidth: 5,
+                      //backgroundColor: Colors.black,
+                      //pathBackgroundColor: Colors.black
                     ),
                   )
-                : AutofillGroup(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const SizedBox(height: 72.0),
-                        Opacity(
-                          opacity: 0.7,
-                          child: Text(
-                            'Time Sheet',
-                            //textScaleFactor: 1.0, // disables accessibility
-                            style: TextStyle(
-                              fontSize: 58.0,
-                              fontWeight: FontWeight.w800,
-                              color: Colors.white,
-                              shadows: [
-                                Shadow(
-                                  color: Colors.blue[300]!,
-                                  blurRadius: 10.0,
-                                  offset: Offset(5.0, 5.0),
-                                ),
-                                Shadow(
-                                  color: Colors.red[300]!,
-                                  blurRadius: 10.0,
-                                  offset: Offset(-5.0, 5.0),
-                                ),
-                              ],
-                            ),
+                ],
+              ),
+            )
+          : AutofillGroup(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 12.0),
+                  Opacity(
+                    opacity: 0.7,
+                    child: Text(
+                      'IQSbz',
+                      //textScaleFactor: 1.0, // disables accessibility
+                      style: TextStyle(
+                        fontSize: 58.0,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                        shadows: [
+                          Shadow(
+                            color: Colors.blue[300]!,
+                            blurRadius: 10.0,
+                            offset: Offset(5.0, 5.0),
                           ),
-                        ),
-                        const SizedBox(height: 60.0),
-                        SizedBox(
-                          width: 300,
-                          child: TextField(
-                            autofillHints: const [AutofillHints.email],
-                            onTap: () {
-                              setState(() {
-                                colorEffectIndex = 2;
-                              });
-                            },
-                            controller: _loginEmailTextEditingController,
-                            decoration: const InputDecoration(
-                              filled: true,
-                              fillColor: Color(0x99FFFFFF), //Colors.white,
-                              hintText: 'ID',
-                              border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.all(Radius.circular(16.0))),
-                              prefixIcon: Icon(Icons.person),
-                            ),
-                            //style: const TextStyle(fontSize: 12.0),
+                          Shadow(
+                            color: Colors.red[300]!,
+                            blurRadius: 10.0,
+                            offset: Offset(-5.0, 5.0),
                           ),
-                        ),
-                        const SizedBox(height: 12.0),
-                        SizedBox(
-                          width: 300,
-                          child: TextField(
-                            autofillHints: const [AutofillHints.password],
-                            onTap: () {
-                              setState(() {
-                                colorEffectIndex = 1;
-                              });
-                            },
-                            onChanged: (_) async {
-                              fixEdgePasswordRevealButton(passwordFocusNode);
-                            },
-                            obscureText: _isHidden,
-                            controller: _loginPasswordTextEditingController,
-                            decoration: InputDecoration(
-                              filled: true,
-                              fillColor: Color(0x99FFFFFF), //Colors.white,
-                              hintText: 'Password',
-                              border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.all(Radius.circular(16.0))),
-                              prefixIcon: Icon(Icons.password),
-                              suffixIcon: MouseRegion(
-                                  cursor: SystemMouseCursors.click,
-                                  child: GestureDetector(
-                                    onTap: () {
-                                      setState(() {
-                                        _isHidden = !_isHidden;
-                                      });
-                                    },
-                                    child: Icon(
-                                      _isHidden ? Icons.visibility : Icons.visibility_off,
-                                    ),
-                                  )),
-                            ),
-                            //style: const TextStyle(fontSize: 12.0),
-                          ),
-                        ),
-                        const SizedBox(height: 48.0),
-                        SizedBox(
-                          width: 120,
-                          height: 40,
-                          child: ElevatedButton(
-                            child: Text(
-                              'Login',
-                              style: TextStyle(
-                                fontSize: 18.0,
-                              ),
-                            ),
-                            onPressed: () {
-                              // _login().whenComplete(() {
-                              //   Routemaster.of(context).push(AppRoutes.timeSheetPage);
-                              // });
-                              setState(() {
-                                colorEffectIndex = 0;
-                                _loginProcessing = true;
-                                Timer.periodic(const Duration(seconds: 1), (timer) {
-                                  timer.cancel();
-                                  login();
-                                });
-                              });
-                            },
-                          ),
-                        ),
-                        const SizedBox(height: 12.0),
-                        SizedBox(
-                          width: 120,
-                          height: 40,
-                          child: ElevatedButton(
-                            child: Text(
-                              'Next',
-                              style: TextStyle(
-                                fontSize: 18.0,
-                              ),
-                            ),
-                            onPressed: () async {
-                              await DataManager.getAlarms(context);
-                              // ignore: use_build_context_synchronously
-                              await DataManager.getMyFavorite(context);
-                              // ignore: use_build_context_synchronously
-                              //await DataManager.getProjectCodes(context);
-                              // ignore: use_build_context_synchronously
-                              setState(() {
-                                colorEffectIndex = 0;
-                                _loginProcessing = true;
-                                Timer.periodic(const Duration(seconds: 1), (timer) {
-                                  timer.cancel();
-                                  Routemaster.of(context).push(AppRoutes.timeSheetPage);
-                                });
-                              });
-                            },
-                          ),
-                        ),
-                        const SizedBox(height: 48.0),
-                        _errMsg.isNotEmpty
-                            ? Opacity(
-                                opacity: 0.5,
-                                child: Container(
-                                  width: 240,
-                                  height: 40,
-                                  decoration: BoxDecoration(
-                                    color: Colors.red[200], //light blue
-                                    borderRadius: BorderRadius.all(Radius.circular(45)),
-                                  ),
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    _errMsg,
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ),
-                              )
-                            : const SizedBox(
-                                height: 10,
-                              ),
-                        const SizedBox(height: 12.0),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
-          ),
-        ),
-      ),
+                  Opacity(
+                    opacity: 0.7,
+                    child: Text(
+                      'Time Sheet',
+                      //textScaleFactor: 1.0, // disables accessibility
+                      style: TextStyle(
+                        fontSize: 58.0,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                        shadows: [
+                          Shadow(
+                            color: Colors.blue[300]!,
+                            blurRadius: 10.0,
+                            offset: Offset(5.0, 5.0),
+                          ),
+                          Shadow(
+                            color: Colors.red[300]!,
+                            blurRadius: 10.0,
+                            offset: Offset(-5.0, 5.0),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 60.0),
+                  SizedBox(
+                    width: 300,
+                    child: TextField(
+                      autofillHints: const [AutofillHints.email],
+                      onTap: () {
+                        setState(() {
+                          colorEffectIndex = 2;
+                        });
+                      },
+                      controller: _loginEmailTextEditingController,
+                      decoration: const InputDecoration(
+                        filled: true,
+                        fillColor: Color(0x99FFFFFF), //Colors.white,
+                        hintText: 'ID',
+                        border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(16.0))),
+                        prefixIcon: Icon(Icons.person),
+                      ),
+                      //style: const TextStyle(fontSize: 12.0),
+                    ),
+                  ),
+                  const SizedBox(height: 12.0),
+                  SizedBox(
+                    width: 300,
+                    child: TextField(
+                      autofillHints: const [AutofillHints.password],
+                      onTap: () {
+                        setState(() {
+                          colorEffectIndex = 1;
+                        });
+                      },
+                      onChanged: (_) async {
+                        fixEdgePasswordRevealButton(passwordFocusNode);
+                      },
+                      obscureText: _isHidden,
+                      controller: _loginPasswordTextEditingController,
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: Color(0x99FFFFFF), //Colors.white,
+                        hintText: 'Password',
+                        border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(16.0))),
+                        prefixIcon: Icon(Icons.password),
+                        suffixIcon: MouseRegion(
+                            cursor: SystemMouseCursors.click,
+                            child: GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _isHidden = !_isHidden;
+                                });
+                              },
+                              child: Icon(
+                                _isHidden ? Icons.visibility : Icons.visibility_off,
+                              ),
+                            )),
+                      ),
+                      //style: const TextStyle(fontSize: 12.0),
+                    ),
+                  ),
+                  const SizedBox(height: 32.0),
+                  SizedBox(
+                    width: 180,
+                    height: 45,
+                    child: ElevatedButton(
+                      child: Text(
+                        'Login',
+                        style: TextStyle(
+                          fontSize: 18.0,
+                        ),
+                      ),
+                      onPressed: () {
+                        String userId = _loginEmailTextEditingController.text;
+                        if (userId.isEmpty) {
+                          setState(() {
+                            colorEffectIndex = 0;
+                            _loginProcessing = false;
+                            _errMsg = 'ID를 입력해주세요';
+                          });
+                          return;
+                        }
+                        String password = _loginPasswordTextEditingController.text;
+                        if (password.isEmpty) {
+                          setState(() {
+                            colorEffectIndex = 0;
+                            _loginProcessing = false;
+                            _errMsg = '비밀번호를 입력해주세요';
+                          });
+                          return;
+                        }
+
+                        setState(() {
+                          colorEffectIndex = 4;
+                          _loginProcessing = true;
+                          Timer.periodic(const Duration(seconds: 1), (timer) {
+                            timer.cancel();
+                            login(userId: userId, password: password);
+                          });
+                        });
+                      },
+                    ),
+                  ),
+                  // const SizedBox(height: 12.0),
+                  // SizedBox(
+                  //   width: 160,
+                  //   height: 40,
+                  //   child: ElevatedButton(
+                  //     child: Text(
+                  //       'Delete DB',
+                  //       style: TextStyle(
+                  //         fontSize: 18.0,
+                  //       ),
+                  //     ),
+                  //     onPressed: () async {
+                  //       await DataManager.getAlarms(context);
+                  //       // ignore: use_build_context_synchronously
+                  //       await DataManager.getMyFavorite(context);
+                  //       // ignore: use_build_context_synchronously
+                  //       //await DataManager.getProjectCodes(context);
+                  //       // ignore: use_build_context_synchronously
+                  //       setState(() {
+                  //         colorEffectIndex = 0;
+                  //         _loginProcessing = true;
+                  //         Timer.periodic(const Duration(seconds: 1), (timer) {
+                  //           timer.cancel();
+                  //           Routemaster.of(context).push(AppRoutes.timeSheetPage);
+                  //         });
+                  //       });
+                  //     },
+                  //   ),
+                  // ),
+                  const SizedBox(height: 12.0),
+                  _errMsg.isNotEmpty
+                      ? Stack(
+                    children: <Widget>[
+                      Opacity(
+                        opacity: 0.6,
+                        child:     Container(
+                          width: 260,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: Colors.red[200], //light blue
+                            borderRadius: BorderRadius.all(Radius.circular(45)),
+                          ),
+                          alignment: Alignment.center,
+                          child: Text(
+                            _errMsg,
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),),
+                      Container(
+                        width: 260,
+                        height: 40,
+                        alignment: Alignment.center,
+                        child: Text(
+                          _errMsg,
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  )
+                      : const SizedBox(
+                          height: 40,
+                        ),
+                  const SizedBox(height: 32.0),
+                  Image(
+                    image: AssetImage('assets/sqisoft_logo_white.png'),
+                    width: 120,
+                    //height: 50,
+                  ),
+                ],
+              ),
+            ),
     );
   }
 
-  @override
-  void initState() {
-    super.initState();
 
+  void _autoLogin() async {
     CrossCommonJob ccj = CrossCommonJob();
     if (ccj.isSupportLocalStorage()) {
-      //
-      // get id&pwd from sqlite
-      //
-      String id = 'id';
-      String pwd = 'pwd';
+      Map<String, String> userInfoMap = await SqliteWrapper.getAutologinInfo();
+      String userId = userInfoMap['userId'] ?? '';
+      String password = userInfoMap['password'] ?? '';
 
-      _loginProcessing = true;
-      colorEffectIndex = 0;
-      Timer.periodic(const Duration(seconds: 1), (timer) {
-        timer.cancel();
-        login(userId: id, password: pwd);
+      if (userId.isNotEmpty && password.isNotEmpty) {
+        _loginEmailTextEditingController.text = userId;
+        _loginPasswordTextEditingController.text = password;
+
+        setState(() {
+          _initDb = true;
+          _loginProcessing = true;
+          colorEffectIndex = 4;
+          Timer.periodic(const Duration(seconds: 1), (timer) {
+            timer.cancel();
+            login(userId: userId, password: password);
+          });
+        });
+      } else {
+        setState(() {
+          _loginProcessing = false;
+          _initDb = true;
+        });
+      }
+    } else {
+      setState(() {
+        _loginProcessing = false;
+        _initDb = true;
       });
     }
   }
 
   @override
+  void initState() {
+    super.initState();
+    Timer.periodic(const Duration(milliseconds: 100), (timer) {
+      timer.cancel();
+      _autoLogin();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // return CretaScaffold(
-    //   title: 'Time Sheet Login',
-    //   context: context,
-    //   child: Material(
-    //     child: _getChild(),
-    //   ),
-    // ).create();
+    bool isPortrait = true;
+    double width = MediaQuery.of(context).size.width;
+    double height = MediaQuery.of(context).size.height;
+    if (CrossCommonJob().isSupportLocalStorage()) {
+      isPortrait = MediaQuery.of(context).orientation == Orientation.portrait; // 세로
+    } else {
+      isPortrait = height > width; // 세로
+    }
     return Material(
-      child: _getChild(context),
+      child: Container(
+        decoration: const BoxDecoration(
+            gradient: RadialGradient(center: Alignment.bottomCenter, radius: 1.5, colors: [
+          Color.fromARGB(255, 13, 35, 61),
+          Colors.black,
+        ])),
+        child: Metaballs(
+          effect: colorsAndEffects[colorEffectIndex].effect,
+          glowRadius: 1,
+          glowIntensity: 0.6,
+          maxBallRadius: 50,
+          minBallRadius: 20,
+          metaballs: 40,
+          color: Colors.grey,
+          gradient: LinearGradient(
+              colors: colorsAndEffects[colorEffectIndex].colors, begin: Alignment.bottomRight, end: Alignment.topLeft),
+          child: (_initDb == false)
+              ? Container()
+              : ((isPortrait)
+                  ? _getChild(context, width, height) // 세로 ==> no scroll
+                  : SingleChildScrollView(
+                      // 가로 => scroll on
+                      scrollDirection: Axis.vertical,
+                      child: _getChild(context, width, height),
+                    )),
+        ),
+      ),
     );
   }
-} // TODO Implement this library.
+}
