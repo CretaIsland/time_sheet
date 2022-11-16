@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 //import 'package:hycop/hycop.dart';
 import 'package:routemaster/routemaster.dart';
@@ -8,6 +9,8 @@ import 'common/logger.dart';
 import 'routes.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized(); // 화면이 두개가 겹치기로 나올려면 해주어야 한다.
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]); // 세로 only
   setupLogger();
   Paint.enableDithering = true;
   initializeDateFormatting().then((_) => runApp(const ProviderScope(child: MainRouteApp())));

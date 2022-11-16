@@ -119,6 +119,22 @@ class _SettingPageState extends State<SettingPage> {
           ),
         ),
         Padding(
+          padding: EdgeInsets.all(16.0),
+          child: ElevatedButton(
+            child: Text(
+              '무시하고 그냥 오늘 날짜 보기',
+              style: TextStyle(
+                fontSize: 18,
+              ),
+            ),
+            onPressed: () {
+              DataManager.showDate = DataManager.getTodayString();
+              AppRoutes.lastPage = AppRoutes.settingPage;
+              Routemaster.of(context).push(AppRoutes.timeSheetPage);
+            },
+          ),
+        ),
+        Padding(
           padding: const EdgeInsets.symmetric(vertical: 12.0),
           child: SimpleTags(
             content: map.keys.toList(),

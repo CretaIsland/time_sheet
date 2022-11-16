@@ -67,6 +67,25 @@ class AlarmModel {
 class DataManager {
   static DateFormat formatter = DateFormat('yyyy-MM-dd');
 
+  static Map<String, String> holidayMap = {
+    'LEG': '법정휴가',
+    'CON': '약정휴가',
+    'ETC': '기타휴가',
+    'all': '전체',
+    'AL': '연차',
+    'CL': '경조휴가',
+    'OL': '공가',
+    'HL-A': '오전 반차',
+    'HL-P': '오후 반차',
+    'RML': '안식월',
+    'HL': '반차',
+    'ML': '월차',
+    'TL': '시차',
+    'RL': '대체휴가',
+    'BT': '출장',
+    'RL-R': '대체휴가 전환',
+  };
+
   static UserModel? loginUser;
   static String? showDate;
   static List<String> myFavoriteList = [];
@@ -77,6 +96,16 @@ class DataManager {
   static List<AlarmModel> alarmList = [];
 
   static isUserLogin() => DataManager.loginUser != null && DataManager.loginUser!.hm_name != null;
+
+  static String getTodayString() {
+    return DataManager.formatter.format(DateTime.now());
+  }
+
+  static String getFiveDaysBefore(String today) {
+    DateTime now = DateTime.parse(today);
+    DateTime day = now.subtract(const Duration(days: 5));
+    return DataManager.formatter.format(day);
+  }
 
   static Future<Map<String, dynamic>> loadJson(BuildContext context, String jsonFile) async {
     String jsonString = await DefaultAssetBundle.of(context).loadString('assets/$jsonFile');
@@ -111,24 +140,42 @@ class DataManager {
     return true;
   }
 
+  static bool _resultValidCheck(Map<String, dynamic> jsonMap) {
+    String? err_msg = jsonMap['err_msg'];
+    if (err_msg == null) {
+      logger.severe('json Map format error : err_msg is missing');
+      return false;
+    }
+    if (err_msg != 'succeed') {
+      logger.severe('set failed : $err_msg');
+      return false;
+    }
+
+    return true;
+  }
+
   // getData function here ...
   static Future<List<String>> getMyFavorite(BuildContext context) async {
     logger.finest('getMyFavorite() start');
-
-    // if (loginUser == null) {
-    //   return [];
-    // }
-    // TO DO :  get from DB using API
-    // ignore: unused_local_variable
-    Map<String, dynamic> jsonMap = <String, dynamic>{};
-    try {
-      // ignore: unused_local_variable
-      jsonMap = await loadJson(context, 'get_my_favorite.json');
-    } catch (e) {
-      logger.severe('json parsing error : $e');
+    if (loginUser == null || loginUser!.sabun == null) {
       return [];
     }
+
+    Map<String, dynamic> jsonMap =
+        await ApiService.getMyFavorite(loginUser!.sabun!).catchError((error, stackTrace) {
+      logger.severe('getMyFavorite failed');
+      return false;
+    });
+
+    // try {
+    //   // ignore: unused_local_variable
+    //   jsonMap = await loadJson(context, 'get_my_favorite.json');
+    // } catch (e) {
+    //   logger.severe('json parsing error : $e');
+    //   return [];
+    // }
     if (_validCheck(jsonMap) == false) {
+      logger.severe('getMyFavorite failed');
       return [];
     }
     List<dynamic> dataList = jsonMap['data'];
@@ -140,6 +187,31 @@ class DataManager {
     }
     logger.finest('getMyFavorite() end');
     return myFavoriteList;
+  }
+
+  static Future<bool> addMyFavorite(String code) async {
+    logger.finest('setMyFavorite() start');
+    if (loginUser == null || loginUser!.sabun == null) {
+      return false;
+    }
+
+    Map<String, dynamic> jsonMap =
+        await ApiService.addMyFavorite(loginUser!.sabun!, code).catchError((error, stackTrace) {
+      logger.severe('getMyFavorite failed 1');
+      return false;
+    });
+
+    if (_resultValidCheck(jsonMap) == false) {
+      logger.severe('getMyFavorite failed 2');
+      return false;
+    }
+    return true;
+  }
+
+  static void saveAllMyFavorite() async {
+    for (var code in myFavoriteList.reversed) {
+      await addMyFavorite(code);
+    }
   }
 
   // static Future<List<ProjectModel>> getProjectCodes(BuildContext context) async {
@@ -180,25 +252,28 @@ class DataManager {
   //   return projectList;
   // }
 
-  static Future<Map<String, List<TimeSlotModel>>?> getTimeSlots(BuildContext context) async {
-    // if (loginUser == null) {
-    //   return null;
-    // }
-    logger.finest('getTimeSlots(${slotManagerHolder!.currentDate})');
-    // TO DO :  get from DB using API
-    // ignore: unused_local_variable
-    Map<String, dynamic> jsonMap = <String, dynamic>{};
-    try {
-      jsonMap = await loadJson(context, 'get_time_sheet.json');
-    } catch (e) {
-      logger.severe('json parsing error : $e');
+  static Future<Map<String, List<TimeSlotModel>>?> getTimeSheet() async {
+    if (loginUser == null) {
       return null;
     }
-    if (_validCheck(jsonMap) == false) {
-      return null;
-    }
+    logger.finest('getTimeSheet(${slotManagerHolder!.currentDate})');
 
-    List<dynamic> dataList = jsonMap['data'];
+    String today = slotManagerHolder!.currentDate;
+    String fiveDaysBefore = DataManager.getFiveDaysBefore(slotManagerHolder!.currentDate);
+
+    Map<String, dynamic> jsonMap =
+        await ApiService.getTimeSheet(loginUser!.sabun!, fiveDaysBefore, today)
+            .catchError((error, stackTrace) {
+      logger.severe('getTimeSheet error($error)');
+      return null;
+    });
+
+    logger.finest('getTimeSheet api call end');
+    List<dynamic>? dataList = jsonMap['data'];
+    if (dataList == null) {
+      logger.warning('getTimeSheet result is null');
+      return null;
+    }
 
     logger.finest('dataList = ${dataList.length}');
     for (var daily in dataList) {
@@ -235,6 +310,31 @@ class DataManager {
       }
     }
     return slotManagerHolder!.get();
+  }
+
+  static Future<bool> setTimeSheet(String timeSlot, String code1, String code2) async {
+    if (loginUser == null) {
+      return false;
+    }
+    logger.finest('setTimeSheet(${slotManagerHolder!.currentDate}, $timeSlot, $code1, $code2)');
+    Map<String, String> jsonData = {};
+    jsonData["date"] = slotManagerHolder!.currentDate;
+    jsonData["time_slot"] = timeSlot;
+    jsonData["project_code1"] = code1;
+    jsonData["project_code2"] = code2;
+
+    Map<String, dynamic> jsonMap =
+        await ApiService.setTimeSheet(loginUser!.sabun!, jsonEncode(jsonData))
+            .catchError((error, stackTrace) {
+      logger.severe('setTimeSheet failed 1');
+      return false;
+    });
+
+    if (_resultValidCheck(jsonMap) == false) {
+      logger.severe('setTimeSheet failed 2');
+      return false;
+    }
+    return true;
   }
 
   static Future<List<AlarmModel>> getAlarms(BuildContext context) async {
@@ -280,5 +380,70 @@ class DataManager {
     }
     logger.finest('getAlarms() end');
     return alarmList;
+  }
+
+  static String holidayString(String code) {
+    return holidayMap[code] ?? code;
+  }
+
+  static bool isHoliday(String code) {
+    return (holidayMap[code] != null);
+  }
+
+  static Future<bool> getProject() async {
+    logger.finest('get project(${loginUser!.tm_id!})');
+    dynamic projectResult =
+        await ApiService.getProjectList(loginUser!.tm_id!).catchError((error, stackTrace) {
+      return false;
+    });
+    Map<String, dynamic> projectData =
+        Map<String, dynamic>.from(projectResult); //jsonDecode(projectResult);
+    String projectErrMsg = projectData['err_msg'] ?? '';
+    if (projectErrMsg.compareTo('succeed') != 0 || projectData['data'] == null) {
+      return false;
+    }
+
+    //List<ProjectModel> projectModelList = [];
+    //List<String> projectDescList = [];
+
+    DataManager.projectList.clear();
+    DataManager.projectDescList.clear();
+    DataManager.projectOthers.clear();
+
+    List<dynamic> dataList = projectData['data']; //jsonDecode(projectData['data']);
+    List<dynamic>? othersList = projectData['others']; //jsonDecode(projectData['data']);
+    //int alarmCount = projectData['count'] ?? 0;
+    logger.finest('get projectList=${dataList.length}');
+    for (var ele in dataList) {
+      Map<String, String> project = Map<String, String>.from(ele); //jsonDecode(ele);
+      if (project['code'] == null || project['name'] == null) continue;
+      ProjectModel proj = ProjectModel(code: project['code']!, name: project['name']!);
+      DataManager.projectList.add(proj);
+      DataManager.projectDescList.add('${proj.code}/${proj.name}');
+    }
+    if (othersList != null) {
+      for (var ele in othersList) {
+        Map<String, String> project = Map<String, String>.from(ele); //jsonDecode(ele);
+        if (project['code'] == null || project['name'] == null || project['tm_id'] == null) {
+          continue;
+        }
+        ProjectModel proj = ProjectModel(code: project['code']!, name: project['name']!);
+
+        String tmId = project['tm_id']!;
+        for (var team in teamList) {
+          if (team.length > tmId.length && team.substring(0, tmId.length) == tmId) {
+            tmId = team;
+            break;
+          }
+        }
+        if (DataManager.projectOthers[tmId] == null) {
+          logger.finest(project['tm_id']!);
+          DataManager.projectOthers[tmId] = [];
+        }
+        DataManager.projectOthers[tmId]!.add('${proj.code}/${proj.name}');
+      }
+      logger.finest('projectOthers= ${DataManager.projectOthers.keys.length}');
+    }
+    return true;
   }
 }

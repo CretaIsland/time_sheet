@@ -65,6 +65,21 @@ class SlotManager extends ChangeNotifier {
     _timeSlotMap[date]!.add(TimeSlotModel(timeSlot: '*'));
   }
 
+  bool isNeverWritten(String date) {
+    if (_timeSlotMap[date] == null) {
+      return true;
+    }
+    if (_timeSlotMap[date]!.isEmpty) {
+      return true;
+    }
+    for (TimeSlotModel element in _timeSlotMap[date]!) {
+      if (element.projectCode1 != null || element.projectCode1 != null) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   void clearCurrent() {
     clearDate(currentDate);
   }

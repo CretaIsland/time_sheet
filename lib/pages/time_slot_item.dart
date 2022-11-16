@@ -11,6 +11,10 @@ import 'package:morphing_text/morphing_text.dart';
 import '../common/logger.dart';
 import '../common/team_select.dart';
 import '../model/data_model.dart';
+//import 'package:flutter/foundation.dart' show kIsWeb;
+
+//import '../routes.dart';
+//import 'project_code.dart';
 
 class TimeSlotItem extends StatefulWidget {
   final TimeSlotModel model;
@@ -109,10 +113,21 @@ class TimeSlotItemState extends State<TimeSlotItem> {
   }
 
   void _editTitle(TimeSlotType ttype) async {
+    bool? isOk;
     logger.finest('_editTitle(${ttype.toString()}');
     //bool isMy = true;
 
-    bool? isOk = await Alert(
+    // if (kIsWeb) {
+    //   AppRoutes.naviPush(
+    //       context,
+    //       ProjectCodeWidget(
+    //         onCancel: onCancel,
+    //         onFavorite: onFavorite,
+    //         onOK: onOK,
+    //       ));
+    // } else {
+    isOk = await Alert(
+        style: AlertStyle(alertAlignment: Alignment.topCenter),
         context: context,
         title: "프로젝트 코드를 선택하세요",
         content: Column(
@@ -126,10 +141,7 @@ class TimeSlotItemState extends State<TimeSlotItem> {
         closeIcon: const Icon(Icons.close_outlined),
         buttons: [
           DialogButton(
-            onPressed: () {
-              _justSelected = null;
-              Navigator.pop(context);
-            },
+            onPressed: onCancel,
             child: const Text(
               "Cancel",
               style: TextStyle(color: Colors.white, fontSize: 20),
@@ -138,26 +150,7 @@ class TimeSlotItemState extends State<TimeSlotItem> {
           DialogButton(
             color: Colors.amber,
             onPressed: () {
-              if (_controller.value != null) {
-                String temp = _controller.value!;
-                int idx = temp.indexOf('/');
-                _justSelected = temp.substring(0, idx);
-                if (DataManager.myFavoriteList.isEmpty ||
-                    DataManager.myFavoriteList.first != _justSelected!) {
-                  if (DataManager.myFavoriteList.contains(_justSelected!)) {
-                    DataManager.myFavoriteList.remove(_justSelected!);
-                  }
-                  DataManager.myFavoriteList.insert(0, _justSelected!);
-                  if (DataManager.myFavoriteList.length >= 10) {
-                    DataManager.myFavoriteList.removeAt(DataManager.myFavoriteList.length - 1);
-                  }
-                }
-                _controller.value = null;
-              } else {
-                _justSelected = null;
-              }
-
-              Navigator.pop(context);
+              onOK(_controller.value);
             },
             child: const Text(
               "OK",
@@ -165,6 +158,7 @@ class TimeSlotItemState extends State<TimeSlotItem> {
             ),
           ),
         ]).show();
+    //}
     isOk ??= true;
     logger.finest("After Alert = $isOk");
     if (isOk && _justSelected != null && ttype != TimeSlotType.none) {
@@ -183,8 +177,46 @@ class TimeSlotItemState extends State<TimeSlotItem> {
           return;
         }
       });
+      DataManager.setTimeSheet(
+          widget.model.timeSlot, widget.model.projectCode1 ?? '', widget.model.projectCode2 ?? '');
+      DataManager.saveAllMyFavorite();
       _justSelected = null;
     }
+  }
+
+  void onFavorite(String tag) {
+    logger.finest('pressed $tag');
+    _justSelected = tag;
+    Navigator.pop(context);
+  }
+
+  void onOK(String? tag) {
+    if (tag == null) {
+      _justSelected = null;
+
+      Navigator.pop(context);
+      return;
+    }
+    String temp = tag;
+    int idx = temp.indexOf('/');
+    _justSelected = temp.substring(0, idx);
+    if (DataManager.myFavoriteList.isEmpty || DataManager.myFavoriteList.first != _justSelected!) {
+      if (DataManager.myFavoriteList.contains(_justSelected!)) {
+        DataManager.myFavoriteList.remove(_justSelected!);
+      }
+      DataManager.myFavoriteList.insert(0, _justSelected!);
+      if (DataManager.myFavoriteList.length >= 10) {
+        DataManager.myFavoriteList.removeAt(DataManager.myFavoriteList.length - 1);
+      }
+    }
+    _controller.value = null;
+
+    Navigator.pop(context);
+  }
+
+  void onCancel() {
+    _justSelected = null;
+    Navigator.pop(context);
   }
 
   Widget _favorateProject() {
@@ -194,11 +226,8 @@ class TimeSlotItemState extends State<TimeSlotItem> {
         content: DataManager.myFavoriteList,
         wrapSpacing: 4,
         wrapRunSpacing: 4,
-        onTagPress: (tag) {
-          logger.finest('pressed $tag');
-          _justSelected = tag;
-          Navigator.pop(context);
-        },
+        onTagPress: onFavorite,
+
         // onTagLongPress: (tag) {
         //   logger.finest('long pressed $tag');
         // },
@@ -306,7 +335,7 @@ class TimeSlotItemState extends State<TimeSlotItem> {
             fgColor: Colors.grey[500]!,
             ttype: TimeSlotType.before30,
             title: '<30',
-            fontSize: 20,
+            fontSize: 16,
           ),
           SizedBox(width: 5),
           _showProjectCode(
@@ -315,7 +344,7 @@ class TimeSlotItemState extends State<TimeSlotItem> {
             fgColor: Colors.grey[500]!,
             ttype: TimeSlotType.wholeHour,
             title: '0~60',
-            fontSize: 24,
+            fontSize: 20,
           ),
           SizedBox(width: 5),
           _showProjectCode(
@@ -324,7 +353,7 @@ class TimeSlotItemState extends State<TimeSlotItem> {
             fgColor: Colors.grey[500]!,
             ttype: TimeSlotType.after30,
             title: '30<',
-            fontSize: 20,
+            fontSize: 16,
           ),
         ],
       );
@@ -339,7 +368,7 @@ class TimeSlotItemState extends State<TimeSlotItem> {
             fgColor: Colors.blue,
             ttype: TimeSlotType.before30,
             title: widget.model.projectCode1!,
-            fontSize: 28,
+            fontSize: 24,
           ),
           SizedBox(width: 5),
           _showProjectCode(
@@ -348,7 +377,7 @@ class TimeSlotItemState extends State<TimeSlotItem> {
             fgColor: Colors.blue,
             ttype: TimeSlotType.after30,
             title: '',
-            fontSize: 28,
+            fontSize: 24,
           ),
           _deleteButton(),
         ],
@@ -364,7 +393,7 @@ class TimeSlotItemState extends State<TimeSlotItem> {
             fgColor: Colors.blue,
             ttype: TimeSlotType.before30,
             title: '',
-            fontSize: 28,
+            fontSize: 24,
           ),
           SizedBox(width: 5),
           _showProjectCode(
@@ -373,7 +402,7 @@ class TimeSlotItemState extends State<TimeSlotItem> {
             fgColor: Colors.blue,
             ttype: TimeSlotType.after30,
             title: widget.model.projectCode2!,
-            fontSize: 28,
+            fontSize: 24,
           ),
           _deleteButton(),
         ],
@@ -389,7 +418,7 @@ class TimeSlotItemState extends State<TimeSlotItem> {
             fgColor: Colors.blue,
             ttype: TimeSlotType.wholeHour,
             title: widget.model.projectCode1!,
-            fontSize: 28,
+            fontSize: 24,
           ),
           _deleteButton(),
         ],
@@ -404,7 +433,7 @@ class TimeSlotItemState extends State<TimeSlotItem> {
           fgColor: Colors.blue,
           ttype: TimeSlotType.before30,
           title: widget.model.projectCode1!,
-          fontSize: 32,
+          fontSize: 24,
         ),
         SizedBox(width: 5),
         _showProjectCode(
@@ -413,7 +442,7 @@ class TimeSlotItemState extends State<TimeSlotItem> {
           fgColor: Colors.blue,
           ttype: TimeSlotType.after30,
           title: widget.model.projectCode2!,
-          fontSize: 32,
+          fontSize: 24,
         ),
         _deleteButton(),
       ],
@@ -468,7 +497,7 @@ class TimeSlotItemState extends State<TimeSlotItem> {
         child: Container(
           height: 45,
           decoration: BoxDecoration(
-            color: bgColor,
+            color: DataManager.isHoliday(title) ? Colors.grey[200]! : bgColor,
             borderRadius: BorderRadius.all(Radius.circular(18)),
             //boxShadow: isClicked ? _getShadow(8) : null,
           ),
@@ -479,7 +508,7 @@ class TimeSlotItemState extends State<TimeSlotItem> {
           //   },
           //   style: ButtonStyle(visualDensity: VisualDensity.comfortable),
           child: Text(
-            title,
+            DataManager.holidayString(title),
             overflow: TextOverflow.clip,
             style: TextStyle(fontSize: fontSize, color: fgColor),
           ),
