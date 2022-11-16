@@ -115,7 +115,7 @@ class SlotManager extends ChangeNotifier {
     }
   }
 
-  void copyToCurrentDate(List<TimeSlotModel> fromList) {
+  Future<void> copyToCurrentDate(List<TimeSlotModel> fromList) async {
     initCurrentDate();
     for (var fromEle in fromList) {
       for (TimeSlotModel toEle in _timeSlotMap[currentDate]!) {
@@ -130,7 +130,8 @@ class SlotManager extends ChangeNotifier {
           } else {
             toEle.projectCode2 = fromEle.projectCode2;
           }
-          break;
+          await DataManager.setTimeSheet(
+              toEle.timeSlot, toEle.projectCode1 ?? '', toEle.projectCode2 ?? '');
         }
       }
     }

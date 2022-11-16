@@ -78,7 +78,7 @@ class CretaScaffold {
     List<SpeedDialChild> retval = [];
     if (AppRoutes.isCurrentPage(context, AppRoutes.timeSheetPage)) {
       retval.add(SpeedDialChild(
-        child: Icon(Icons.calendar_month_outlined),
+        child: Icon(Icons.refresh_outlined),
         label: '프로젝트 목록 다시 가져오기',
         onTap: refreshProject,
       ));
@@ -90,7 +90,7 @@ class CretaScaffold {
         },
       ));
       retval.add(SpeedDialChild(
-        child: Icon(Icons.calendar_month),
+        child: Icon(Icons.exit_to_app),
         label: '끝내기',
         onTap: () async {
           bool isOK = await yesNoDialog(context, "정말로 앱을 끝내시겠습니까 ?");
@@ -99,6 +99,13 @@ class CretaScaffold {
           }
           // //AppRoutes.pop(context);
           // AppRoutes.push(gkey.currentContext!, AppRoutes.calendarPage);
+        },
+      ));
+      retval.add(SpeedDialChild(
+        child: Icon(Icons.logout_outlined),
+        label: '로그 아웃',
+        onTap: () async {
+          AppRoutes.push(gkey.currentContext!, AppRoutes.login);
         },
       ));
     }
@@ -134,7 +141,7 @@ class CretaScaffold {
     return retval;
   }
 
-  void _copyYesterDay() {
+  void _copyYesterDay() async {
     logger.finest('currentDate is ${slotManagerHolder!.currentDate}');
     DateTime curentDate = DateTime.parse(slotManagerHolder!.currentDate);
     DateTime yesterday = curentDate.subtract(Duration(days: 1));
@@ -146,7 +153,7 @@ class CretaScaffold {
     }
     List<TimeSlotModel> yesterDayList = slotManagerHolder!.getDate(yesterdayStr);
     logger.finest('yesterday is $yesterdayStr');
-    slotManagerHolder!.copyToCurrentDate(yesterDayList);
+    await slotManagerHolder!.copyToCurrentDate(yesterDayList);
     slotManagerHolder!.notify();
   }
 }
