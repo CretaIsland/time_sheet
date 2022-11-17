@@ -66,9 +66,9 @@ class _LoginPageState extends State<LoginPage> {
   void _gotoNextPage() {
     if (DataManager.alarmList.isNotEmpty) {
       // 알람이 있을 경우 셋팅 페이지로 이동한다.
-      Routemaster.of(context).push(AppRoutes.settingPage);
+      Routemaster.of(context).replace(AppRoutes.settingPage);
     } else {
-      Routemaster.of(context).push(AppRoutes.timeSheetPage);
+      Routemaster.of(context).replace(AppRoutes.timeSheetPage);
     }
   }
 
@@ -520,7 +520,7 @@ class _LoginPageState extends State<LoginPage> {
                           width: 260,
                           height: 40,
                           decoration: BoxDecoration(
-                            color: Colors.red[200], //light blue
+                            color: Colors.red[300], //light blue
                             borderRadius: BorderRadius.all(Radius.circular(45)),
                           ),
                           alignment: Alignment.center,
@@ -620,7 +620,7 @@ class _LoginPageState extends State<LoginPage> {
         decoration: const BoxDecoration(
             gradient: RadialGradient(center: Alignment.bottomCenter, radius: 1.5, colors: [
           Color.fromARGB(255, 13, 35, 61),
-          Colors.black,
+          Colors.white,
         ])),
         child: Metaballs(
           effect: colorsAndEffects[colorEffectIndex].effect,

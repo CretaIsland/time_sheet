@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
+import 'package:time_sheet/common/sqlite_wapper.dart';
 import 'package:time_sheet/model/slot_manager.dart';
 import '../../routes.dart';
 import '../model/data_model.dart';
@@ -105,6 +106,7 @@ class CretaScaffold {
         child: Icon(Icons.logout_outlined),
         label: '로그 아웃',
         onTap: () async {
+          await SqliteWrapper.clearAutologinInfo();
           AppRoutes.push(gkey.currentContext!, AppRoutes.login);
         },
       ));
