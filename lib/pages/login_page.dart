@@ -470,38 +470,14 @@ class _LoginPageState extends State<LoginPage> {
                           return;
                         }
 
-                        showDialog<String>(
-                          context: context,
-                          barrierDismissible: false,
-                          builder: (BuildContext context) => WillPopScope(
-                          onWillPop: () async {
-                            print('ttt');
-                            return false;
-                          },
-                          child: AlertDialog(
-                            title: const Text('AlertDialog Title'),
-                            content: const Text('AlertDialog description'),
-                            actions: <Widget>[
-                              TextButton(
-                                onPressed: () => Navigator.pop(context, 'Cancel'),
-                                child: const Text('Cancel'),
-                              ),
-                              TextButton(
-                                onPressed: () => Navigator.pop(context, 'OK'),
-                                child: const Text('OK'),
-                              ),
-                            ],
-                          ),),
-                        );
-                        //
-                        // setState(() {
-                        //   colorEffectIndex = 4;
-                        //   _loginProcessing = true;
-                        //   Timer.periodic(const Duration(seconds: 1), (timer) {
-                        //     timer.cancel();
-                        //     login(userId: userId, password: password);
-                        //   });
-                        // });
+                        setState(() {
+                          colorEffectIndex = 4;
+                          _loginProcessing = true;
+                          Timer.periodic(const Duration(seconds: 1), (timer) {
+                            timer.cancel();
+                            login(userId: userId, password: password);
+                          });
+                        });
                       },
                     ),
                   ),
