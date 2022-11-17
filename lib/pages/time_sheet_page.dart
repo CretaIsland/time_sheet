@@ -3,7 +3,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
-import 'package:widget_and_text_animator/widget_and_text_animator.dart';
 
 import '../common/creta_scaffold.dart';
 import '../common/logger.dart';
@@ -16,13 +15,13 @@ class TimeSheetPage extends StatefulWidget {
   const TimeSheetPage({super.key});
 
   @override
-  State<TimeSheetPage> createState() => _TimeSheetPageState();
+  State<TimeSheetPage> createState() => TimeSheetPageState();
 }
 
-class _TimeSheetPageState extends State<TimeSheetPage> {
+class TimeSheetPageState extends State<TimeSheetPage> {
   int _dateMove = 0;
   //bool _refresh = false;
-  bool _moveToRight = false;
+  //bool _moveToRight = false;
   //String? _showDate;
   String? _weekday;
 
@@ -30,6 +29,14 @@ class _TimeSheetPageState extends State<TimeSheetPage> {
   void initState() {
     slotManagerHolder = SlotManager();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    logger.finest('dispose TimeSheetPage');
+    //alert?.dismiss();
+
+    super.dispose();
   }
 
   @override
@@ -109,107 +116,110 @@ class _TimeSheetPageState extends State<TimeSheetPage> {
   }
 
   Widget _drawPage(List<TimeSlotModel> dailyList) {
-    return Column(
-      children: [
-        Expanded(
-          flex: 1,
-          child: Container(
-            color: Colors.white,
-            alignment: AlignmentDirectional.center,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                IconButton(
-                    onPressed: _toPast,
-                    icon: Icon(
-                      Icons.arrow_back_ios,
-                      size: 32,
-                    )),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    TextButton(
-                      onPressed: () {
-                        setState(() {
-                          _dateMove = 0;
-                        });
-                      },
-                      child: Text(
-                        '${slotManagerHolder!.currentDate}$_weekday',
-                        style: TextStyle(
-                          fontSize: 24,
-                          color: _dateMove == 0 ? Colors.black : Colors.blue[500]!,
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.blue.withOpacity(0.2),
+        //image: DecorationImage(image: AssetImage('assets/blurLight.jpg'), fit: BoxFit.fill),
+      ),
+      child: Column(
+        children: [
+          Expanded(
+            flex: 1,
+            child: Container(
+              color: Colors.transparent,
+              alignment: AlignmentDirectional.center,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  IconButton(
+                      onPressed: _toPast,
+                      icon: Icon(
+                        Icons.arrow_back_ios,
+                        size: 32,
+                      )),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          setState(() {
+                            _dateMove = 0;
+                          });
+                        },
+                        child: Text(
+                          '${slotManagerHolder!.currentDate}$_weekday',
+                          style: TextStyle(
+                            fontSize: 24,
+                            color: _dateMove == 0 ? Colors.black : Colors.blue[500]!,
+                          ),
                         ),
                       ),
-                    ),
-                    ElevatedButton(
-                      //visualDensity: VisualDensity.compact,
-                      onPressed: () {
-                        AppRoutes.push(context, AppRoutes.calendarPage);
-                      },
-                      child: Icon(Icons.calendar_month),
-                      //padding: EdgeInsets.all(0),
-                    )
-                  ],
-                ),
-                (DataManager.getTodayString() != slotManagerHolder!.currentDate)
-                    ? IconButton(
-                        onPressed: _toFuture,
-                        icon: Icon(
-                          Icons.arrow_forward_ios,
-                          size: 32,
-                        ))
-                    : IconButton(
-                        onPressed: () {},
-                        icon: Icon(
-                          color: Colors.grey[100]!,
-                          Icons.arrow_forward_ios,
-                          size: 32,
-                        ))
-              ],
+                      ElevatedButton(
+                        //visualDensity: VisualDensity.compact,
+                        onPressed: () {
+                          AppRoutes.push(context, AppRoutes.calendarPage);
+                        },
+                        child: Icon(Icons.calendar_month),
+                        //padding: EdgeInsets.all(0),
+                      )
+                    ],
+                  ),
+                  (DataManager.getTodayString() != slotManagerHolder!.currentDate)
+                      ? IconButton(
+                          onPressed: _toFuture,
+                          icon: Icon(
+                            Icons.arrow_forward_ios,
+                            size: 32,
+                          ))
+                      : IconButton(
+                          onPressed: () {},
+                          icon: Icon(
+                            color: Colors.grey[100]!,
+                            Icons.arrow_forward_ios,
+                            size: 32,
+                          ))
+                ],
+              ),
             ),
           ),
-        ),
-        Expanded(
-          flex: 11,
-          //child: GestureDetector(
-          // onPanUpdate: (details) {
-          //   // Swiping in right direction.
-          //   if (details.delta.dx > 0) {
-          //     _toPast();
-          //   }
-          //   // Swiping in left direction.
-          //   if (details.delta.dx < 0) {
-          //     _toFuture();
-          //   }
-          // },
-          child: WidgetAnimator(
-            incomingEffect: _moveToRight
-                ? WidgetTransitionEffects.incomingScaleUp(
-                    rotation: 0.2,
-                    curve: Curves.easeInQuad,
-                  )
-                : WidgetTransitionEffects.incomingScaleUp(
-                    rotation: -0.2,
-                    curve: Curves.easeInQuad,
-                  ),
-            // WidgetTransitionEffects.incomingSlideInFromRight(
-            //     curve: Curves.easeInQuad, scale: 0.6)
-            // : WidgetTransitionEffects.incomingSlideInFromLeft(
-            //     curve: Curves.easeInQuad, scale: 0.6),
+          Expanded(
+            flex: 11,
+            //child: GestureDetector(
+            // onPanUpdate: (details) {
+            //   // Swiping in right direction.
+            //   if (details.delta.dx > 0) {
+            //     _toPast();
+            //   }
+            //   // Swiping in left direction.
+            //   if (details.delta.dx < 0) {
+            //     _toFuture();
+            //   }
+            // },
+            // child: WidgetAnimator(
+            //   incomingEffect: _moveToRight
+            //       ? WidgetTransitionEffects.incomingScaleUp(
+            //           rotation: 0.2,
+            //           curve: Curves.easeInQuad,
+            //         )
+            //       : WidgetTransitionEffects.incomingScaleUp(
+            //           rotation: -0.2,
+            //           curve: Curves.easeInQuad,
+            //         ),
+            //   child: _timeSheetView(dailyList),
             child: _timeSheetView(dailyList),
+            //),
           ),
-        ),
-        //),
-      ],
+          //),
+        ],
+      ),
     );
   }
 
   void _toPast() {
     setState(() {
       _dateMove--;
-      _moveToRight = true;
+      //_moveToRight = true;
       print('left to right $_dateMove');
     });
   }
@@ -217,7 +227,7 @@ class _TimeSheetPageState extends State<TimeSheetPage> {
   void _toFuture() {
     setState(() {
       _dateMove++;
-      _moveToRight = false;
+      //_moveToRight = false;
       print('right to left $_dateMove');
     });
   }
@@ -245,7 +255,8 @@ class _TimeSheetPageState extends State<TimeSheetPage> {
               if (project1 != null && project2 == null) {
                 project2 = project1;
                 dailyList[index].projectCode2 = project1;
-                await DataManager.setTimeSheet(dailyList[index].timeSlot, project1, project2);
+                dailyList[index].notifyUI =
+                    await DataManager.saveTimeSheet(dailyList[index].timeSlot, project1, project2);
               }
 
               bool changed = false;
@@ -273,8 +284,10 @@ class _TimeSheetPageState extends State<TimeSheetPage> {
                   dailyList[i].projectCode2 = project1;
                   changed = true;
                 }
-                await DataManager.setTimeSheet(dailyList[i].timeSlot,
-                    dailyList[i].projectCode1 ?? '', dailyList[i].projectCode2 ?? '');
+                if (changed) {
+                  dailyList[i].notifyUI = await DataManager.saveTimeSheet(dailyList[i].timeSlot,
+                      dailyList[i].projectCode1 ?? '', dailyList[i].projectCode2 ?? '');
+                }
               }
               if (changed) {
                 slotManagerHolder!.notify();

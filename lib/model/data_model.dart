@@ -1,4 +1,4 @@
-// ignore_for_file: non_constant_identifier_names
+// ignore_for_file: non_constant_identifier_names, prefer_final_fields
 
 import 'dart:convert';
 import 'dart:core';
@@ -35,6 +35,8 @@ class TimeSlotModel {
   final String timeSlot;
   String? projectCode1;
   String? projectCode2;
+
+  bool notifyUI = true;
 
   TimeSlotModel({
     required this.timeSlot,
@@ -312,7 +314,7 @@ class DataManager {
     return slotManagerHolder!.get();
   }
 
-  static Future<bool> setTimeSheet(String timeSlot, String code1, String code2) async {
+  static Future<bool> _setTimeSheet(String timeSlot, String code1, String code2) async {
     if (loginUser == null) {
       return false;
     }
@@ -444,6 +446,11 @@ class DataManager {
       }
       logger.finest('projectOthers= ${DataManager.projectOthers.keys.length}');
     }
+    return true;
+  }
+
+  static Future<bool> saveTimeSheet(String slot, String? code1, String? code2) async {
+    await DataManager._setTimeSheet(slot, code1 ?? '', code2 ?? '');
     return true;
   }
 }

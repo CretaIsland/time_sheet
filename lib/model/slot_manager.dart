@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:time_sheet/model/data_model.dart';
 
+import '../common/logger.dart';
+
 SlotManager? slotManagerHolder;
 
 class SlotManager extends ChangeNotifier {
-  final Map<String, List<TimeSlotModel>> _timeSlotMap = <String, List<TimeSlotModel>>{};
+  static final Map<String, List<TimeSlotModel>> _timeSlotMap = <String, List<TimeSlotModel>>{};
   late String currentDate;
 
   SlotManager() {
@@ -67,16 +69,19 @@ class SlotManager extends ChangeNotifier {
 
   bool isNeverWritten(String date) {
     if (_timeSlotMap[date] == null) {
+      logger.finest('_timeSlotMap is null');
       return true;
     }
     if (_timeSlotMap[date]!.isEmpty) {
+      logger.finest('_timeSlotMap is empty');
       return true;
     }
     for (TimeSlotModel element in _timeSlotMap[date]!) {
-      if (element.projectCode1 != null || element.projectCode1 != null) {
+      if (element.projectCode1 != null || element.projectCode2 != null) {
         return false;
       }
     }
+    logger.finest('_timeSlotMap is element is null');
     return true;
   }
 
@@ -86,7 +91,8 @@ class SlotManager extends ChangeNotifier {
 
   void clearDate(String date) {
     if (_timeSlotMap[date] != null) {
-      _timeSlotMap[date]!.clear;
+      logger.finest('clearDate($date)');
+      _timeSlotMap[date]!.clear();
     }
   }
 
@@ -130,7 +136,7 @@ class SlotManager extends ChangeNotifier {
           } else {
             toEle.projectCode2 = fromEle.projectCode2;
           }
-          await DataManager.setTimeSheet(
+          toEle.notifyUI = await DataManager.saveTimeSheet(
               toEle.timeSlot, toEle.projectCode1 ?? '', toEle.projectCode2 ?? '');
         }
       }

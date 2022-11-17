@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:routemaster/routemaster.dart';
+import 'package:time_sheet/pages/project_choice.dart';
 import 'common/logger.dart';
 import 'pages/login_page.dart';
 import 'pages/time_sheet_page.dart';
@@ -12,6 +13,7 @@ class AppRoutes {
   static const String timeSheetPage = '/timeSheetPage';
   static const String settingPage = '/settingPage';
   static const String calendarPage = '/calendarPage';
+  static const String projectChoice = '/projectChoice';
   static const String login = '/login';
   static String lastPage = '';
 
@@ -60,6 +62,9 @@ final routesLoggedOut = RouteMap(
     },
     AppRoutes.calendarPage: (_) {
       return TransitionPage(child: CalendarPage());
+    },
+    AppRoutes.projectChoice: (_) {
+      return TransitionPage(child: ProjectChoice());
     },
   },
 );

@@ -8,7 +8,10 @@ import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:dropdown_plus/dropdown_plus.dart';
 import 'package:simple_tags/simple_tags.dart';
 import 'package:morphing_text/morphing_text.dart';
+import 'package:time_sheet/pages/project_choice.dart';
+import 'package:time_sheet/routes.dart';
 import '../common/logger.dart';
+import '../common/my_flip_card.dart';
 import '../common/team_select.dart';
 import '../model/data_model.dart';
 //import 'package:flutter/foundation.dart' show kIsWeb;
@@ -49,11 +52,24 @@ class TimeSlotItemState extends State<TimeSlotItem> {
   final DropdownEditingController<String> _controller = DropdownEditingController<String>();
 
   String? _justSelected;
+
+  get slotManagerHolder => null;
   // ignore: prefer_final_fields
-  double _spreadRadius = 1;
 
   void notify() {
     setState(() {});
+  }
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    //logger.finest('dispose TimeSlotItemState');
+    //alert?.dismiss();
+    super.dispose();
   }
 
   @override
@@ -69,7 +85,8 @@ class TimeSlotItemState extends State<TimeSlotItem> {
       //width: 800,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
-        color: Colors.white30,
+        //color: Colors.white30,
+        color: Colors.transparent,
       ),
       child: ListTile(
         minVerticalPadding: 0,
@@ -83,7 +100,7 @@ class TimeSlotItemState extends State<TimeSlotItem> {
             ? null
             : Container(
                 decoration: BoxDecoration(
-                  boxShadow: _getShadow(8),
+                  boxShadow: _getShadow(6, 2),
                   shape: BoxShape.circle,
                 ),
                 // child: CircleAvatar(
@@ -94,39 +111,43 @@ class TimeSlotItemState extends State<TimeSlotItem> {
                       style: TextStyle(fontSize: 24, color: Colors.white)),
                 )),
         //),
-        //title: (_editModeMap[widget.model.timeSlot] ?? false) ? _editTitle() : _getTitle(),
         title: _getTitle(),
         onTap: () {
           logger.finest('onTap');
-          //_editModeMap.clear();
-          //_editTitle();
         },
-        // onLongPress: () {
-        //   setState(() {
-        //     _editModeMap.clear();
-        //     _editModeMap[widget.model.timeSlot] = true;
-        //   });
-        // },
       ),
     );
     //);
   }
 
-  void _editTitle(TimeSlotType ttype) async {
-    bool? isOk;
+  Future<void> _editTitle(TimeSlotType ttype) async {
     logger.finest('_editTitle(${ttype.toString()}');
-    //bool isMy = true;
+    // bool? isOk = await runAlertPopUp(ttype).show();
+    // isOk ??= true;
+    // logger.finest("After Alert = $isOk");
+    // if (isOk && _justSelected != null && ttype != TimeSlotType.none) {
+    //   if (ttype == TimeSlotType.after30) {
+    //     widget.model.projectCode2 = _justSelected;
+    //   } else if (ttype == TimeSlotType.before30) {
+    //     widget.model.projectCode1 = _justSelected;
+    //   } else if (ttype == TimeSlotType.wholeHour) {
+    //     widget.model.projectCode1 = _justSelected;
+    //     widget.model.projectCode2 = _justSelected;
+    //   }
+    //   widget.model.notifyUI = await DataManager.saveTimeSheet(
+    //       widget.model.timeSlot, widget.model.projectCode1 ?? '', widget.model.projectCode2 ?? '');
+    //   DataManager.saveAllMyFavorite();
+    //   _justSelected = null;
+    //   setState(() {});
+    // }
 
-    // if (kIsWeb) {
-    //   AppRoutes.naviPush(
-    //       context,
-    //       ProjectCodeWidget(
-    //         onCancel: onCancel,
-    //         onFavorite: onFavorite,
-    //         onOK: onOK,
-    //       ));
-    // } else {
-    isOk = await Alert(
+    ProjectChoice.selectedModel = widget.model;
+    ProjectChoice.selectedTtype = ttype;
+    AppRoutes.push(context, AppRoutes.projectChoice);
+  }
+
+  Alert runAlertPopUp(TimeSlotType ttype) {
+    return Alert(
         style: AlertStyle(alertAlignment: Alignment.topCenter),
         context: context,
         title: "프로젝트 코드를 선택하세요",
@@ -150,38 +171,14 @@ class TimeSlotItemState extends State<TimeSlotItem> {
           DialogButton(
             color: Colors.amber,
             onPressed: () {
-              onOK(_controller.value);
+              onOK(_controller.value, ttype);
             },
             child: const Text(
               "OK",
               style: TextStyle(color: Colors.white, fontSize: 20),
             ),
           ),
-        ]).show();
-    //}
-    isOk ??= true;
-    logger.finest("After Alert = $isOk");
-    if (isOk && _justSelected != null && ttype != TimeSlotType.none) {
-      setState(() {
-        if (ttype == TimeSlotType.after30) {
-          widget.model.projectCode2 = _justSelected;
-          return;
-        }
-        if (ttype == TimeSlotType.before30) {
-          widget.model.projectCode1 = _justSelected;
-          return;
-        }
-        if (ttype == TimeSlotType.wholeHour) {
-          widget.model.projectCode1 = _justSelected;
-          widget.model.projectCode2 = _justSelected;
-          return;
-        }
-      });
-      DataManager.setTimeSheet(
-          widget.model.timeSlot, widget.model.projectCode1 ?? '', widget.model.projectCode2 ?? '');
-      DataManager.saveAllMyFavorite();
-      _justSelected = null;
-    }
+        ]);
   }
 
   void onFavorite(String tag) {
@@ -190,7 +187,7 @@ class TimeSlotItemState extends State<TimeSlotItem> {
     Navigator.pop(context);
   }
 
-  void onOK(String? tag) {
+  void onOK(String? tag, TimeSlotType ttype) async {
     if (tag == null) {
       _justSelected = null;
 
@@ -210,7 +207,7 @@ class TimeSlotItemState extends State<TimeSlotItem> {
       }
     }
     _controller.value = null;
-
+    // ignore: use_build_context_synchronously
     Navigator.pop(context);
   }
 
@@ -314,9 +311,9 @@ class TimeSlotItemState extends State<TimeSlotItem> {
         alignment: AlignmentDirectional.center,
         //color: Colors.grey[300]!,
         child: Text(
-          'Lunch Break       ',
+          'Lunch Break',
           overflow: TextOverflow.ellipsis,
-          style: TextStyle(fontSize: 24, color: Colors.white, fontStyle: FontStyle.italic),
+          style: TextStyle(fontSize: 24, color: Colors.white),
         ),
       );
       // Icon(
@@ -329,14 +326,25 @@ class TimeSlotItemState extends State<TimeSlotItem> {
     if (widget.model.projectCode1 == null && widget.model.projectCode2 == null) {
       return Row(
         children: [
-          _showProjectCode(
+          _textbutton(
             flex: 2,
             bgColor: Colors.grey[300]!,
             fgColor: Colors.grey[500]!,
-            ttype: TimeSlotType.before30,
-            title: '<30',
             fontSize: 16,
+            title: '<30',
+            onTapDown: ((details) async {
+              logger.finest('onTapDown');
+              await _editTitle(TimeSlotType.before30);
+            }),
           ),
+          // _showProjectCode(
+          //   flex: 2,
+          //   bgColor: Colors.grey[300]!,
+          //   fgColor: Colors.grey[500]!,
+          //   ttype: TimeSlotType.before30,
+          //   title: '<30',
+          //   fontSize: 16,
+          // ),
           SizedBox(width: 5),
           _showProjectCode(
             flex: 6,
@@ -347,14 +355,25 @@ class TimeSlotItemState extends State<TimeSlotItem> {
             fontSize: 20,
           ),
           SizedBox(width: 5),
-          _showProjectCode(
+          _textbutton(
             flex: 2,
             bgColor: Colors.grey[300]!,
             fgColor: Colors.grey[500]!,
-            ttype: TimeSlotType.after30,
-            title: '30<',
             fontSize: 16,
+            title: '30<',
+            onTapDown: ((details) async {
+              logger.finest('onTapDown');
+              await _editTitle(TimeSlotType.after30);
+            }),
           ),
+          // _showProjectCode(
+          //   flex: 2,
+          //   bgColor: Colors.grey[300]!,
+          //   fgColor: Colors.grey[500]!,
+          //   ttype: TimeSlotType.after30,
+          //   title: '30<',
+          //   fontSize: 16,
+          // ),
         ],
       );
     }
@@ -362,23 +381,25 @@ class TimeSlotItemState extends State<TimeSlotItem> {
       return Row(
         children: [
           _copyButton(),
+          SizedBox(width: 5),
           _showProjectCode(
-            flex: 4,
+            flex: 3,
             bgColor: Colors.blue[100]!,
             fgColor: Colors.blue,
             ttype: TimeSlotType.before30,
             title: widget.model.projectCode1!,
-            fontSize: 24,
+            fontSize: 16,
           ),
           SizedBox(width: 5),
           _showProjectCode(
-            flex: 4,
+            flex: 3,
             bgColor: Colors.blue[100]!,
             fgColor: Colors.blue,
             ttype: TimeSlotType.after30,
             title: '',
-            fontSize: 24,
+            fontSize: 16,
           ),
+          SizedBox(width: 5),
           _deleteButton(),
         ],
       );
@@ -387,94 +408,101 @@ class TimeSlotItemState extends State<TimeSlotItem> {
       return Row(
         children: [
           _copyButton(),
+          SizedBox(width: 5),
           _showProjectCode(
-            flex: 4,
+            flex: 3,
             bgColor: Colors.blue[100]!,
             fgColor: Colors.blue,
             ttype: TimeSlotType.before30,
             title: '',
-            fontSize: 24,
+            fontSize: 20,
           ),
           SizedBox(width: 5),
           _showProjectCode(
-            flex: 4,
+            flex: 3,
             bgColor: Colors.blue[100]!,
             fgColor: Colors.blue,
             ttype: TimeSlotType.after30,
             title: widget.model.projectCode2!,
-            fontSize: 24,
+            fontSize: 20,
           ),
+          SizedBox(width: 5),
           _deleteButton(),
         ],
       );
     }
     if (widget.model.projectCode1 == widget.model.projectCode2) {
-      return Row(
+      Widget retval = Row(
         children: [
           _copyButton(),
+          SizedBox(width: 5),
           _showProjectCode(
-            flex: 8,
+            flex: 6,
             bgColor: Colors.blue[100]!,
             fgColor: Colors.blue,
             ttype: TimeSlotType.wholeHour,
             title: widget.model.projectCode1!,
             fontSize: 24,
           ),
+          SizedBox(width: 5),
           _deleteButton(),
         ],
       );
+      return retval;
     }
     return Row(
       children: [
         _copyButton(),
+        SizedBox(width: 5),
         _showProjectCode(
-          flex: 4,
+          flex: 3,
           bgColor: Colors.blue[100]!,
           fgColor: Colors.blue,
           ttype: TimeSlotType.before30,
           title: widget.model.projectCode1!,
-          fontSize: 24,
+          fontSize: 20,
         ),
         SizedBox(width: 5),
         _showProjectCode(
-          flex: 4,
+          flex: 3,
           bgColor: Colors.blue[100]!,
           fgColor: Colors.blue,
           ttype: TimeSlotType.after30,
           title: widget.model.projectCode2!,
-          fontSize: 24,
+          fontSize: 20,
         ),
+        SizedBox(width: 5),
         _deleteButton(),
       ],
     );
   }
 
-  List<BoxShadow>? _getShadow(double blurRadius) {
+  List<BoxShadow>? _getShadow(double blurRadius, double spreadRadius) {
     return [
       BoxShadow(
         //color: Colors.grey.shade500,
         color: Colors.grey.shade500,
         offset: Offset(-2, -2),
         blurRadius: blurRadius,
-        spreadRadius: _spreadRadius,
+        spreadRadius: spreadRadius,
       ),
       BoxShadow(
         color: Colors.grey.shade500,
         offset: Offset(2, -2),
         blurRadius: blurRadius,
-        spreadRadius: _spreadRadius,
+        spreadRadius: spreadRadius,
       ),
       BoxShadow(
         color: Colors.grey.shade500,
         offset: Offset(-2, 2),
         blurRadius: blurRadius,
-        spreadRadius: _spreadRadius,
+        spreadRadius: spreadRadius,
       ),
       BoxShadow(
         color: Colors.grey.shade500,
         offset: Offset(2, 2),
         blurRadius: blurRadius,
-        spreadRadius: _spreadRadius,
+        spreadRadius: spreadRadius,
       ),
     ];
   }
@@ -490,23 +518,85 @@ class TimeSlotItemState extends State<TimeSlotItem> {
     return Expanded(
       flex: flex,
       child: InkWell(
-        onTapDown: ((details) {
+        onTapDown: ((details) async {
           logger.finest('onTapDown');
-          _editTitle(ttype);
+          await _editTitle(ttype);
         }),
+        child: MyFlipCard(
+          key: GlobalKey(),
+          front: _flipEle(bgColor, fgColor, fontSize, title),
+          back: _flipEle(bgColor, fgColor, fontSize, title),
+          doFlip: widget.model.notifyUI,
+          onInitEnd: () {
+            widget.model.notifyUI = false;
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _flipEle(
+    Color bgColor,
+    Color fgColor,
+    double fontSize,
+    String title,
+  ) {
+    return Container(
+      height: 45,
+      decoration: BoxDecoration(
+        //color: DataManager.isHoliday(title) ? Colors.grey[200]! : bgColor,
+        //color: Colors.white.withOpacity(0.3),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomCenter,
+          colors: const [
+            Colors.white60,
+            Colors.white10,
+          ],
+        ),
+        border: Border.all(width: 2, color: Colors.white30),
+        borderRadius: BorderRadius.all(Radius.circular(18)),
+      ),
+      alignment: AlignmentDirectional.center,
+      child: Text(
+        DataManager.holidayString(title),
+        overflow: TextOverflow.clip,
+        style: TextStyle(
+            fontSize: fontSize, color: DataManager.isHoliday(title) ? Colors.grey[400]! : fgColor),
+      ),
+      //),
+    );
+  }
+
+  Widget _textbutton({
+    required int flex,
+    required Color bgColor,
+    required Color fgColor,
+    required double fontSize,
+    required String title,
+    required void Function(TapDownDetails) onTapDown,
+  }) {
+    return Expanded(
+      flex: flex,
+      child: InkWell(
+        onTapDown: onTapDown,
         child: Container(
           height: 45,
           decoration: BoxDecoration(
-            color: DataManager.isHoliday(title) ? Colors.grey[200]! : bgColor,
+            //color: DataManager.isHoliday(title) ? Colors.grey[200]! : bgColor,
+            //color: Colors.white.withOpacity(0.3),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomCenter,
+              colors: const [
+                Colors.white60,
+                Colors.white10,
+              ],
+            ),
+            border: Border.all(width: 2, color: Colors.white30),
             borderRadius: BorderRadius.all(Radius.circular(18)),
-            //boxShadow: isClicked ? _getShadow(8) : null,
           ),
           alignment: AlignmentDirectional.center,
-          // child: TextButton(
-          //   onPressed: () {
-          //     _editTitle(ttype);
-          //   },
-          //   style: ButtonStyle(visualDensity: VisualDensity.comfortable),
           child: Text(
             DataManager.holidayString(title),
             overflow: TextOverflow.clip,
@@ -518,82 +608,70 @@ class TimeSlotItemState extends State<TimeSlotItem> {
     );
   }
 
-  Widget _deleteButton() {
+  Widget _iconbutton({
+    required int flex,
+    required Color fgColor,
+    required IconData iconData,
+    required double iconSize,
+    required void Function(TapDownDetails) onTapDown,
+  }) {
     return Expanded(
-      flex: 1,
-      child: SizedBox(
-        width: 24,
-        child: Padding(
-          padding: const EdgeInsets.only(left: 8.0),
-          child: IconButton(
-            highlightColor: Colors.blueAccent,
-            padding: EdgeInsets.all(0),
-            onPressed: () {
-              setState(() {
-                widget.model.projectCode1 = null;
-                widget.model.projectCode2 = null;
-              });
-            },
-            icon: const Icon(
-              Icons.close_outlined,
-              color: Colors.blue,
-              size: 24,
+      flex: flex,
+      child: InkWell(
+        onTapDown: onTapDown,
+        child: Container(
+          height: 45,
+          decoration: BoxDecoration(
+            //color: DataManager.isHoliday(title) ? Colors.grey[200]! : bgColor,
+            //color: Colors.white.withOpacity(0.3),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomCenter,
+              colors: const [
+                Colors.white60,
+                Colors.white10,
+              ],
             ),
+            border: Border.all(width: 2, color: Colors.white30),
+            borderRadius: BorderRadius.all(Radius.circular(18)),
           ),
+          alignment: AlignmentDirectional.center,
+          child: Icon(
+            iconData,
+            color: fgColor,
+            size: iconSize,
+          ),
+          //),
         ),
       ),
     );
+  }
+
+  Widget _deleteButton() {
+    return _iconbutton(
+        flex: 2,
+        fgColor: Colors.blue,
+        iconData: Icons.close_outlined,
+        iconSize: 16,
+        onTapDown: (value) async {
+          widget.model.notifyUI = await DataManager.saveTimeSheet(widget.model.timeSlot, '', '');
+          setState(() {
+            widget.model.projectCode1 = null;
+            widget.model.projectCode2 = null;
+          });
+          //slotManagerHolder!.notify();
+        });
   }
 
   Widget _copyButton() {
-    return Expanded(
-      flex: 1,
-      child: Padding(
-        padding: const EdgeInsets.only(right: 8.0),
-        child: SizedBox(
-          width: 24,
-          child: IconButton(
-            highlightColor: Colors.blueAccent,
-            padding: EdgeInsets.all(0),
-            onPressed: () {
-              widget.onCopy.call();
-              setState(() {});
-            },
-            icon: const Icon(
-              Icons.format_paint_outlined,
-              color: Colors.blue,
-              size: 24,
-            ),
-          ),
-        ),
-      ),
-    );
+    return _iconbutton(
+        flex: 2,
+        fgColor: Colors.blue,
+        iconData: Icons.format_paint_outlined,
+        iconSize: 16,
+        onTapDown: (value) async {
+          widget.onCopy.call();
+          //setState(() {});
+        });
   }
-
-  // Widget _splitButton() {
-  //   return Expanded(
-  //     flex: 1,
-  //     child: IconButton(
-  //       onPressed: widget.onSplit,
-  //       icon: const Icon(
-  //         Icons.splitscreen_outlined,
-  //         //color: Colors.red,
-  //         size: 24,
-  //       ),
-  //     ),
-  //   );
-  // }
-
-  // String _getText() {
-  //   if (widget.model.projectCode1 != null) {
-  //     if (widget.model.projectCode2 != null) {
-  //       return '${widget.model.projectCode1} / ${widget.model.projectCode2}';
-  //     }
-  //     return '${widget.model.projectCode1}';
-  //   }
-  //   if (widget.model.projectCode2 != null) {
-  //     return '----- / ${widget.model.projectCode2}';
-  //   }
-  //   return '';
-  // }
 }

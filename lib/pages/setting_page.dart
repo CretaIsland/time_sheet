@@ -23,7 +23,7 @@ class _SettingPageState extends State<SettingPage> {
   @override
   Widget build(BuildContext context) {
     return CretaScaffold(
-      title: '작성해야할 타임시트',
+      title: '당신이 잃어버린 시간      ',
       context: context,
       //actions: [IconButton(onPressed: () {}, icon: const Icon(Icons.settings))],
       leading: IconButton(
@@ -98,77 +98,144 @@ class _SettingPageState extends State<SettingPage> {
   }
 
   Widget _showAlarmList(BuildContext context) {
-    Map<String, List<String>> map = {};
+    DataManager.alarmList.add(AlarmModel(date: "2022-10-01", timeSlot: ''));
+    DataManager.alarmList.add(AlarmModel(date: "2022-10-02", timeSlot: ''));
+    DataManager.alarmList.add(AlarmModel(date: "2022-10-03", timeSlot: ''));
+    DataManager.alarmList.add(AlarmModel(date: "2022-10-04", timeSlot: ''));
+    DataManager.alarmList.add(AlarmModel(date: "2022-10-05", timeSlot: ''));
+    DataManager.alarmList.add(AlarmModel(date: "2022-10-06", timeSlot: ''));
+    DataManager.alarmList.add(AlarmModel(date: "2022-10-07", timeSlot: ''));
+    DataManager.alarmList.add(AlarmModel(date: "2022-10-08", timeSlot: ''));
+    DataManager.alarmList.add(AlarmModel(date: "2022-10-09", timeSlot: ''));
+    DataManager.alarmList.add(AlarmModel(date: "2022-10-10", timeSlot: ''));
+    DataManager.alarmList.add(AlarmModel(date: "2022-10-11", timeSlot: ''));
+    DataManager.alarmList.add(AlarmModel(date: "2022-10-12", timeSlot: ''));
+    DataManager.alarmList.add(AlarmModel(date: "2022-10-13", timeSlot: ''));
+    DataManager.alarmList.add(AlarmModel(date: "2022-10-14", timeSlot: ''));
+    DataManager.alarmList.add(AlarmModel(date: "2022-10-15", timeSlot: ''));
+    DataManager.alarmList.add(AlarmModel(date: "2022-10-16", timeSlot: ''));
+    DataManager.alarmList.add(AlarmModel(date: "2022-10-17", timeSlot: ''));
+    DataManager.alarmList.add(AlarmModel(date: "2022-10-18", timeSlot: ''));
+    DataManager.alarmList.add(AlarmModel(date: "2022-10-19", timeSlot: ''));
+    DataManager.alarmList.add(AlarmModel(date: "2022-10-20", timeSlot: ''));
+    DataManager.alarmList.add(AlarmModel(date: "2022-10-21", timeSlot: ''));
+    DataManager.alarmList.add(AlarmModel(date: "2022-10-22", timeSlot: ''));
+    DataManager.alarmList.add(AlarmModel(date: "2022-10-22", timeSlot: ''));
+    DataManager.alarmList.add(AlarmModel(date: "2022-10-22", timeSlot: ''));
+    DataManager.alarmList.add(AlarmModel(date: "2022-10-23", timeSlot: ''));
+
+    Set<String> dateSet = {};
+    Set<String> remainSet = {};
     for (AlarmModel element in DataManager.alarmList) {
-      List<String>? list = map[element.date];
-      if (list == null) {
-        map[element.date] = [];
+      if (dateSet.length < 21) {
+        dateSet.add(element.date);
       } else {
-        map[element.date]!.add(element.timeSlot);
+        remainSet.add(element.date);
       }
     }
-    return Column(
-      children: [
-        Padding(
-          padding: EdgeInsets.all(16.0),
-          child: Text(
-            '다음과 같이 타임시트를 작성하지 않은 날짜가 있습니다.(${map.length}개)\n해당 날짜 태그하여 타임시트를 작성해 주세요',
-            style: TextStyle(
-              fontSize: 24,
-            ),
-          ),
-        ),
-        Padding(
-          padding: EdgeInsets.all(16.0),
-          child: ElevatedButton(
+    int total = dateSet.length + remainSet.length;
+
+    return Container(
+      color: Colors.blue.withOpacity(0.2),
+      width: double.infinity,
+      child: Column(
+        children: [
+          Padding(
+            padding: EdgeInsets.all(16.0),
             child: Text(
-              '무시하고 그냥 오늘 날짜 보기',
+              '$total개의 작성하지 않은 타임시트가 있습니다.\n해당 날짜를 태그하여 타임시트를 작성해 주세요',
+              textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 18,
+                fontSize: 16,
               ),
             ),
-            onPressed: () {
-              DataManager.showDate = DataManager.getTodayString();
-              AppRoutes.lastPage = AppRoutes.settingPage;
-              Routemaster.of(context).push(AppRoutes.timeSheetPage);
-            },
           ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12.0),
-          child: SimpleTags(
-            content: map.keys.toList(),
-            wrapSpacing: 8,
-            wrapRunSpacing: 8,
-            onTagPress: (tag) {
-              setState(() {
-                _tagPressed = true;
-              });
-              logger.finest('pressed $tag');
-              DataManager.showDate = tag;
-              AppRoutes.lastPage = AppRoutes.settingPage;
-              Routemaster.of(context).push(AppRoutes.timeSheetPage);
-            },
-            tagContainerPadding: const EdgeInsets.all(6),
-            tagTextStyle: const TextStyle(color: Colors.blue, fontSize: 20),
-            tagContainerDecoration: BoxDecoration(
-              color: Colors.white,
-              border: Border.all(color: Colors.grey),
-              borderRadius: const BorderRadius.all(
-                Radius.circular(20),
+          Padding(
+            padding: EdgeInsets.all(8.0),
+            child: ElevatedButton(
+              child: Text(
+                '무시하고 그냥 오늘 날짜 보기',
+                style: TextStyle(
+                  fontSize: 18,
+                ),
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: Color.fromRGBO(139, 139, 142, 0.16),
-                  spreadRadius: _tagPressed ? 4 : 1,
-                  blurRadius: _tagPressed ? 4 : 1,
-                  offset: _tagPressed ? Offset(1.75, 3.5) : Offset(1, 2),
+              onPressed: () {
+                DataManager.showDate = DataManager.getTodayString();
+                AppRoutes.lastPage = AppRoutes.settingPage;
+                Routemaster.of(context).push(AppRoutes.timeSheetPage);
+              },
+            ),
+          ),
+          // ListView.builder(
+          //     shrinkWrap: true,
+          //     itemCount: dateSet.length,
+          //     itemBuilder: (
+          //       context,
+          //       index,
+          //     ) {
+          //       return ElevatedButton(
+          //         child: Text(
+          //           dateSet.toList()[index],
+          //           style: TextStyle(
+          //             fontSize: 18,
+          //           ),
+          //         ),
+          //         onPressed: () {
+          //           DataManager.showDate = DataManager.getTodayString();
+          //           AppRoutes.lastPage = AppRoutes.settingPage;
+          //           Routemaster.of(context).push(AppRoutes.timeSheetPage);
+          //         },
+          //       );
+          //     }),
+
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 12.0),
+            child: SimpleTags(
+              content: dateSet.toList(),
+              wrapSpacing: 4,
+              wrapRunSpacing: 4,
+              onTagPress: (tag) {
+                setState(() {
+                  _tagPressed = true;
+                });
+                logger.finest('pressed $tag');
+                DataManager.showDate = tag;
+                AppRoutes.lastPage = AppRoutes.settingPage;
+                Routemaster.of(context).push(AppRoutes.timeSheetPage);
+              },
+              tagContainerPadding: const EdgeInsets.all(10),
+              tagTextStyle: const TextStyle(color: Colors.blue, fontSize: 16),
+              tagContainerDecoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(color: Colors.grey),
+                borderRadius: const BorderRadius.all(
+                  Radius.circular(20),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Color.fromRGBO(139, 139, 142, 0.16),
+                    spreadRadius: _tagPressed ? 4 : 1,
+                    blurRadius: _tagPressed ? 4 : 1,
+                    offset: _tagPressed ? Offset(1.75, 3.5) : Offset(1, 2),
+                  )
+                ],
+              ),
+            ),
+          ),
+          (total > dateSet.length)
+              ? Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Text(
+                    'And more ..',
+                    style: TextStyle(
+                      fontSize: 18,
+                    ),
+                  ),
                 )
-              ],
-            ),
-          ),
-        ),
-      ],
+              : Container(),
+        ],
+      ),
     );
+    //});
   }
 }
