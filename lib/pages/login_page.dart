@@ -66,9 +66,9 @@ class _LoginPageState extends State<LoginPage> {
   void _gotoNextPage() {
     if (DataManager.alarmList.isNotEmpty) {
       // 알람이 있을 경우 셋팅 페이지로 이동한다.
-      Routemaster.of(context).push(AppRoutes.settingPage);
+      Routemaster.of(context).replace(AppRoutes.settingPage);
     } else {
-      Routemaster.of(context).push(AppRoutes.timeSheetPage);
+      Routemaster.of(context).replace(AppRoutes.timeSheetPage);
     }
   }
 
@@ -470,14 +470,38 @@ class _LoginPageState extends State<LoginPage> {
                           return;
                         }
 
-                        setState(() {
-                          colorEffectIndex = 4;
-                          _loginProcessing = true;
-                          Timer.periodic(const Duration(seconds: 1), (timer) {
-                            timer.cancel();
-                            login(userId: userId, password: password);
-                          });
-                        });
+                        showDialog<String>(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (BuildContext context) => WillPopScope(
+                          onWillPop: () async {
+                            print('ttt');
+                            return false;
+                          },
+                          child: AlertDialog(
+                            title: const Text('AlertDialog Title'),
+                            content: const Text('AlertDialog description'),
+                            actions: <Widget>[
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, 'Cancel'),
+                                child: const Text('Cancel'),
+                              ),
+                              TextButton(
+                                onPressed: () => Navigator.pop(context, 'OK'),
+                                child: const Text('OK'),
+                              ),
+                            ],
+                          ),),
+                        );
+                        //
+                        // setState(() {
+                        //   colorEffectIndex = 4;
+                        //   _loginProcessing = true;
+                        //   Timer.periodic(const Duration(seconds: 1), (timer) {
+                        //     timer.cancel();
+                        //     login(userId: userId, password: password);
+                        //   });
+                        // });
                       },
                     ),
                   ),
@@ -520,7 +544,7 @@ class _LoginPageState extends State<LoginPage> {
                           width: 260,
                           height: 40,
                           decoration: BoxDecoration(
-                            color: Colors.red[200], //light blue
+                            color: Colors.red[300], //light blue
                             borderRadius: BorderRadius.all(Radius.circular(45)),
                           ),
                           alignment: Alignment.center,
@@ -620,7 +644,7 @@ class _LoginPageState extends State<LoginPage> {
         decoration: const BoxDecoration(
             gradient: RadialGradient(center: Alignment.bottomCenter, radius: 1.5, colors: [
           Color.fromARGB(255, 13, 35, 61),
-          Colors.black,
+          Colors.white,
         ])),
         child: Metaballs(
           effect: colorsAndEffects[colorEffectIndex].effect,

@@ -5,7 +5,7 @@ import 'package:routemaster/routemaster.dart';
 
 import '../common/creta_scaffold.dart';
 import '../common/table_calendar.dart';
-//import '../common/logger.dart';
+import '../common/logger.dart';
 import '../routes.dart';
 import 'package:time_sheet/model/data_model.dart';
 
@@ -38,8 +38,12 @@ class _CalendarPageState extends State<CalendarPage> {
     // });
     DateFormat formatter = DateFormat('yyyy-MM-dd');
     String selDayStr = formatter.format(selectedDay);
-    DataManager.showDate = selDayStr;
-    Routemaster.of(context).push(AppRoutes.timeSheetPage);
+    if (DateTime.parse(selDayStr).compareTo(DateTime.now()) <= 0) {
+      DataManager.showDate = selDayStr;
+      Routemaster.of(context).push(AppRoutes.timeSheetPage);
+    } else {
+      showSnackBar(context, '차후 일정은 미리 설정할 수 없습니다');
+    }
   }
 
   void onTodayButtonTap() {
@@ -47,23 +51,25 @@ class _CalendarPageState extends State<CalendarPage> {
     _focusedDay = DateTime.now();
   }
 
-
   @override
   void initState() {
     super.initState();
-    List<DateTime> complateDtList = [
-      DateTime(2022, 11, 1),
-      DateTime(2022, 11, 2),
-      DateTime(2022, 11, 3),
-      DateTime(2022, 11, 4),
-    ];
-    _completeDays.addAll(complateDtList);
 
-    List<DateTime> incomplateDtList = [
-      DateTime(2022, 11, 7),
-      DateTime(2022, 11, 8),
-    ];
-    _incompleteDays.addAll(incomplateDtList);
+    DateTime now = DateTime.now();
+    int nowYear = now.year;
+    int nowMonth = now.month;
+    int nowDay = now.day;
+
+    for (int i = 1; i < nowDay - 1; i++) {
+      DateTime monthDay = DateTime(nowYear, nowMonth, i);
+      //_completeDays.add(monthDay);
+    }
+
+    for (var alarm in DataManager.alarmList) {
+      DateTime alarmDay = DateTime.parse(alarm.date);
+      _incompleteDays.add(alarmDay);
+      _completeDays.removeWhere((day) => day.compareTo(alarmDay) == 0);
+    }
   }
 
   @override
@@ -75,6 +81,7 @@ class _CalendarPageState extends State<CalendarPage> {
       leading: IconButton(
           onPressed: () {
             //AppRoutes.pop(context);
+            AppRoutes.lastPage = AppRoutes.calendarPage;
             AppRoutes.push(context, AppRoutes.timeSheetPage);
           },
           icon: const Icon(Icons.arrow_back)),
