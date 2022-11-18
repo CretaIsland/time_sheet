@@ -56,7 +56,7 @@ class TimeSheetPageState extends State<TimeSheetPage> {
               // });
             },
             title: DataManager.isUserLogin()
-                ? '${DataManager.loginUser!.hm_name!} 님         '
+                ? '${DataManager.loginUser!.hm_name!} 님     '
                 : 'Unknown user',
             context: context,
             // actions: [

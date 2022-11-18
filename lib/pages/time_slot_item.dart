@@ -464,7 +464,7 @@ class TimeSlotItemState extends State<TimeSlotItem> {
           fgColor: Colors.blue,
           ttype: TimeSlotType.before30,
           title: widget.model.projectCode1!,
-          fontSize: 20,
+          fontSize: 18,
         ),
         SizedBox(width: 5),
         _showProjectCode(
@@ -473,7 +473,7 @@ class TimeSlotItemState extends State<TimeSlotItem> {
           fgColor: Colors.blue,
           ttype: TimeSlotType.after30,
           title: widget.model.projectCode2!,
-          fontSize: 20,
+          fontSize: 18,
         ),
         SizedBox(width: 5),
         _deleteButton(),
