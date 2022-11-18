@@ -64,6 +64,7 @@ class _LoginPageState extends State<LoginPage> {
   bool _initDb = false;
 
   void _gotoNextPage() {
+    //Routemaster.of(context).replace(AppRoutes.settingPage);
     if (DataManager.alarmList.isNotEmpty) {
       // 알람이 있을 경우 셋팅 페이지로 이동한다.
       Routemaster.of(context).replace(AppRoutes.settingPage);
@@ -77,7 +78,8 @@ class _LoginPageState extends State<LoginPage> {
 
     try {
       // login
-      dynamic loginResult = await ApiService.login(userId, password).catchError((error, stackTrace) {
+      dynamic loginResult =
+          await ApiService.login(userId, password).catchError((error, stackTrace) {
         setState(() {
           colorEffectIndex = 0;
           _loginProcessing = false;
@@ -93,7 +95,7 @@ class _LoginPageState extends State<LoginPage> {
         setState(() {
           colorEffectIndex = 0;
           _loginProcessing = false;
-          _errMsg = 'ID 및 패스워드를 확인하세요';//userErrMsg;
+          _errMsg = 'ID 및 패스워드를 확인하세요'; //userErrMsg;
         });
         return false;
       }
@@ -108,28 +110,30 @@ class _LoginPageState extends State<LoginPage> {
         setState(() {
           colorEffectIndex = 0;
           _loginProcessing = false;
-          _errMsg = '사원정보가 없습니다';//'no sabun !!!';
+          _errMsg = '사원정보가 없습니다'; //'no sabun !!!';
         });
         return false;
       }
       logger.finest('get alarm(${userModel.sabun!})');
       // alarm
-      dynamic alarmResult = await ApiService.getAlarmRecord(userModel.sabun!).catchError((error, stackTrace) {
+      dynamic alarmResult =
+          await ApiService.getAlarmRecord(userModel.sabun!).catchError((error, stackTrace) {
         setState(() {
           colorEffectIndex = 0;
           _loginProcessing = false;
-          _errMsg = '알람정보 접속에 실패했습니다';//'getAlarmRecord Exception !!!';
+          _errMsg = '알람정보 접속에 실패했습니다'; //'getAlarmRecord Exception !!!';
         });
         return false;
       });
-      Map<String, dynamic> alarmData = Map<String, dynamic>.from(alarmResult); //jsonDecode(alarmResult);
+      Map<String, dynamic> alarmData =
+          Map<String, dynamic>.from(alarmResult); //jsonDecode(alarmResult);
       String alarmErrMsg = alarmData['err_msg'] ?? '';
       if (alarmErrMsg.compareTo('succeed') != 0 || alarmData['data'] == null) {
         // something error
         setState(() {
           colorEffectIndex = 0;
           _loginProcessing = false;
-          _errMsg = '잘못된 알람정보 입니다';//alarmErrMsg;
+          _errMsg = '잘못된 알람정보 입니다'; //alarmErrMsg;
         });
         return false;
       }
@@ -155,18 +159,19 @@ class _LoginPageState extends State<LoginPage> {
         setState(() {
           colorEffectIndex = 0;
           _loginProcessing = false;
-          _errMsg = '팀정보 접속에 실패했습니다';//'getTeam Exception !!!';
+          _errMsg = '팀정보 접속에 실패했습니다'; //'getTeam Exception !!!';
         });
         return false;
       });
-      Map<String, dynamic> teamData = Map<String, dynamic>.from(teamResult); //jsonDecode(teamResult);
+      Map<String, dynamic> teamData =
+          Map<String, dynamic>.from(teamResult); //jsonDecode(teamResult);
       String teamErrMsg = teamData['err_msg'] ?? '';
       if (teamErrMsg.compareTo('succeed') != 0 || teamData['data'] == null) {
         // something error
         setState(() {
           colorEffectIndex = 0;
           _loginProcessing = false;
-          _errMsg = '잘못된 팀정보 입니다';//teamErrMsg;
+          _errMsg = '잘못된 팀정보 입니다'; //teamErrMsg;
         });
         return false;
       }
@@ -179,22 +184,24 @@ class _LoginPageState extends State<LoginPage> {
 
       logger.finest('get favorites(${userModel.sabun!})');
       // favorites
-      dynamic favorResult = await ApiService.getMyFavorite(userModel.sabun!).catchError((error, stackTrace) {
+      dynamic favorResult =
+          await ApiService.getMyFavorite(userModel.sabun!).catchError((error, stackTrace) {
         setState(() {
           colorEffectIndex = 0;
           _loginProcessing = false;
-          _errMsg = '즐겨찾기 접속에 실패했습니다';//'getMyFavorite Exception !!!';
+          _errMsg = '즐겨찾기 접속에 실패했습니다'; //'getMyFavorite Exception !!!';
         });
         return false;
       });
-      Map<String, dynamic> favorData = Map<String, dynamic>.from(favorResult); //jsonDecode(favorResult);
+      Map<String, dynamic> favorData =
+          Map<String, dynamic>.from(favorResult); //jsonDecode(favorResult);
       String favorErrMsg = favorData['err_msg'] ?? '';
       if (favorErrMsg.compareTo('succeed') != 0 || favorData['data'] == null) {
         // something error
         setState(() {
           colorEffectIndex = 0;
           _loginProcessing = false;
-          _errMsg = '잘못된 즐겨찾기 정보입니다';//favorErrMsg;
+          _errMsg = '잘못된 즐겨찾기 정보입니다'; //favorErrMsg;
         });
         return false;
       }
@@ -207,27 +214,29 @@ class _LoginPageState extends State<LoginPage> {
 
       //project list;
       logger.finest('get project(${userModel.tm_id!})');
-      dynamic projectResult = await ApiService.getProjectList(userModel.tm_id!).catchError((error, stackTrace) {
+      dynamic projectResult =
+          await ApiService.getProjectList(userModel.tm_id!).catchError((error, stackTrace) {
         setState(() {
           colorEffectIndex = 0;
           _loginProcessing = false;
-          _errMsg = '프로젝트 접속에 실패했습니다';//'getProjectList Exception !!!';
+          _errMsg = '프로젝트 접속에 실패했습니다'; //'getProjectList Exception !!!';
         });
         return false;
       });
-      Map<String, dynamic> projectData = Map<String, dynamic>.from(projectResult); //jsonDecode(projectResult);
+      Map<String, dynamic> projectData =
+          Map<String, dynamic>.from(projectResult); //jsonDecode(projectResult);
       String projectErrMsg = projectData['err_msg'] ?? '';
       if (projectErrMsg.compareTo('succeed') != 0 || projectData['data'] == null) {
         // something error
         setState(() {
           colorEffectIndex = 0;
           _loginProcessing = false;
-          _errMsg = '잘못된 프로젝트정보 입니다';//projectErrMsg;
+          _errMsg = '잘못된 프로젝트정보 입니다'; //projectErrMsg;
         });
         return false;
       }
-      List<ProjectModel> projectModelList = [];
-      List<String> projectDescList = [];
+      Set<ProjectModel> projectModelList = {};
+      Set<String> projectDescList = {};
 
       List<dynamic> projectList = projectData['data']; //jsonDecode(projectData['data']);
       List<dynamic>? projectOthers = projectData['others']; //jsonDecode(projectData['data']);
@@ -259,7 +268,7 @@ class _LoginPageState extends State<LoginPage> {
           }
           if (DataManager.projectOthers[tmId] == null) {
             logger.finest(project['tm_id']!);
-            DataManager.projectOthers[tmId] = [];
+            DataManager.projectOthers[tmId] = {};
           }
           DataManager.projectOthers[tmId]!.add('${proj.code}/${proj.name}');
         }
@@ -284,7 +293,7 @@ class _LoginPageState extends State<LoginPage> {
       setState(() {
         colorEffectIndex = 0;
         _loginProcessing = false;
-        _errMsg = '접속중 오류가 발생하였습니다';//'something error !!! (${e.toString()})';
+        _errMsg = '접속중 오류가 발생하였습니다'; //'something error !!! (${e.toString()})';
       });
       return false;
     }
@@ -396,7 +405,8 @@ class _LoginPageState extends State<LoginPage> {
                         filled: true,
                         fillColor: Color(0x99FFFFFF), //Colors.white,
                         hintText: 'ID',
-                        border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(16.0))),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(16.0))),
                         prefixIcon: Icon(Icons.person),
                       ),
                       //style: const TextStyle(fontSize: 12.0),
@@ -421,7 +431,8 @@ class _LoginPageState extends State<LoginPage> {
                         filled: true,
                         fillColor: Color(0x99FFFFFF), //Colors.white,
                         hintText: 'Password',
-                        border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(16.0))),
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(16.0))),
                         prefixIcon: Icon(Icons.password),
                         suffixIcon: MouseRegion(
                             cursor: SystemMouseCursors.click,
@@ -513,39 +524,40 @@ class _LoginPageState extends State<LoginPage> {
                   const SizedBox(height: 12.0),
                   _errMsg.isNotEmpty
                       ? Stack(
-                    children: <Widget>[
-                      Opacity(
-                        opacity: 0.6,
-                        child:     Container(
-                          width: 260,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: Colors.red[300], //light blue
-                            borderRadius: BorderRadius.all(Radius.circular(45)),
-                          ),
-                          alignment: Alignment.center,
-                          child: Text(
-                            _errMsg,
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: Colors.white,
+                          children: <Widget>[
+                            Opacity(
+                              opacity: 0.6,
+                              child: Container(
+                                width: 260,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  color: Colors.red[300], //light blue
+                                  borderRadius: BorderRadius.all(Radius.circular(45)),
+                                ),
+                                alignment: Alignment.center,
+                                child: Text(
+                                  _errMsg,
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
-                        ),),
-                      Container(
-                        width: 260,
-                        height: 40,
-                        alignment: Alignment.center,
-                        child: Text(
-                          _errMsg,
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ],
-                  )
+                            Container(
+                              width: 260,
+                              height: 40,
+                              alignment: Alignment.center,
+                              child: Text(
+                                _errMsg,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ],
+                        )
                       : const SizedBox(
                           height: 40,
                         ),
@@ -560,7 +572,6 @@ class _LoginPageState extends State<LoginPage> {
             ),
     );
   }
-
 
   void _autoLogin() async {
     CrossCommonJob ccj = CrossCommonJob();
@@ -631,7 +642,9 @@ class _LoginPageState extends State<LoginPage> {
           metaballs: 40,
           color: Colors.grey,
           gradient: LinearGradient(
-              colors: colorsAndEffects[colorEffectIndex].colors, begin: Alignment.bottomRight, end: Alignment.topLeft),
+              colors: colorsAndEffects[colorEffectIndex].colors,
+              begin: Alignment.bottomRight,
+              end: Alignment.topLeft),
           child: (_initDb == false)
               ? Container()
               : ((isPortrait)

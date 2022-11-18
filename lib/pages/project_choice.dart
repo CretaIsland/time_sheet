@@ -5,11 +5,11 @@ import 'package:flutter/material.dart';
 import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:simple_tags/simple_tags.dart';
 import 'package:time_sheet/pages/time_slot_item.dart';
-import 'package:time_sheet/routes.dart';
 
 import '../common/logger.dart';
 import '../common/team_select.dart';
 import '../model/data_model.dart';
+import 'time_sheet_wrapper.dart';
 
 class ProjectChoice extends StatefulWidget {
   static TimeSlotModel? selectedModel;
@@ -28,14 +28,14 @@ class _ProjectChoiceState extends State<ProjectChoice> {
   @override
   Widget build(BuildContext context) {
     return Material(
-      child: Center(
-          child: Container(
-        width: 300,
-        height: 600,
+      child: Container(
+        width: TimeSheetWrapper.drawerWidth,
+        //height: 600,
         color: Colors.transparent,
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('프로젝트 코드를 선택하세요'),
+            //Text('프로젝트 코드를 선택하세요'),
             _favorateProject(),
             //_searchProject(),
             SizedBox(height: 20),
@@ -45,29 +45,29 @@ class _ProjectChoiceState extends State<ProjectChoice> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 DialogButton(
-                  width: 120,
+                  width: 100,
                   onPressed: onCancel,
                   child: const Text(
                     "Cancel",
-                    style: TextStyle(color: Colors.white, fontSize: 20),
+                    style: TextStyle(color: Colors.white, fontSize: 16),
                   ),
                 ),
                 DialogButton(
-                  width: 120,
+                  width: 100,
                   color: Colors.amber,
                   onPressed: () {
                     onOK(_controller.value, ProjectChoice.selectedTtype!);
                   },
                   child: const Text(
-                    "  OK  ",
-                    style: TextStyle(color: Colors.white, fontSize: 20),
+                    "OK",
+                    style: TextStyle(color: Colors.white, fontSize: 16),
                   ),
                 ),
               ],
             )
           ],
         ),
-      )),
+      ),
     );
   }
 
@@ -91,17 +91,22 @@ class _ProjectChoiceState extends State<ProjectChoice> {
     await _saveJob();
     _controller.value = null;
     // ignore: use_build_context_synchronously
-    AppRoutes.push(context, AppRoutes.timeSheetPage);
+    _close();
+  }
+
+  void _close() {
+    tsGlobalKey.currentState?.closeDrawer();
+    //AppRoutes.push(context, AppRoutes.timeSheetPage);
   }
 
   void onCancel() {
     _justSelected = null;
-    AppRoutes.push(context, AppRoutes.timeSheetPage);
+    _close();
   }
 
   Widget _favorateProject() {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12.0),
+      padding: const EdgeInsets.only(bottom: 12.0),
       child: SimpleTags(
         content: DataManager.myFavoriteList,
         wrapSpacing: 4,
@@ -157,7 +162,7 @@ class _ProjectChoiceState extends State<ProjectChoice> {
     _justSelected = tag;
     await _saveJob();
     // ignore: use_build_context_synchronously
-    AppRoutes.push(context, AppRoutes.timeSheetPage);
+    _close();
   }
 
   Future<void> _saveJob() async {

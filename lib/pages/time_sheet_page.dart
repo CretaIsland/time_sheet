@@ -3,12 +3,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+// import 'package:flutter_weather_bg_null_safety/bg/weather_bg.dart';
+// import 'package:flutter_weather_bg_null_safety/utils/weather_type.dart';
 
 import '../common/creta_scaffold.dart';
 import '../common/logger.dart';
 import '../model/data_model.dart';
 import '../model/slot_manager.dart';
 import '../routes.dart';
+import 'time_sheet_wrapper.dart';
 import 'time_slot_item.dart';
 
 class TimeSheetPage extends StatefulWidget {
@@ -53,7 +56,7 @@ class TimeSheetPageState extends State<TimeSheetPage> {
               // });
             },
             title: DataManager.isUserLogin()
-                ? '${DataManager.loginUser!.hm_name!}          '
+                ? '${DataManager.loginUser!.hm_name!} 님         '
                 : 'Unknown user',
             context: context,
             // actions: [
@@ -116,107 +119,50 @@ class TimeSheetPageState extends State<TimeSheetPage> {
   }
 
   Widget _drawPage(List<TimeSlotModel> dailyList) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.blue.withOpacity(0.2),
-        //image: DecorationImage(image: AssetImage('assets/blurLight.jpg'), fit: BoxFit.fill),
-      ),
-      child: Column(
-        children: [
-          Expanded(
-            flex: 1,
-            child: Container(
-              color: Colors.transparent,
-              alignment: AlignmentDirectional.center,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  IconButton(
-                      onPressed: _toPast,
-                      icon: Icon(
-                        Icons.arrow_back_ios,
-                        size: 32,
-                      )),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      TextButton(
-                        onPressed: () {
-                          setState(() {
-                            _dateMove = 0;
-                          });
-                        },
-                        child: Text(
-                          '${slotManagerHolder!.currentDate}$_weekday',
-                          style: TextStyle(
-                            fontSize: 24,
-                            color: _dateMove == 0 ? Colors.black : Colors.blue[500]!,
-                          ),
-                        ),
-                      ),
-                      ElevatedButton(
-                        //visualDensity: VisualDensity.compact,
-                        onPressed: () {
-                          AppRoutes.push(context, AppRoutes.calendarPage);
-                        },
-                        child: Icon(Icons.calendar_month),
-                        //padding: EdgeInsets.all(0),
-                      )
-                    ],
-                  ),
-                  (DataManager.getTodayString() != slotManagerHolder!.currentDate)
-                      ? IconButton(
-                          onPressed: _toFuture,
-                          icon: Icon(
-                            Icons.arrow_forward_ios,
-                            size: 32,
-                          ))
-                      : IconButton(
-                          onPressed: () {},
-                          icon: Icon(
-                            color: Colors.grey[100]!,
-                            Icons.arrow_forward_ios,
-                            size: 32,
-                          ))
-                ],
+    return Stack(
+      children: [
+        // LayoutBuilder(builder: (context, constraint) {
+        //   return WeatherBg(
+        //     weatherType: WeatherType.cloudy,
+        //     width: constraint.maxWidth,
+        //     height: constraint.maxHeight,
+        //   );
+        // }),
+        Container(
+          decoration: BoxDecoration(
+              //color: Colors.blue.withOpacity(0.2),
+              gradient: LinearGradient(
+            colors: [
+              Colors.blue.withOpacity(0.2),
+              Colors.blue.withOpacity(0.3),
+              Colors.blue.withOpacity(0.4),
+              Colors.blue.withOpacity(0.5),
+            ],
+            begin: Alignment.bottomCenter,
+            end: Alignment.topCenter,
+          )
+              //image: DecorationImage(image: AssetImage('assets/blurLight.jpg'), fit: BoxFit.fill),
               ),
-            ),
+          child: Column(
+            children: [
+              Expanded(
+                flex: 1,
+                child: _dateView(),
+              ),
+              Expanded(
+                flex: 11,
+                child: _timeSheetView(dailyList),
+              ),
+              //),
+            ],
           ),
-          Expanded(
-            flex: 11,
-            //child: GestureDetector(
-            // onPanUpdate: (details) {
-            //   // Swiping in right direction.
-            //   if (details.delta.dx > 0) {
-            //     _toPast();
-            //   }
-            //   // Swiping in left direction.
-            //   if (details.delta.dx < 0) {
-            //     _toFuture();
-            //   }
-            // },
-            // child: WidgetAnimator(
-            //   incomingEffect: _moveToRight
-            //       ? WidgetTransitionEffects.incomingScaleUp(
-            //           rotation: 0.2,
-            //           curve: Curves.easeInQuad,
-            //         )
-            //       : WidgetTransitionEffects.incomingScaleUp(
-            //           rotation: -0.2,
-            //           curve: Curves.easeInQuad,
-            //         ),
-            //   child: _timeSheetView(dailyList),
-            child: _timeSheetView(dailyList),
-            //),
-          ),
-          //),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
   void _toPast() {
+    tsGlobalKey.currentState?.closeDrawer();
     setState(() {
       _dateMove--;
       //_moveToRight = true;
@@ -230,6 +176,66 @@ class TimeSheetPageState extends State<TimeSheetPage> {
       //_moveToRight = false;
       print('right to left $_dateMove');
     });
+  }
+
+  Widget _dateView() {
+    return Container(
+      color: Colors.transparent,
+      alignment: AlignmentDirectional.center,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          IconButton(
+              onPressed: _toPast,
+              icon: Icon(
+                Icons.arrow_back_ios,
+                size: 32,
+              )),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextButton(
+                onPressed: () {
+                  setState(() {
+                    _dateMove = 0;
+                  });
+                },
+                child: Text(
+                  '${slotManagerHolder!.currentDate}$_weekday',
+                  style: TextStyle(
+                    fontSize: 24,
+                    color: _dateMove == 0 ? Colors.black : Colors.blue[500]!,
+                  ),
+                ),
+              ),
+              ElevatedButton(
+                //visualDensity: VisualDensity.compact,
+                onPressed: () {
+                  AppRoutes.push(context, AppRoutes.calendarPage);
+                },
+                child: Icon(Icons.calendar_month),
+                //padding: EdgeInsets.all(0),
+              )
+            ],
+          ),
+          (DataManager.getTodayString() != slotManagerHolder!.currentDate)
+              ? IconButton(
+                  onPressed: _toFuture,
+                  icon: Icon(
+                    Icons.arrow_forward_ios,
+                    size: 32,
+                  ))
+              : IconButton(
+                  onPressed: () {},
+                  icon: Icon(
+                    color: Colors.grey[100]!,
+                    Icons.arrow_forward_ios,
+                    size: 32,
+                  ))
+        ],
+      ),
+    );
   }
 
   Widget _timeSheetView(List<TimeSlotModel> dailyList) {

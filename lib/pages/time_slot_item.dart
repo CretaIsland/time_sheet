@@ -9,11 +9,12 @@ import 'package:dropdown_plus/dropdown_plus.dart';
 import 'package:simple_tags/simple_tags.dart';
 import 'package:morphing_text/morphing_text.dart';
 import 'package:time_sheet/pages/project_choice.dart';
-import 'package:time_sheet/routes.dart';
 import '../common/logger.dart';
 import '../common/my_flip_card.dart';
 import '../common/team_select.dart';
 import '../model/data_model.dart';
+import 'time_sheet_wrapper.dart';
+
 //import 'package:flutter/foundation.dart' show kIsWeb;
 
 //import '../routes.dart';
@@ -52,6 +53,7 @@ class TimeSlotItemState extends State<TimeSlotItem> {
   final DropdownEditingController<String> _controller = DropdownEditingController<String>();
 
   String? _justSelected;
+  bool showPiano = false;
 
   get slotManagerHolder => null;
   // ignore: prefer_final_fields
@@ -114,6 +116,7 @@ class TimeSlotItemState extends State<TimeSlotItem> {
         title: _getTitle(),
         onTap: () {
           logger.finest('onTap');
+          tsGlobalKey.currentState?.closeDrawer();
         },
       ),
     );
@@ -143,7 +146,8 @@ class TimeSlotItemState extends State<TimeSlotItem> {
 
     ProjectChoice.selectedModel = widget.model;
     ProjectChoice.selectedTtype = ttype;
-    AppRoutes.push(context, AppRoutes.projectChoice);
+    tsGlobalKey.currentState?.openDrawer();
+    //AppRoutes.push(context, AppRoutes.projectChoice);
   }
 
   Alert runAlertPopUp(TimeSlotType ttype) {
@@ -260,7 +264,7 @@ class TimeSlotItemState extends State<TimeSlotItem> {
   Widget _searchProject() {
     return TextDropdownFormField(
       controller: _controller,
-      options: DataManager.projectDescList,
+      options: DataManager.projectDescList.toList(),
       decoration: const InputDecoration(
           border: OutlineInputBorder(),
           suffixIcon: Icon(Icons.arrow_drop_down),
@@ -632,7 +636,7 @@ class TimeSlotItemState extends State<TimeSlotItem> {
                 Colors.white10,
               ],
             ),
-            border: Border.all(width: 2, color: Colors.white30),
+            border: Border.all(width: 2, color: Colors.white60),
             borderRadius: BorderRadius.all(Radius.circular(18)),
           ),
           alignment: AlignmentDirectional.center,

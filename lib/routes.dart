@@ -5,9 +5,9 @@ import 'package:routemaster/routemaster.dart';
 import 'package:time_sheet/pages/project_choice.dart';
 import 'common/logger.dart';
 import 'pages/login_page.dart';
-import 'pages/time_sheet_page.dart';
 import 'pages/calendar_page.dart';
 import 'pages/setting_page.dart';
+import 'pages/time_sheet_wrapper.dart';
 
 class AppRoutes {
   static const String timeSheetPage = '/timeSheetPage';
@@ -55,7 +55,7 @@ final routesLoggedOut = RouteMap(
       return TransitionPage(child: LoginPage());
     },
     AppRoutes.timeSheetPage: (_) {
-      return TransitionPage(child: TimeSheetPage());
+      return TransitionPage(child: TimeSheetWrapper(key: tsGlobalKey));
     },
     AppRoutes.settingPage: (_) {
       return TransitionPage(child: SettingPage());
@@ -75,7 +75,7 @@ final routesLoggedIn = RouteMap(
   },
   routes: {
     AppRoutes.timeSheetPage: (_) {
-      return TransitionPage(child: TimeSheetPage());
+      return TransitionPage(child: TimeSheetWrapper(key: tsGlobalKey));
     },
   },
 );

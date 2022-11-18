@@ -91,9 +91,9 @@ class DataManager {
   static UserModel? loginUser;
   static String? showDate;
   static List<String> myFavoriteList = [];
-  static List<ProjectModel> projectList = [];
-  static Map<String, List<String>> projectOthers = {};
-  static List<String> projectDescList = [];
+  static Set<ProjectModel> projectList = {};
+  static Map<String, Set<String>> projectOthers = {};
+  static Set<String> projectDescList = {};
   static List<String> teamList = [];
   static List<AlarmModel> alarmList = [];
 
@@ -440,7 +440,7 @@ class DataManager {
         }
         if (DataManager.projectOthers[tmId] == null) {
           logger.finest(project['tm_id']!);
-          DataManager.projectOthers[tmId] = [];
+          DataManager.projectOthers[tmId] = {};
         }
         DataManager.projectOthers[tmId]!.add('${proj.code}/${proj.name}');
       }

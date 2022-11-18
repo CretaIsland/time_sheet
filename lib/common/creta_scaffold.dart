@@ -111,34 +111,6 @@ class CretaScaffold {
         },
       ));
     }
-    if (AppRoutes.isCurrentPage(context, AppRoutes.settingPage)) {
-      retval.add(SpeedDialChild(
-        child: Icon(Icons.refresh_outlined),
-        label: '프로젝트 다시 가져오기',
-        onTap: () {
-          showSnackBar(gkey.currentContext!, '아직 구현되지 않았음');
-        },
-      ));
-      retval.add(SpeedDialChild(
-        child: Icon(Icons.arrow_back_outlined),
-        label: '돌아가기',
-        onTap: () {},
-      ));
-    }
-    if (AppRoutes.isCurrentPage(context, AppRoutes.login)) {
-      retval.add(SpeedDialChild(
-        child: Icon(Icons.logout_outlined),
-        label: 'logout 하기',
-        onTap: () {
-          showSnackBar(gkey.currentContext!, '아직 구현되지 않았음');
-        },
-      ));
-      retval.add(SpeedDialChild(
-        child: Icon(Icons.exit_to_app_outlined),
-        label: '앱 끝내기',
-        onTap: () {},
-      ));
-    }
 
     return retval;
   }
