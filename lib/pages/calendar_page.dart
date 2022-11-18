@@ -55,15 +55,15 @@ class _CalendarPageState extends State<CalendarPage> {
   void initState() {
     super.initState();
 
-    DateTime now = DateTime.now();
-    int nowYear = now.year;
-    int nowMonth = now.month;
-    int nowDay = now.day;
-
-    for (int i = 1; i < nowDay - 1; i++) {
-      DateTime monthDay = DateTime(nowYear, nowMonth, i);
-      //_completeDays.add(monthDay);
-    }
+    // DateTime now = DateTime.now();
+    // int nowYear = now.year;
+    // int nowMonth = now.month;
+    // int nowDay = now.day;
+    //
+    // for (int i = 1; i < nowDay - 1; i++) {
+    //   DateTime monthDay = DateTime(nowYear, nowMonth, i);
+    //   _completeDays.add(monthDay);
+    // }
 
     for (var alarm in DataManager.alarmList) {
       DateTime alarmDay = DateTime.parse(alarm.date);
