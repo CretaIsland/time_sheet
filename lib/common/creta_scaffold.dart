@@ -77,11 +77,11 @@ class CretaScaffold {
 
   List<SpeedDialChild> _timeSheetPageDial(BuildContext context) {
     return [
-      //  SpeedDialChild(
-      //   child: Icon(Icons.refresh_outlined),
-      //   label: '프로젝트 목록 다시 가져오기',
-      //   onTap: refreshProject,
-      // ),
+      SpeedDialChild(
+        child: Icon(Icons.refresh_outlined),
+        label: '프로젝트 목록 다시 가져오기',
+        onTap: refreshProject,
+      ),
       SpeedDialChild(
         child: Icon(Icons.copy_outlined),
         label: '어제 것으로 복사하기',

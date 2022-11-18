@@ -1,9 +1,9 @@
 // This is a generated file; do not edit or check into version control.
-FLUTTER_ROOT=C:\Project\flutter_sdk
-FLUTTER_APPLICATION_PATH=C:\Project\time_sheet
+FLUTTER_ROOT=D:\Flutter\src\flutter
+FLUTTER_APPLICATION_PATH=D:\Flutter\project\time_sheet
 COCOAPODS_PARALLEL_CODE_SIGN=true
 FLUTTER_TARGET=lib\main.dart
-FLUTTER_BUILD_DIR=../release/hycop_demo_v1
+FLUTTER_BUILD_DIR=../release/creta03_v1
 FLUTTER_BUILD_NAME=1.0.0
 FLUTTER_BUILD_NUMBER=1
 EXCLUDED_ARCHS[sdk=iphonesimulator*]=i386

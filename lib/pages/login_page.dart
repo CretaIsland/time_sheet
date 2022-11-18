@@ -348,7 +348,7 @@ class _LoginPageState extends State<LoginPage> {
                       'IQSbz',
                       //textScaleFactor: 1.0, // disables accessibility
                       style: TextStyle(
-                        fontSize: 58.0,
+                        fontSize: 48.0,
                         fontWeight: FontWeight.w800,
                         color: Colors.white,
                         shadows: [
@@ -372,7 +372,7 @@ class _LoginPageState extends State<LoginPage> {
                       'Time Sheet',
                       //textScaleFactor: 1.0, // disables accessibility
                       style: TextStyle(
-                        fontSize: 58.0,
+                        fontSize: 48.0,
                         fontWeight: FontWeight.w800,
                         color: Colors.white,
                         shadows: [
@@ -390,7 +390,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 60.0),
+                  const SizedBox(height: 20.0),
                   SizedBox(
                     width: 300,
                     child: TextField(
@@ -450,7 +450,7 @@ class _LoginPageState extends State<LoginPage> {
                       //style: const TextStyle(fontSize: 12.0),
                     ),
                   ),
-                  const SizedBox(height: 32.0),
+                  const SizedBox(height: 40.0),
                   SizedBox(
                     width: 180,
                     height: 45,
