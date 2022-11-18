@@ -408,9 +408,9 @@ class DataManager {
     //List<ProjectModel> projectModelList = [];
     //List<String> projectDescList = [];
 
-    DataManager.projectList.clear();
-    DataManager.projectDescList.clear();
-    DataManager.projectOthers.clear();
+    // DataManager.projectList.clear();
+    // DataManager.projectDescList.clear();
+    // DataManager.projectOthers.clear();
 
     List<dynamic> dataList = projectData['data']; //jsonDecode(projectData['data']);
     List<dynamic>? othersList = projectData['others']; //jsonDecode(projectData['data']);

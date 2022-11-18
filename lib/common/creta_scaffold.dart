@@ -69,28 +69,27 @@ class CretaScaffold {
         //key: GlobalKey(),
         //backgroundColor: Colors.blue[700]!,
         animatedIcon: AnimatedIcons.menu_close,
-        children: _getDialList(context),
+        children: _timeSheetPageDial(context),
       );
     }
     return null;
   }
 
-  List<SpeedDialChild> _getDialList(BuildContext context) {
-    List<SpeedDialChild> retval = [];
-    if (AppRoutes.isCurrentPage(context, AppRoutes.timeSheetPage)) {
-      retval.add(SpeedDialChild(
-        child: Icon(Icons.refresh_outlined),
-        label: '프로젝트 목록 다시 가져오기',
-        onTap: refreshProject,
-      ));
-      retval.add(SpeedDialChild(
+  List<SpeedDialChild> _timeSheetPageDial(BuildContext context) {
+    return [
+      //  SpeedDialChild(
+      //   child: Icon(Icons.refresh_outlined),
+      //   label: '프로젝트 목록 다시 가져오기',
+      //   onTap: refreshProject,
+      // ),
+      SpeedDialChild(
         child: Icon(Icons.copy_outlined),
         label: '어제 것으로 복사하기',
         onTap: () {
           _copyYesterDay();
         },
-      ));
-      retval.add(SpeedDialChild(
+      ),
+      SpeedDialChild(
         child: Icon(Icons.exit_to_app),
         label: '끝내기',
         onTap: () async {
@@ -98,22 +97,58 @@ class CretaScaffold {
           if (isOK == true) {
             SystemNavigator.pop();
           }
-          // //AppRoutes.pop(context);
-          // AppRoutes.push(gkey.currentContext!, AppRoutes.calendarPage);
         },
-      ));
-      retval.add(SpeedDialChild(
+      ),
+      SpeedDialChild(
         child: Icon(Icons.logout_outlined),
         label: '로그 아웃',
         onTap: () async {
           await SqliteWrapper.clearAutologinInfo();
           AppRoutes.push(gkey.currentContext!, AppRoutes.login);
         },
-      ));
-    }
-
-    return retval;
+      ),
+    ];
   }
+
+// List<SpeedDialChild> _getDialList(BuildContext context) {
+//     List<SpeedDialChild> retval = [];
+//     if (AppRoutes.isCurrentPage(context, AppRoutes.timeSheetPage)) {
+//       // retval.add(SpeedDialChild(
+//       //   child: Icon(Icons.refresh_outlined),
+//       //   label: '프로젝트 목록 다시 가져오기',
+//       //   onTap: refreshProject,
+//       // ));
+//       retval.add(SpeedDialChild(
+//         child: Icon(Icons.copy_outlined),
+//         label: '어제 것으로 복사하기',
+//         onTap: () {
+//           _copyYesterDay();
+//         },
+//       ));
+//       retval.add(SpeedDialChild(
+//         child: Icon(Icons.exit_to_app),
+//         label: '끝내기',
+//         onTap: () async {
+//           bool isOK = await yesNoDialog(context, "정말로 앱을 끝내시겠습니까 ?");
+//           if (isOK == true) {
+//             SystemNavigator.pop();
+//           }
+//           // //AppRoutes.pop(context);
+//           // AppRoutes.push(gkey.currentContext!, AppRoutes.calendarPage);
+//         },
+//       ));
+//       retval.add(SpeedDialChild(
+//         child: Icon(Icons.logout_outlined),
+//         label: '로그 아웃',
+//         onTap: () async {
+//           await SqliteWrapper.clearAutologinInfo();
+//           AppRoutes.push(gkey.currentContext!, AppRoutes.login);
+//         },
+//       ));
+//     }
+
+//     return retval;
+//   }
 
   void _copyYesterDay() async {
     logger.finest('currentDate is ${slotManagerHolder!.currentDate}');
