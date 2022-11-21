@@ -208,6 +208,7 @@ class _LoginPageState extends State<LoginPage> {
       List<String> favorList = [];
       List<dynamic> favorDataList = favorData['data']; //jsonDecode(favorData['data']!);
       for (var eleFavor in favorDataList) {
+        if (favorList.length > 10) break;
         favorList.add(eleFavor);
       }
       logger.finest('get favorList(${userModel.sabun!})=${favorList.length}');

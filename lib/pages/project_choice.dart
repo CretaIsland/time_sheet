@@ -179,6 +179,13 @@ class _ProjectChoiceState extends State<ProjectChoice> {
   void onFavorite(String tag) async {
     logger.finest('pressed $tag');
     _justSelected = tag;
+    if (DataManager.myFavoriteList.first != _justSelected!) {
+      if (DataManager.myFavoriteList.contains(_justSelected!)) {
+        DataManager.myFavoriteList.remove(_justSelected!);
+      }
+      DataManager.myFavoriteList.insert(0, _justSelected!);
+    }
+
     await _saveJob();
     // ignore: use_build_context_synchronously
     _close();

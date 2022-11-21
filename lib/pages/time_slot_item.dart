@@ -112,6 +112,7 @@ class TimeSlotItemState extends State<TimeSlotItem> {
         title: _getTitle(),
         onTap: () {
           logger.finest('onTap');
+          timeSheetListGlobalKey.currentState?.unShowMenu();
           tsGlobalKey.currentState?.closeDrawer();
         },
       ),
@@ -150,7 +151,7 @@ class TimeSlotItemState extends State<TimeSlotItem> {
       // setState(() {
       //   showMenu = true;
       // });
-      timeSheetListGlobalKey.currentState?.showMenu();
+      timeSheetListGlobalKey.currentState?.toggleShowMenu();
     } else {
       tsGlobalKey.currentState?.openDrawer();
     }

@@ -32,6 +32,20 @@ class TimeSheetListState extends State<TimeSheetList> {
     });
   }
 
+  void unShowMenu() {
+    if (_showMenu) {
+      setState(() {
+        _showMenu = false;
+      });
+    }
+  }
+
+  void toggleShowMenu() {
+    setState(() {
+      _showMenu = !_showMenu;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return _timeSheetView(widget.dailyList);
@@ -111,6 +125,12 @@ class TimeSheetListState extends State<TimeSheetList> {
   void onFavorite(String tag) async {
     logger.finest('pressed $tag');
     _justSelected = tag;
+    if (DataManager.myFavoriteList.first != _justSelected!) {
+      if (DataManager.myFavoriteList.contains(_justSelected!)) {
+        DataManager.myFavoriteList.remove(_justSelected!);
+      }
+      DataManager.myFavoriteList.insert(0, _justSelected!);
+    }
     _showMenu = false;
     await _saveJob();
     // ignore: use_build_context_synchronously

@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:time_sheet/common/sqlite_wapper.dart';
 import 'package:time_sheet/model/slot_manager.dart';
+import 'package:time_sheet/pages/time_sheet_list.dart';
 import '../../routes.dart';
 import '../model/data_model.dart';
 import 'logger.dart';
@@ -68,6 +69,9 @@ class CretaScaffold {
       return SpeedDial(
         //key: GlobalKey(),
         //backgroundColor: Colors.blue[700]!,
+        onOpen: () {
+          timeSheetListGlobalKey.currentState?.unShowMenu();
+        },
         animatedIcon: AnimatedIcons.menu_close,
         children: _timeSheetPageDial(context),
       );

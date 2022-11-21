@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:routemaster/routemaster.dart';
 import 'package:time_sheet/pages/time_sheet_list.dart';
 // import 'package:flutter_weather_bg_null_safety/bg/weather_bg.dart';
 // import 'package:flutter_weather_bg_null_safety/utils/weather_type.dart';
@@ -55,20 +56,16 @@ class TimeSheetPageState extends State<TimeSheetPage> {
               //   slotManagerHolder!.initCurrentDate();
               // });
             },
-            title: DataManager.isUserLogin()
-                ? '${DataManager.loginUser!.hm_name!} 님     '
-                : 'Unknown user',
+            title:
+                DataManager.isUserLogin() ? '${DataManager.loginUser!.hm_name!}님' : 'Unknown user',
             context: context,
-            // actions: [
-            //   IconButton(
-            //       onPressed: () async {
-            //         bool isOK = await yesNoDialog(context, "정말로 앱을 끝내시겠습니까 ?");
-            //         if (isOK == true) {
-            //           SystemNavigator.pop();
-            //         }
-            //       },
-            //       icon: Icon(Icons.close_outlined))
-            // ],
+            actions: [
+              IconButton(
+                  onPressed: () async {
+                    Routemaster.of(context).replace(AppRoutes.statPage);
+                  },
+                  icon: Icon(Icons.pie_chart_outline))
+            ],
             leading: AppRoutes.lastPage == AppRoutes.settingPage
                 ? IconButton(
                     onPressed: () {

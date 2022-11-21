@@ -74,6 +74,20 @@ class ApiService {
     return _apiCall(ApiConstants.baseUrl + ApiConstants.getTimeSheet, body);
   }
 
+  static Future<dynamic> getTimeSheetStat(String tmId, String dateFrom, String dateTo) async {
+    logger.finest('getTimeSheetStat($tmId, $dateFrom, $dateTo)');
+
+    final dateFromStr = base64.encode(utf8.encode(dateFrom));
+    final dateToStr = base64.encode(utf8.encode(dateTo));
+
+    Map<String, String> body = {};
+    body['tmid'] = tmId;
+    body['dateStart'] = dateFromStr;
+    body['dateEnd'] = dateToStr;
+    logger.finest('getTimeSheetStat($tmId, $dateFromStr, $dateToStr)');
+    return _apiCall(ApiConstants.baseUrl + ApiConstants.getTimeSheetStat, body);
+  }
+
   static Future<dynamic> getAlarmRecord(String sabun) async {
     Map<String, String> body = {};
     body['id'] = sabun;

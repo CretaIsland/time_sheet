@@ -3,6 +3,7 @@ class ApiConstants {
 
   static String setTimeSheet = '/setTimeSheet';
   static String getTimeSheet = '/getTimeSheet';
+  static String getTimeSheetStat = '/getTimeSheetStat';
   static String login = '/login';
   static String getAlarmRecord = '/getAlarmRecord';
   static String getMyFavorite = '/getMyFavorite';

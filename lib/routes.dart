@@ -7,6 +7,7 @@ import 'common/logger.dart';
 import 'pages/login_page.dart';
 import 'pages/calendar_page.dart';
 import 'pages/setting_page.dart';
+import 'pages/stat_page.dart';
 import 'pages/time_sheet_wrapper.dart';
 
 class AppRoutes {
@@ -15,6 +16,7 @@ class AppRoutes {
   static const String calendarPage = '/calendarPage';
   static const String projectChoice = '/projectChoice';
   static const String login = '/login';
+  static const String statPage = '/statPage';
   static String lastPage = '';
 
   static void naviPush(BuildContext context, Widget page) {
@@ -29,7 +31,7 @@ class AppRoutes {
   }
 
   static push(BuildContext context, String page) {
-    Routemaster.of(context).push(page);
+    Routemaster.of(context).replace(page);
     logger.finest('push route=${Routemaster.of(context).currentRoute.fullPath}');
   }
 
@@ -65,6 +67,9 @@ final routesLoggedOut = RouteMap(
     },
     AppRoutes.projectChoice: (_) {
       return TransitionPage(child: ProjectChoice());
+    },
+    AppRoutes.statPage: (_) {
+      return TransitionPage(child: StatPage());
     },
   },
 );
