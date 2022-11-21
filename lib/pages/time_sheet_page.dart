@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:time_sheet/pages/time_sheet_list.dart';
 // import 'package:flutter_weather_bg_null_safety/bg/weather_bg.dart';
 // import 'package:flutter_weather_bg_null_safety/utils/weather_type.dart';
 
@@ -12,7 +13,6 @@ import '../model/data_model.dart';
 import '../model/slot_manager.dart';
 import '../routes.dart';
 import 'time_sheet_wrapper.dart';
-import 'time_slot_item.dart';
 
 class TimeSheetPage extends StatefulWidget {
   const TimeSheetPage({super.key});
@@ -150,9 +150,12 @@ class TimeSheetPageState extends State<TimeSheetPage> {
                 child: _dateView(),
               ),
               Expanded(
-                flex: 11,
-                child: _timeSheetView(dailyList),
-              ),
+                  flex: 11,
+                  //child: _timeSheetView(dailyList),
+                  child: TimeSheetList(
+                    key: timeSheetListGlobalKey,
+                    dailyList: dailyList,
+                  )),
               //),
             ],
           ),
@@ -238,73 +241,74 @@ class TimeSheetPageState extends State<TimeSheetPage> {
     );
   }
 
-  Widget _timeSheetView(List<TimeSlotModel> dailyList) {
-    //_createSample();
-    ListView listView = ListView.builder(
-      shrinkWrap: true,
-      //initialItemCount: 15,
-      itemCount: dailyList.length,
-      itemBuilder: (
-        context,
-        index,
-        /*animation*/
-      ) {
-        return Consumer<SlotManager>(builder: (context, slotManager, child) {
-          return TimeSlotItem(
-            itemKey: GlobalKey<TimeSlotItemState>(),
-            model: dailyList[index],
-            //animation: animation,
-            onCopy: () async {
-              String? project1 = dailyList[index].projectCode1;
-              String? project2 = dailyList[index].projectCode2;
+  // Widget _timeSheetView(List<TimeSlotModel> dailyList) {
+  //   //_createSample();
+  //   ListView listView = ListView.builder(
+  //     shrinkWrap: true,
+  //     //initialItemCount: 15,
+  //     itemCount: dailyList.length,
+  //     itemBuilder: (
+  //       context,
+  //       index,
+  //       /*animation*/
+  //     ) {
+  //       return Consumer<SlotManager>(builder: (context, slotManager, child) {
+  //         logger.finest('_timeSheetView setState()');
+  //         return TimeSlotItem(
+  //           itemKey: GlobalKey<TimeSlotItemState>(),
+  //           model: dailyList[index],
+  //           //animation: animation,
+  //           onCopy: () async {
+  //             String? project1 = dailyList[index].projectCode1;
+  //             String? project2 = dailyList[index].projectCode2;
 
-              if (project1 != null && project2 == null) {
-                project2 = project1;
-                dailyList[index].projectCode2 = project1;
-                dailyList[index].notifyUI =
-                    await DataManager.saveTimeSheet(dailyList[index].timeSlot, project1, project2);
-              }
+  //             if (project1 != null && project2 == null) {
+  //               project2 = project1;
+  //               dailyList[index].projectCode2 = project1;
+  //               dailyList[index].notifyUI =
+  //                   await DataManager.saveTimeSheet(dailyList[index].timeSlot, project1, project2);
+  //             }
 
-              bool changed = false;
-              for (int i = index + 1; i < dailyList.length; i++) {
-                if (dailyList[i].timeSlot == '12') {
-                  continue;
-                }
-                if (index < 12 && dailyList[i].timeSlot == '19') {
-                  break; // 18시이후는 자동도배해주지 않는다.
-                }
-                if (dailyList[i].projectCode1 != null) {
-                  break;
-                }
-                if (dailyList[i].projectCode2 != null) {
-                  break;
-                }
+  //             bool changed = false;
+  //             for (int i = index + 1; i < dailyList.length; i++) {
+  //               if (dailyList[i].timeSlot == '12') {
+  //                 continue;
+  //               }
+  //               if (index < 12 && dailyList[i].timeSlot == '19') {
+  //                 break; // 18시이후는 자동도배해주지 않는다.
+  //               }
+  //               if (dailyList[i].projectCode1 != null) {
+  //                 break;
+  //               }
+  //               if (dailyList[i].projectCode2 != null) {
+  //                 break;
+  //               }
 
-                if (project2 != null) {
-                  dailyList[i].projectCode1 = project2;
-                  dailyList[i].projectCode2 = project2;
-                  changed = true;
-                } else if (project1 != null) {
-                  dailyList[index].projectCode2 = project1;
-                  dailyList[i].projectCode1 = project1;
-                  dailyList[i].projectCode2 = project1;
-                  changed = true;
-                }
-                if (changed) {
-                  dailyList[i].notifyUI = await DataManager.saveTimeSheet(dailyList[i].timeSlot,
-                      dailyList[i].projectCode1 ?? '', dailyList[i].projectCode2 ?? '');
-                }
-              }
-              if (changed) {
-                slotManagerHolder!.notify();
-              }
-            },
-          );
-        });
-      },
-    );
-    return listView;
-  }
+  //               if (project2 != null) {
+  //                 dailyList[i].projectCode1 = project2;
+  //                 dailyList[i].projectCode2 = project2;
+  //                 changed = true;
+  //               } else if (project1 != null) {
+  //                 dailyList[index].projectCode2 = project1;
+  //                 dailyList[i].projectCode1 = project1;
+  //                 dailyList[i].projectCode2 = project1;
+  //                 changed = true;
+  //               }
+  //               if (changed) {
+  //                 dailyList[i].notifyUI = await DataManager.saveTimeSheet(dailyList[i].timeSlot,
+  //                     dailyList[i].projectCode1 ?? '', dailyList[i].projectCode2 ?? '');
+  //               }
+  //             }
+  //             if (changed) {
+  //               slotManagerHolder!.notify();
+  //             }
+  //           },
+  //         );
+  //       });
+  //     },
+  //   );
+  //   return listView;
+  // }
 
   // List<Widget> _timeSheetView() {
   //   _createSample();

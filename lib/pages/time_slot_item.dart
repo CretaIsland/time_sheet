@@ -4,15 +4,15 @@ import 'package:flutter/material.dart';
 //import 'package:material_dialogs/material_dialogs.dart';
 //import 'package:material_dialogs/widgets/buttons/icon_button.dart';
 //import 'package:material_dialogs/widgets/buttons/icon_outline_button.dart';
-import 'package:rflutter_alert/rflutter_alert.dart';
-import 'package:dropdown_plus/dropdown_plus.dart';
-import 'package:simple_tags/simple_tags.dart';
+//import 'package:rflutter_alert/rflutter_alert.dart';
 import 'package:morphing_text/morphing_text.dart';
 import 'package:time_sheet/pages/project_choice.dart';
+
 import '../common/logger.dart';
 import '../common/my_flip_card.dart';
-import '../common/team_select.dart';
+//import '../common/team_select.dart';
 import '../model/data_model.dart';
+import 'time_sheet_list.dart';
 import 'time_sheet_wrapper.dart';
 
 //import 'package:flutter/foundation.dart' show kIsWeb;
@@ -50,10 +50,10 @@ enum TimeSlotType {
 class TimeSlotItemState extends State<TimeSlotItem> {
   //static final Map<String, bool> _editModeMap = {};
   //final TextEditingController _controller = TextEditingController();
-  final DropdownEditingController<String> _controller = DropdownEditingController<String>();
+  //final DropdownEditingController<String> _controller = DropdownEditingController<String>();
 
-  String? _justSelected;
-  bool showPiano = false;
+  // String? _justSelected;
+  // bool showMenu = false;
 
   get slotManagerHolder => null;
   // ignore: prefer_final_fields
@@ -77,14 +77,10 @@ class TimeSlotItemState extends State<TimeSlotItem> {
   @override
   Widget build(BuildContext context) {
     return
-        //SizeTransition(
-        //  key: ValueKey(widget.model.timeSlot),
-        //  sizeFactor: widget.animation,
-        // child:
+        //Stack(
+        //children: [
         Container(
       margin: const EdgeInsets.all(4),
-
-      //width: 800,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(12),
         //color: Colors.white30,
@@ -120,6 +116,9 @@ class TimeSlotItemState extends State<TimeSlotItem> {
         },
       ),
     );
+    //showMenu ? _favorateProject() : Container(),
+    //],
+    //);
     //);
   }
 
@@ -146,132 +145,88 @@ class TimeSlotItemState extends State<TimeSlotItem> {
 
     ProjectChoice.selectedModel = widget.model;
     ProjectChoice.selectedTtype = ttype;
-    tsGlobalKey.currentState?.openDrawer();
+    if (DataManager.myFavoriteList.isNotEmpty) {
+      //tsGlobalKey.currentState?.openDrawer();
+      // setState(() {
+      //   showMenu = true;
+      // });
+      timeSheetListGlobalKey.currentState?.showMenu();
+    } else {
+      tsGlobalKey.currentState?.openDrawer();
+    }
     //AppRoutes.push(context, AppRoutes.projectChoice);
   }
 
-  Alert runAlertPopUp(TimeSlotType ttype) {
-    return Alert(
-        style: AlertStyle(alertAlignment: Alignment.topCenter),
-        context: context,
-        title: "프로젝트 코드를 선택하세요",
-        content: Column(
-          children: <Widget>[
-            _favorateProject(),
-            _searchProject(),
-            SizedBox(height: 20),
-            TeamSelectWidget(controller: _controller),
-          ],
-        ),
-        closeIcon: const Icon(Icons.close_outlined),
-        buttons: [
-          DialogButton(
-            onPressed: onCancel,
-            child: const Text(
-              "Cancel",
-              style: TextStyle(color: Colors.white, fontSize: 20),
-            ),
-          ),
-          DialogButton(
-            color: Colors.amber,
-            onPressed: () {
-              onOK(_controller.value, ttype);
-            },
-            child: const Text(
-              "OK",
-              style: TextStyle(color: Colors.white, fontSize: 20),
-            ),
-          ),
-        ]);
-  }
+  // void onFavorite(String tag) async {
+  //   logger.finest('pressed $tag');
+  //   _justSelected = tag;
+  //   showMenu = false;
+  //   await _saveJob();
+  //   // ignore: use_build_context_synchronously
+  //   //Navigator.pop(context);
+  // }
 
-  void onFavorite(String tag) {
-    logger.finest('pressed $tag');
-    _justSelected = tag;
-    Navigator.pop(context);
-  }
+  // Future<void> _saveJob() async {
+  //   if (_justSelected != null && ProjectChoice.selectedTtype != TimeSlotType.none) {
+  //     if (ProjectChoice.selectedTtype == TimeSlotType.after30) {
+  //       ProjectChoice.selectedModel!.projectCode2 = _justSelected;
+  //     } else if (ProjectChoice.selectedTtype == TimeSlotType.before30) {
+  //       ProjectChoice.selectedModel!.projectCode1 = _justSelected;
+  //     } else if (ProjectChoice.selectedTtype == TimeSlotType.wholeHour) {
+  //       ProjectChoice.selectedModel!.projectCode1 = _justSelected;
+  //       ProjectChoice.selectedModel!.projectCode2 = _justSelected;
+  //     }
+  //     ProjectChoice.selectedModel!.notifyUI = await DataManager.saveTimeSheet(
+  //         ProjectChoice.selectedModel!.timeSlot,
+  //         ProjectChoice.selectedModel!.projectCode1 ?? '',
+  //         ProjectChoice.selectedModel!.projectCode2 ?? '');
+  //     DataManager.saveAllMyFavorite();
+  //     _justSelected = null;
+  //     setState(() {});
+  //   }
+  // }
 
-  void onOK(String? tag, TimeSlotType ttype) async {
-    if (tag == null) {
-      _justSelected = null;
-
-      Navigator.pop(context);
-      return;
-    }
-    String temp = tag;
-    int idx = temp.indexOf('/');
-    _justSelected = temp.substring(0, idx);
-    if (DataManager.myFavoriteList.isEmpty || DataManager.myFavoriteList.first != _justSelected!) {
-      if (DataManager.myFavoriteList.contains(_justSelected!)) {
-        DataManager.myFavoriteList.remove(_justSelected!);
-      }
-      DataManager.myFavoriteList.insert(0, _justSelected!);
-      if (DataManager.myFavoriteList.length >= 10) {
-        DataManager.myFavoriteList.removeAt(DataManager.myFavoriteList.length - 1);
-      }
-    }
-    _controller.value = null;
-    // ignore: use_build_context_synchronously
-    Navigator.pop(context);
-  }
-
-  void onCancel() {
-    _justSelected = null;
-    Navigator.pop(context);
-  }
-
-  Widget _favorateProject() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12.0),
-      child: SimpleTags(
-        content: DataManager.myFavoriteList,
-        wrapSpacing: 4,
-        wrapRunSpacing: 4,
-        onTagPress: onFavorite,
-
-        // onTagLongPress: (tag) {
-        //   logger.finest('long pressed $tag');
-        // },
-        // onTagDoubleTap: (tag) {
-        //   logger.finest('double tapped $tag');
-        // },
-        tagContainerPadding: const EdgeInsets.all(6),
-        tagTextStyle: const TextStyle(color: Colors.blue, fontSize: 16),
-        // tagIcon: IconButton(
-        //   icon: const Icon(Icons.clear),
-        //   iconSize: 12,
-        //   onPressed: () {},
-        // ),
-        tagContainerDecoration: BoxDecoration(
-          color: Colors.white,
-          border: Border.all(color: Colors.grey),
-          borderRadius: const BorderRadius.all(
-            Radius.circular(20),
-          ),
-          boxShadow: const [
-            BoxShadow(
-              color: Color.fromRGBO(139, 139, 142, 0.16),
-              spreadRadius: 1,
-              blurRadius: 1,
-              offset: Offset(1.75, 3.5), // c
-            )
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _searchProject() {
-    return TextDropdownFormField(
-      controller: _controller,
-      options: DataManager.projectDescList.toList(),
-      decoration: const InputDecoration(
-          border: OutlineInputBorder(),
-          suffixIcon: Icon(Icons.arrow_drop_down),
-          labelText: "내 부서 프로젝트 선택"),
-      dropdownHeight: 240,
-    );
-  }
+  // Widget _favorateProject() {
+  //   return Center(
+  //     child: Padding(
+  //       padding: const EdgeInsets.symmetric(vertical: 12.0),
+  //       child: Column(
+  //         children: [
+  //           SimpleTags(
+  //             content: DataManager.myFavoriteList,
+  //             wrapSpacing: 4,
+  //             wrapRunSpacing: 4,
+  //             onTagPress: onFavorite,
+  //             tagContainerPadding: const EdgeInsets.all(6),
+  //             tagTextStyle: const TextStyle(color: Colors.blue, fontSize: 16),
+  //             tagContainerDecoration: BoxDecoration(
+  //               color: Colors.white,
+  //               border: Border.all(color: Colors.grey),
+  //               borderRadius: const BorderRadius.all(
+  //                 Radius.circular(20),
+  //               ),
+  //               boxShadow: const [
+  //                 BoxShadow(
+  //                   color: Color.fromRGBO(139, 139, 142, 0.16),
+  //                   spreadRadius: 1,
+  //                   blurRadius: 1,
+  //                   offset: Offset(1.75, 3.5), // c
+  //                 )
+  //               ],
+  //             ),
+  //           ),
+  //           ElevatedButton(
+  //               onPressed: () {
+  //                 //Navigator.of(context).pop();
+  //                 tsGlobalKey.currentState?.openDrawer();
+  //                 showMenu = false;
+  //               },
+  //               child: Text("More...")),
+  //         ],
+  //       ),
+  //     ),
+  //   );
+  // }
 
   Widget _getTitle() {
     if (widget.model.timeSlot == '*') {
@@ -446,7 +401,7 @@ class TimeSlotItemState extends State<TimeSlotItem> {
             fgColor: Colors.blue,
             ttype: TimeSlotType.wholeHour,
             title: widget.model.projectCode1!,
-            fontSize: 24,
+            fontSize: 22,
           ),
           SizedBox(width: 5),
           _deleteButton(),

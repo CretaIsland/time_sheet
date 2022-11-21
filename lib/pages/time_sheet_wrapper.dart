@@ -72,34 +72,14 @@ class TimeSheetWrapperState extends State<TimeSheetWrapper> {
 
   Widget projectChoiceDrawer() {
     return Material(
-      child: GestureDetector(
-        onTapDown: ((details) {
-          tsGlobalKey.currentState?.closeDrawer();
-        }),
-        child: SafeArea(
-            child: GestureDetector(
+      child: SafeArea(
           child: Container(
-            color: Colors.white,
-            height: double.infinity,
-            width: TimeSheetWrapper.drawerWidth,
-            padding: EdgeInsets.all(8),
-            child: Column(
-              children: const [
-                DrawerHeader(
-                  padding: EdgeInsets.zero,
-                  child: Center(
-                    child: Text(
-                      "프로젝트 코드를 선택하세요",
-                      style: TextStyle(fontSize: 16),
-                    ),
-                  ),
-                ),
-                ProjectChoice(),
-              ],
-            ),
-          ),
-        )),
-      ),
+        color: Colors.white,
+        height: double.infinity,
+        width: TimeSheetWrapper.drawerWidth,
+        padding: EdgeInsets.all(8),
+        child: ProjectChoice(),
+      )),
     );
   }
 }

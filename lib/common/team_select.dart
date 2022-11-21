@@ -106,7 +106,7 @@ class _TeamSelectWidgetState extends State<TeamSelectWidget> {
     return Dropdown.singleSelection(
         title: tmId.length > 6 ? tmId.substring(5) : tmId,
         labelText: "타부서 프로젝트 선택",
-        hintText: "타부서 프로젝트 선택",
+        hintText: _searchTeam != null ? "${_searchTeam!.substring(5)} 선택" : "타부서 프로젝트 선택",
         list: list,
         selectedId: '',
         isAddItem: false,

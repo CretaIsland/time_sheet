@@ -35,9 +35,27 @@ class _ProjectChoiceState extends State<ProjectChoice> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            //Text('프로젝트 코드를 선택하세요'),
+            Align(
+              alignment: Alignment.center,
+              child: IconButton(
+                  color: Colors.amber,
+                  onPressed: () {
+                    _controller.value == null || _controller.value!.isEmpty
+                        ? onCancel()
+                        : onOK(_controller.value, ProjectChoice.selectedTtype!);
+                  },
+                  icon: Icon(
+                    Icons.arrow_forward_ios_outlined,
+                    size: 48,
+                  )),
+            ),
+            Divider(),
+            Text(
+              "프로젝트 코드를 선택하세요",
+              style: TextStyle(fontSize: 16),
+            ),
+            Divider(),
             _favorateProject(),
-            //_searchProject(),
             SizedBox(height: 20),
             TeamSelectWidget(controller: _controller),
             SizedBox(height: 20),
@@ -84,7 +102,8 @@ class _ProjectChoiceState extends State<ProjectChoice> {
         DataManager.myFavoriteList.remove(_justSelected!);
       }
       DataManager.myFavoriteList.insert(0, _justSelected!);
-      if (DataManager.myFavoriteList.length >= 10) {
+
+      while (DataManager.myFavoriteList.length > 10) {
         DataManager.myFavoriteList.removeAt(DataManager.myFavoriteList.length - 1);
       }
     }

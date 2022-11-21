@@ -211,7 +211,7 @@ class DataManager {
   }
 
   static void saveAllMyFavorite() async {
-    for (var code in myFavoriteList.reversed) {
+    for (var code in myFavoriteList) {
       await addMyFavorite(code);
     }
   }
