@@ -27,7 +27,8 @@ class _IndicatorsWidgetState extends State<IndicatorsWidget> {
                 key,
                 Container(
                   padding: EdgeInsets.symmetric(vertical: 2),
-                  child: buildIndicator(widget.colorList[idx++], value.project),
+                  child: buildIndicator(
+                      widget.colorList[idx++], DataManager.findProjectName(value.project)),
                 ));
           })
           .values
@@ -49,12 +50,16 @@ class _IndicatorsWidgetState extends State<IndicatorsWidget> {
         SizedBox(
           width: 8,
         ),
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Colors.black,
+        SizedBox(
+          width: 200,
+          child: Text(
+            title,
+            style: TextStyle(
+              overflow: TextOverflow.ellipsis,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
           ),
         )
       ],

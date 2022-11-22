@@ -123,6 +123,24 @@ class DataManager {
     return jsonDecode(jsonString);
   }
 
+  static findProjectName(String code) {
+    for (String element in DataManager.projectDescList) {
+      String id = element.substring(0, element.indexOf('/'));
+      if (id == code) {
+        return element;
+      }
+    }
+    for (String tmId in DataManager.projectOthers.keys) {
+      for (String element in DataManager.projectOthers[tmId]!) {
+        String id = element.substring(0, element.indexOf('/'));
+        if (id == code) {
+          return element;
+        }
+      }
+    }
+    return code;
+  }
+
   static bool _validCheck(Map<String, dynamic> jsonMap) {
     if (jsonMap['err_msg'] == null) {
       logger.severe('json Map format error : err_msg is missing');
