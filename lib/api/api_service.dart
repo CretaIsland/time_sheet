@@ -74,7 +74,8 @@ class ApiService {
     return _apiCall(ApiConstants.baseUrl + ApiConstants.getTimeSheet, body);
   }
 
-  static Future<dynamic> getTimeSheetStat(String tmId, String dateFrom, String dateTo) async {
+  static Future<dynamic> getTimeSheetStat(String tmId, String dateFrom, String dateTo,
+      {String? id}) async {
     logger.finest('getTimeSheetStat($tmId, $dateFrom, $dateTo)');
 
     final dateFromStr = base64.encode(utf8.encode(dateFrom));
@@ -84,7 +85,12 @@ class ApiService {
     body['tm_id'] = tmId;
     body['dateStart'] = dateFromStr;
     body['dateEnd'] = dateToStr;
-    logger.finest('getTimeSheetStat($tmId, $dateFromStr, $dateToStr)');
+    if (id != null) {
+      body['id'] = id;
+      logger.finest('getTimeSheetStat($tmId, $dateFromStr, $dateToStr, $id)');
+    } else {
+      logger.finest('getTimeSheetStat($tmId, $dateFromStr, $dateToStr)');
+    }
     return _apiCall(ApiConstants.baseUrl + ApiConstants.getTimeSheetStat, body);
   }
 

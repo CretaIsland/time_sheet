@@ -26,9 +26,12 @@ class _StatPageState extends State<StatPage> {
   ];
 
   List<TimeSlotStatModel> top5Map = [];
+  List<TimeSlotStatModel> top5MapUser = [];
 
   @override
   Widget build(BuildContext context) {
+    top5Map.clear();
+    top5MapUser.clear();
     return CretaScaffold(
       title: '통계 보기',
       context: context,
@@ -49,7 +52,31 @@ class _StatPageState extends State<StatPage> {
               color: Colors.transparent,
             )),
       ],
-      child: _showStat(context),
+      child: Scrollbar(
+        child: SizedBox.expand(
+          //height: 600,
+          child: ListView.builder(
+              shrinkWrap: true,
+              itemCount: 2,
+              itemBuilder: (
+                context,
+                index,
+              ) {
+                if (index == 0) {
+                  return Container(
+                    color: Colors.amber.withOpacity(0.3),
+                    height: 460,
+                    child: _showStat(context),
+                  );
+                }
+                return Container(
+                  color: Colors.green.withOpacity(0.3),
+                  height: 460,
+                  child: _showUserStat(context),
+                );
+              }),
+        ),
+      ),
     ).create();
   }
 
@@ -80,9 +107,53 @@ class _StatPageState extends State<StatPage> {
         });
   }
 
+  Widget _showUserStat(BuildContext context) {
+    return FutureBuilder<List<TimeSlotStatModel>?>(
+        future: DataManager.getTimeSheetUserStat(),
+        //future: DataManager.getTimeSheetStatSimulation(context),
+        builder: (context, AsyncSnapshot<List<TimeSlotStatModel>?> snapshot) {
+          if (snapshot.hasError) {
+            //error가 발생하게 될 경우 반환하게 되는 부분
+            logger.severe("data fetch error");
+            return const Center(child: Text('data fetch error'));
+          }
+          if (snapshot.hasData == false) {
+            //logger.severe("No data founded");
+            return const Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+          if (snapshot.connectionState == ConnectionState.done) {
+            logger.finest("data founded ${snapshot.data!.length}...");
+            // if (snapshot.data!.isEmpty) {
+            //   return const Center(child: Text('no book founded'));
+            // }
+            return _drawUserPage(snapshot.data!);
+          }
+          return Container();
+        });
+  }
+
   List<PieChartSectionData> getSections() {
     int idx = 0;
     return top5Map
+        .asMap()
+        .map((key, data) {
+          final value = PieChartSectionData(
+            color: _colorList[idx++],
+            value: data.sum,
+            title: '${data.sum.round()}%',
+            titleStyle: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+          );
+          return MapEntry(key, value);
+        })
+        .values
+        .toList();
+  }
+
+  List<PieChartSectionData> getUserSections() {
+    int idx = 0;
+    return top5MapUser
         .asMap()
         .map((key, data) {
           final value = PieChartSectionData(
@@ -124,15 +195,15 @@ class _StatPageState extends State<StatPage> {
             endIndent: 20,
             color: Colors.amber,
           ),
-          Container(
-            color: Colors.black12,
-            width: 250,
-            height: 250,
+          SizedBox(
+            //color: Colors.grey,
+            width: 220,
+            height: 220,
             child: PieChart(
               PieChartData(
                 borderData: FlBorderData(show: false),
                 sectionsSpace: 0,
-                centerSpaceRadius: 40,
+                centerSpaceRadius: 60,
                 sections: getSections(),
               ),
             ),
@@ -144,6 +215,64 @@ class _StatPageState extends State<StatPage> {
                 padding: EdgeInsets.all(16),
                 child: IndicatorsWidget(
                   top5Map: top5Map,
+                  colorList: _colorList,
+                ),
+              )
+            ],
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget _drawUserPage(List<TimeSlotStatModel> dataList) {
+    double total = 0;
+    double other = 0;
+
+    for (var element in dataList) {
+      total += element.sum;
+    }
+    for (int idx = 0; idx < dataList.length; idx++) {
+      if (idx < 5) {
+        top5MapUser
+            .add(TimeSlotStatModel(dataList[idx].project, (dataList[idx].sum / total) * 100));
+      } else {
+        other += dataList[idx].sum;
+      }
+    }
+    if (dataList.length > 5) {
+      top5MapUser.add(TimeSlotStatModel('Others', (other / total) * 100));
+    }
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text('${DataManager.loginUser!.hm_name!}님의 프로젝트별 투입비율(1.1~현재)'),
+          Divider(
+            indent: 20,
+            endIndent: 20,
+            color: Colors.amber,
+          ),
+          SizedBox(
+            //color: Colors.black12,
+            width: 220,
+            height: 220,
+            child: PieChart(
+              PieChartData(
+                borderData: FlBorderData(show: false),
+                sectionsSpace: 0,
+                centerSpaceRadius: 60,
+                sections: getUserSections(),
+              ),
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Padding(
+                padding: EdgeInsets.all(16),
+                child: IndicatorsWidget(
+                  top5Map: top5MapUser,
                   colorList: _colorList,
                 ),
               )

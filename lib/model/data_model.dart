@@ -103,6 +103,7 @@ class DataManager {
   static List<String> teamList = [];
   static List<AlarmModel> alarmList = [];
   static List<TimeSlotStatModel> statList = [];
+  static List<TimeSlotStatModel> statUserList = [];
 
   static isUserLogin() => DataManager.loginUser != null && DataManager.loginUser!.hm_name != null;
 
@@ -321,6 +322,12 @@ class DataManager {
     return slotManagerHolder!.get();
   }
 
+  static Future<List<List<TimeSlotStatModel>>?> getTimeSheetStatBoth() async {
+    await getTimeSheetStat();
+    await getTimeSheetUserStat();
+    return [DataManager.statList, DataManager.statUserList];
+  }
+
   static Future<List<TimeSlotStatModel>?> getTimeSheetStat() async {
     if (loginUser == null) {
       return null;
@@ -362,6 +369,50 @@ class DataManager {
       DataManager.statList.add(aModel);
     }
     return DataManager.statList;
+  }
+
+  static Future<List<TimeSlotStatModel>?> getTimeSheetUserStat() async {
+    if (loginUser == null || loginUser!.sabun == null) {
+      return null;
+    }
+
+    String today = slotManagerHolder!.currentDate;
+    String firstDate = '${today.substring(0, 4)}-01-01';
+    String id = loginUser!.sabun!;
+
+    logger.finest('getTimeSheetUserStat(${loginUser!.tm_id!}, $firstDate, $today, $id)');
+
+    Map<String, dynamic> jsonMap =
+        await ApiService.getTimeSheetStat(loginUser!.tm_id!, firstDate, today, id: id)
+            .catchError((error, stackTrace) {
+      logger.severe('getTimeSheetStat error($error)');
+      return null;
+    });
+
+    logger.finest('getTimeSheetStat api call end');
+    List<dynamic>? dataList = jsonMap['data'];
+    if (dataList == null) {
+      logger.warning('getTimeSheetStat result is null');
+      return null;
+    }
+
+    DataManager.statUserList.clear();
+    logger.finest('dataList = ${dataList.length}');
+    for (var daily in dataList) {
+      String? project = daily['project'];
+      if (project == null) {
+        logger.warning('no project info founded');
+        continue;
+      }
+      double? sum = daily['sum'];
+      if (sum == null || sum == 0) {
+        logger.warning('no timeslot info founded');
+        continue;
+      }
+      TimeSlotStatModel aModel = TimeSlotStatModel(project, sum);
+      DataManager.statUserList.add(aModel);
+    }
+    return DataManager.statUserList;
   }
 
   static Future<List<TimeSlotStatModel>?> getTimeSheetStatSimulation(BuildContext context) async {

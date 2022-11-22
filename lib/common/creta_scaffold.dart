@@ -40,6 +40,10 @@ class CretaScaffold {
     return WillPopScope(
       onWillPop: () async {
         logger.finest('back button pressed-------------------------');
+        bool isOK = await yesNoDialog(context, "정말로 앱을 끝내시겠습니까 ?");
+        if (isOK == true) {
+          SystemNavigator.pop();
+        }
         return false; //false 를 하므로, 백버튼이 무시된다.
       },
       child: Scaffold(
