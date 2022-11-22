@@ -84,7 +84,7 @@ class TimeSheetListState extends State<TimeSheetList> {
                 if (dailyList[i].timeSlot == '12') {
                   continue;
                 }
-                if (index < 12 && dailyList[i].timeSlot == '19') {
+                if (index < 11 && dailyList[i].timeSlot == '19') {
                   break; // 18시이후는 자동도배해주지 않는다.
                 }
                 if (dailyList[i].projectCode1 != null) {

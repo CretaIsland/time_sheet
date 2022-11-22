@@ -53,8 +53,8 @@ class _StatPageState extends State<StatPage> {
 
   Widget _showStat(BuildContext context) {
     return FutureBuilder<List<TimeSlotStatModel>?>(
-        //future: DataManager.getTimeSheetStat(),
-        future: DataManager.getTimeSheetStatSimulation(context),
+        future: DataManager.getTimeSheetStat(),
+        //future: DataManager.getTimeSheetStatSimulation(context),
         builder: (context, AsyncSnapshot<List<TimeSlotStatModel>?> snapshot) {
           if (snapshot.hasError) {
             //error가 발생하게 될 경우 반환하게 되는 부분

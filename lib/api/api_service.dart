@@ -81,7 +81,7 @@ class ApiService {
     final dateToStr = base64.encode(utf8.encode(dateTo));
 
     Map<String, String> body = {};
-    body['tmid'] = tmId;
+    body['tm_id'] = tmId;
     body['dateStart'] = dateFromStr;
     body['dateEnd'] = dateToStr;
     logger.finest('getTimeSheetStat($tmId, $dateFromStr, $dateToStr)');
