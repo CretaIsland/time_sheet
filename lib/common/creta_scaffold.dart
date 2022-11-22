@@ -10,6 +10,7 @@ import '../../routes.dart';
 import '../model/data_model.dart';
 import 'logger.dart';
 import 'utils.dart';
+import 'dart:async';
 
 class CretaScaffold {
   final String title;
@@ -106,12 +107,19 @@ class CretaScaffold {
       SpeedDialChild(
         child: Icon(Icons.logout_outlined),
         label: '로그 아웃',
-        onTap: () async {
-          await SqliteWrapper.clearAutologinInfo();
-          AppRoutes.push(gkey.currentContext!, AppRoutes.login);
+        onTap: () {
+          Timer.periodic(const Duration(milliseconds: 100), (timer) async {
+            timer.cancel();
+            await SqliteWrapper.clearAutologinInfo();
+            _gotoLoginPage();
+          });
         },
       ),
     ];
+  }
+
+  void _gotoLoginPage() {
+    AppRoutes.push(context, AppRoutes.login);
   }
 
 // List<SpeedDialChild> _getDialList(BuildContext context) {
