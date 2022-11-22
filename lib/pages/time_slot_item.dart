@@ -11,9 +11,10 @@ import 'package:time_sheet/pages/project_choice.dart';
 import '../common/logger.dart';
 import '../common/my_flip_card.dart';
 //import '../common/team_select.dart';
+import 'tween_value_widget.dart';
 import '../model/data_model.dart';
 import 'time_sheet_list.dart';
-import 'time_sheet_wrapper.dart';
+//import 'time_sheet_wrapper.dart';
 
 //import 'package:flutter/foundation.dart' show kIsWeb;
 
@@ -112,8 +113,9 @@ class TimeSlotItemState extends State<TimeSlotItem> {
         title: _getTitle(),
         onTap: () {
           logger.finest('onTap');
-          timeSheetListGlobalKey.currentState?.unShowMenu();
-          tsGlobalKey.currentState?.closeDrawer();
+          choiceManagerHolder!.unShowMenu();
+          //tsGlobalKey.currentState?.closeDrawer();
+          drawerManagerHolder!.closeDrawer();
         },
       ),
     );
@@ -151,9 +153,11 @@ class TimeSlotItemState extends State<TimeSlotItem> {
       // setState(() {
       //   showMenu = true;
       // });
-      timeSheetListGlobalKey.currentState?.toggleShowMenu();
+      //timeSheetListGlobalKey.currentState?.toggleShowMenu();
+      choiceManagerHolder!.toggleShowMenu();
     } else {
-      tsGlobalKey.currentState?.openDrawer();
+      //tsGlobalKey.currentState?.openDrawer();
+      drawerManagerHolder!.openDrawer();
     }
     //AppRoutes.push(context, AppRoutes.projectChoice);
   }

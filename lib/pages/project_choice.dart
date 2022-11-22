@@ -8,6 +8,7 @@ import 'package:time_sheet/pages/time_slot_item.dart';
 
 import '../common/logger.dart';
 import '../common/team_select.dart';
+import 'tween_value_widget.dart';
 import '../model/data_model.dart';
 import 'time_sheet_wrapper.dart';
 
@@ -114,7 +115,8 @@ class _ProjectChoiceState extends State<ProjectChoice> {
   }
 
   void _close() {
-    tsGlobalKey.currentState?.closeDrawer();
+    //tsGlobalKey.currentState?.closeDrawer();
+    drawerManagerHolder!.closeDrawer();
     //AppRoutes.push(context, AppRoutes.timeSheetPage);
   }
 

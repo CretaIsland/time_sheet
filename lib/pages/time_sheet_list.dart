@@ -5,14 +5,39 @@ import 'package:provider/provider.dart';
 import 'package:simple_tags/simple_tags.dart';
 import 'package:glass_kit/glass_kit.dart';
 import 'package:time_sheet/pages/project_choice.dart';
-import 'package:time_sheet/pages/time_sheet_wrapper.dart';
+//import 'package:time_sheet/pages/time_sheet_wrapper.dart';
 import 'package:time_sheet/pages/time_slot_item.dart';
 
 import '../common/logger.dart';
+import 'tween_value_widget.dart';
 import '../model/data_model.dart';
 import '../model/slot_manager.dart';
 
-GlobalKey<TimeSheetListState> timeSheetListGlobalKey = GlobalKey<TimeSheetListState>();
+ChoiceMenuManager? choiceManagerHolder;
+
+class ChoiceMenuManager extends ChangeNotifier {
+  bool _isShowMenu = false;
+  bool get isShowMenu => _isShowMenu;
+
+  void showMenu({bool notify = true}) {
+    _isShowMenu = true;
+    if (notify) notifyListeners();
+  }
+
+  void unShowMenu({bool notify = true}) {
+    if (_isShowMenu) {
+      _isShowMenu = false;
+      if (notify) notifyListeners();
+    }
+  }
+
+  void toggleShowMenu({bool notify = true}) {
+    _isShowMenu = !_isShowMenu;
+    if (notify) notifyListeners();
+  }
+}
+
+//GlobalKey<TimeSheetListState> timeSheetListGlobalKey = GlobalKey<TimeSheetListState>();
 
 class TimeSheetList extends StatefulWidget {
   final List<TimeSlotModel> dailyList;
@@ -24,31 +49,12 @@ class TimeSheetList extends StatefulWidget {
 
 class TimeSheetListState extends State<TimeSheetList> {
   String? _justSelected;
-  bool _showMenu = false;
-
-  void showMenu() {
-    setState(() {
-      _showMenu = true;
-    });
-  }
-
-  void unShowMenu() {
-    if (_showMenu) {
-      setState(() {
-        _showMenu = false;
-      });
-    }
-  }
-
-  void toggleShowMenu() {
-    setState(() {
-      _showMenu = !_showMenu;
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
-    return _timeSheetView(widget.dailyList);
+    return Consumer<ChoiceMenuManager>(builder: (context, choiceManager, child) {
+      return _timeSheetView(widget.dailyList);
+    });
   }
 
   Widget _timeSheetView(List<TimeSlotModel> dailyList) {
@@ -119,7 +125,7 @@ class TimeSheetListState extends State<TimeSheetList> {
     );
     return Stack(
         alignment: AlignmentDirectional.center,
-        children: [listView, _showMenu ? _favorateProject() : Container()]);
+        children: [listView, choiceManagerHolder!.isShowMenu ? _favorateProject() : Container()]);
   }
 
   void onFavorite(String tag) async {
@@ -131,7 +137,8 @@ class TimeSheetListState extends State<TimeSheetList> {
       }
       DataManager.myFavoriteList.insert(0, _justSelected!);
     }
-    _showMenu = false;
+    //_showMenu = false;
+    choiceManagerHolder!.unShowMenu(notify: false);
     await _saveJob();
     // ignore: use_build_context_synchronously
     //Navigator.pop(context);
@@ -205,9 +212,10 @@ class TimeSheetListState extends State<TimeSheetList> {
               ElevatedButton(
                   onPressed: () {
                     //Navigator.of(context).pop();
-                    tsGlobalKey.currentState?.openDrawer();
+                    //tsGlobalKey.currentState?.openDrawer();
+                    drawerManagerHolder!.openDrawer();
                     setState(() {
-                      _showMenu = false;
+                      choiceManagerHolder!.unShowMenu(notify: false);
                     });
                   },
                   child: const Text(
@@ -218,7 +226,7 @@ class TimeSheetListState extends State<TimeSheetList> {
                   onPressed: () {
                     //Navigator.of(context).pop();
                     setState(() {
-                      _showMenu = false;
+                      choiceManagerHolder!.unShowMenu(notify: false);
                     });
                   },
                   child: const Text(

@@ -1,7 +1,6 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
-import 'package:routemaster/routemaster.dart';
 import 'package:simple_tags/simple_tags.dart';
 
 import '../api/api_service.dart';
@@ -29,10 +28,12 @@ class _SettingPageState extends State<SettingPage> {
       leading: IconButton(
           onPressed: () {
             //AppRoutes.pop(context);
-            AppRoutes.lastPage = AppRoutes.settingPage;
-            AppRoutes.push(context, AppRoutes.timeSheetPage);
+            AppRoutes.push(context, AppRoutes.settingPage, AppRoutes.timeSheetPage);
           },
-          icon: const Icon(Icons.arrow_back)),
+          icon: const Icon(
+            Icons.arrow_back,
+            color: Colors.red,
+          )),
       child: Center(
         child: AppRoutes.lastPage == AppRoutes.timeSheetPage
             ? futureAlarmList(context)
@@ -175,8 +176,9 @@ class _SettingPageState extends State<SettingPage> {
                 ),
                 onPressed: () {
                   DataManager.showDate = DataManager.getTodayString();
-                  AppRoutes.lastPage = AppRoutes.settingPage;
-                  Routemaster.of(context).push(AppRoutes.timeSheetPage);
+                  AppRoutes.push(context, AppRoutes.settingPage, AppRoutes.timeSheetPage);
+                  //AppRoutes.lastPage = AppRoutes.settingPage;
+                  //Routemaster.of(context).push(AppRoutes.timeSheetPage);
                 },
               ),
             ),
@@ -202,8 +204,8 @@ class _SettingPageState extends State<SettingPage> {
                             });
                             logger.finest('pressed $tag');
                             DataManager.showDate = tag;
-                            AppRoutes.lastPage = AppRoutes.settingPage;
-                            Routemaster.of(context).push(AppRoutes.timeSheetPage);
+                            AppRoutes.push(context, AppRoutes.settingPage, AppRoutes.timeSheetPage);
+                            //Routemaster.of(context).push(AppRoutes.timeSheetPage);
                           },
                           tagContainerPadding: const EdgeInsets.all(10),
                           tagTextStyle: const TextStyle(color: Colors.blue, fontSize: 16),

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:routemaster/routemaster.dart';
+//import 'package:routemaster/routemaster.dart';
 //import 'package:intl/intl.dart';
 
 import '../common/creta_scaffold.dart';
@@ -40,7 +40,8 @@ class _CalendarPageState extends State<CalendarPage> {
     String selDayStr = formatter.format(selectedDay);
     if (DateTime.parse(selDayStr).compareTo(DateTime.now()) <= 0) {
       DataManager.showDate = selDayStr;
-      Routemaster.of(context).push(AppRoutes.timeSheetPage);
+      AppRoutes.push(context, AppRoutes.calendarPage, AppRoutes.timeSheetPage);
+      //Routemaster.of(context).push(AppRoutes.timeSheetPage);
     } else {
       showSnackBar(context, '차후 일정은 미리 설정할 수 없습니다');
     }
@@ -81,10 +82,12 @@ class _CalendarPageState extends State<CalendarPage> {
       leading: IconButton(
           onPressed: () {
             //AppRoutes.pop(context);
-            AppRoutes.lastPage = AppRoutes.calendarPage;
-            AppRoutes.push(context, AppRoutes.timeSheetPage);
+            AppRoutes.push(context, AppRoutes.calendarPage, AppRoutes.timeSheetPage);
           },
-          icon: const Icon(Icons.arrow_back)),
+          icon: const Icon(
+            Icons.arrow_back,
+            color: Colors.amber,
+          )),
       child: TableCalendarWidget(_focusedDay, _completeDays, _incompleteDays,
               onDaySelected: onDaySelected, onTodayButtonTap: onTodayButtonTap)
           .build(),

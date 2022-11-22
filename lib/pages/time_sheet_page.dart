@@ -9,10 +9,11 @@ import 'package:time_sheet/pages/time_sheet_list.dart';
 
 import '../common/creta_scaffold.dart';
 import '../common/logger.dart';
+import 'tween_value_widget.dart';
 import '../model/data_model.dart';
 import '../model/slot_manager.dart';
 import '../routes.dart';
-import 'time_sheet_wrapper.dart';
+//import 'time_sheet_wrapper.dart';
 
 class TimeSheetPage extends StatefulWidget {
   const TimeSheetPage({super.key});
@@ -48,6 +49,7 @@ class TimeSheetPageState extends State<TimeSheetPage> {
     return ChangeNotifierProvider<SlotManager>.value(
         value: slotManagerHolder!,
         builder: (context, widget) {
+          logger.finest('lastPage=${AppRoutes.lastPage}');
           return CretaScaffold(
             refreshProject: () {
               DataManager.getProject();
@@ -61,24 +63,56 @@ class TimeSheetPageState extends State<TimeSheetPage> {
             actions: [
               IconButton(
                   onPressed: () async {
-                    AppRoutes.lastPage = AppRoutes.timeSheetPage;
-                    AppRoutes.push(context, AppRoutes.statPage);
+                    AppRoutes.push(context, AppRoutes.timeSheetPage, AppRoutes.statPage);
                   },
                   icon: Icon(Icons.auto_graph_outlined))
             ],
-            leading: AppRoutes.lastPage == AppRoutes.settingPage
-                ? IconButton(
-                    onPressed: () {
-                      //AppRoutes.pop(context);
-                      String toGo = AppRoutes.lastPage;
-                      AppRoutes.lastPage = AppRoutes.timeSheetPage;
-                      AppRoutes.push(context, toGo);
-                    },
-                    icon: Icon(Icons.arrow_back))
-                : null,
+            leading: IconButton(
+                onPressed: () {
+                  //AppRoutes.pop(context);
+                  //String toGo = AppRoutes.lastPage;
+                  AppRoutes.push(context, AppRoutes.timeSheetPage, AppRoutes.settingPage);
+                },
+                icon: Icon(Icons.arrow_back, color: Colors.green)),
             child: _mainPage(),
           ).create();
         });
+
+    // return MultiProvider(
+    //   providers: [
+    //     ChangeNotifierProvider<SlotManager>.value(
+    //       value: slotManagerHolder!,
+    //     ),
+    //     ChangeNotifierProvider<DrawerManager>.value(
+    //       value: drawerManagerHolder!,
+    //     ),
+    //   ],
+    //   child: CretaScaffold(
+    //     refreshProject: () {
+    //       DataManager.getProject();
+    //       // setState(() {
+    //       //   slotManagerHolder!.initCurrentDate();
+    //       // });
+    //     },
+    //     title: DataManager.isUserLogin() ? '${DataManager.loginUser!.hm_name!}님' : 'Unknown user',
+    //     context: context,
+    //     actions: [
+    //       IconButton(
+    //           onPressed: () async {
+    //             AppRoutes.push(context, AppRoutes.timeSheetPage, AppRoutes.statPage);
+    //           },
+    //           icon: Icon(Icons.auto_graph_outlined))
+    //     ],
+    //     leading: IconButton(
+    //         onPressed: () {
+    //           //AppRoutes.pop(context);
+    //           //String toGo = AppRoutes.lastPage;
+    //           AppRoutes.push(context, AppRoutes.timeSheetPage, AppRoutes.settingPage);
+    //         },
+    //         icon: Icon(Icons.arrow_back, color: Colors.green)),
+    //     child: _mainPage(),
+    //   ).create(),
+    // );
   }
 
   Widget _mainPage() {
@@ -150,7 +184,7 @@ class TimeSheetPageState extends State<TimeSheetPage> {
                   flex: 11,
                   //child: _timeSheetView(dailyList),
                   child: TimeSheetList(
-                    key: timeSheetListGlobalKey,
+                    //key: timeSheetListGlobalKey,
                     dailyList: dailyList,
                   )),
               //),
@@ -162,7 +196,8 @@ class TimeSheetPageState extends State<TimeSheetPage> {
   }
 
   void _toPast() {
-    tsGlobalKey.currentState?.closeDrawer();
+    //tsGlobalKey.currentState?.closeDrawer();
+    drawerManagerHolder!.closeDrawer();
     setState(() {
       _dateMove--;
       //_moveToRight = true;
@@ -212,7 +247,7 @@ class TimeSheetPageState extends State<TimeSheetPage> {
               ElevatedButton(
                 //visualDensity: VisualDensity.compact,
                 onPressed: () {
-                  AppRoutes.push(context, AppRoutes.calendarPage);
+                  AppRoutes.push(context, AppRoutes.timeSheetPage, AppRoutes.calendarPage);
                 },
                 child: Icon(Icons.calendar_month),
                 //padding: EdgeInsets.all(0),

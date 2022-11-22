@@ -35,15 +35,17 @@ class _StatPageState extends State<StatPage> {
       leading: IconButton(
           onPressed: () {
             //AppRoutes.pop(context);
-            AppRoutes.lastPage = AppRoutes.statPage;
-            AppRoutes.push(context, AppRoutes.timeSheetPage);
+            AppRoutes.push(context, AppRoutes.statPage, AppRoutes.timeSheetPage);
           },
-          icon: const Icon(Icons.arrow_back)),
+          icon: const Icon(
+            Icons.arrow_back,
+            color: Colors.blue,
+          )),
       actions: [
         IconButton(
             onPressed: () {},
             icon: const Icon(
-              Icons.arrow_back,
+              Icons.circle,
               color: Colors.transparent,
             )),
       ],

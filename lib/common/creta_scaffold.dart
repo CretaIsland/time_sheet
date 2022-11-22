@@ -36,15 +36,21 @@ class CretaScaffold {
     this.copyYesterday,
   });
 
-  Scaffold create() {
-    return Scaffold(
-      key: gkey,
-      appBar: cretaAppBar(context, title, leading, actions),
-      floatingActionButton: cretaDial(context),
-      floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
-      body: Container(
-        //color: Colors.amber,
-        child: child,
+  WillPopScope create() {
+    return WillPopScope(
+      onWillPop: () async {
+        logger.finest('back button pressed-------------------------');
+        return false; //false 를 하므로, 백버튼이 무시된다.
+      },
+      child: Scaffold(
+        key: gkey,
+        appBar: cretaAppBar(context, title, leading, actions),
+        floatingActionButton: cretaDial(context),
+        floatingActionButtonLocation: FloatingActionButtonLocation.miniEndFloat,
+        body: Container(
+          //color: Colors.amber,
+          child: child,
+        ),
       ),
     );
   }
@@ -71,7 +77,7 @@ class CretaScaffold {
         key: GlobalKey(),
         //backgroundColor: Colors.blue[700]!,
         onOpen: () {
-          timeSheetListGlobalKey.currentState?.unShowMenu();
+          choiceManagerHolder!.unShowMenu();
         },
         animatedIcon: AnimatedIcons.menu_close,
         children: _timeSheetPageDial(context),
@@ -119,7 +125,7 @@ class CretaScaffold {
   }
 
   void _gotoLoginPage() {
-    AppRoutes.push(context, AppRoutes.login);
+    AppRoutes.push(context, AppRoutes.timeSheetPage, AppRoutes.login);
   }
 
 // List<SpeedDialChild> _getDialList(BuildContext context) {

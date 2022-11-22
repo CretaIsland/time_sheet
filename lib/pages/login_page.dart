@@ -1,7 +1,7 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
-import 'package:routemaster/routemaster.dart';
+//import 'package:routemaster/routemaster.dart';
 import 'package:metaballs/metaballs.dart';
 import 'package:loading_indicator/loading_indicator.dart';
 import 'dart:async';
@@ -67,9 +67,11 @@ class _LoginPageState extends State<LoginPage> {
     //Routemaster.of(context).replace(AppRoutes.settingPage);
     if (DataManager.alarmList.isNotEmpty) {
       // 알람이 있을 경우 셋팅 페이지로 이동한다.
-      Routemaster.of(context).replace(AppRoutes.settingPage);
+      //Routemaster.of(context).replace(AppRoutes.settingPage);
+      AppRoutes.push(context, AppRoutes.login, AppRoutes.settingPage);
     } else {
-      Routemaster.of(context).replace(AppRoutes.timeSheetPage);
+      //Routemaster.of(context).replace(AppRoutes.timeSheetPage);
+      AppRoutes.push(context, AppRoutes.login, AppRoutes.timeSheetPage);
     }
   }
 
