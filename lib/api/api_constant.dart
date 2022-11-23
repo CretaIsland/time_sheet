@@ -1,5 +1,5 @@
 class ApiConstants {
-  static String baseUrl = 'http://3.35.175.126:8080';
+  static String baseUrl = 'https://creta-thimesheet.com';
 
   static String setTimeSheet = '/setTimeSheet';
   static String getTimeSheet = '/getTimeSheet';
