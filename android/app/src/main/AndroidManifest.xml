@@ -1,5 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.sqisoft.time_sheet">
+    <uses-permission android:name="android.permission.INTERNET" />
    <application
         android:label="time_sheet"
         android:name="${applicationName}"
