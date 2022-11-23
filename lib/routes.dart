@@ -32,6 +32,17 @@ class AppRoutes {
     );
   }
 
+  static void _naviReplace(BuildContext context, Widget page) {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (BuildContext context) {
+          return page;
+        },
+      ),
+    );
+  }
+
   static push(BuildContext context, String current, String togo) {
     _lastPage = current;
     _currentPage = togo;
@@ -40,6 +51,16 @@ class AppRoutes {
     logger.finest('push route=$current --> $togo');
 
     _naviPush(context, getPageWidget(togo));
+  }
+
+  static pushReplace(BuildContext context, String current, String togo) {
+    _lastPage = current;
+    _currentPage = togo;
+    //Routemaster.of(context).replace(togo);
+    //logger.finest('push route=${Routemaster.of(context).currentRoute.fullPath}');
+    logger.finest('pushReplace route=$current --> $togo');
+
+    _naviReplace(context, getPageWidget(togo));
   }
 
   // static pop(BuildContext context) {

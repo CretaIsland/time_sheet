@@ -7,11 +7,12 @@ import 'package:time_sheet/pages/login_page.dart';
 
 import 'common/logger.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized(); // 화면이 두개가 겹치기로 나올려면 해주어야 한다.
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]); // 세로 only
   setupLogger();
   Paint.enableDithering = true;
+  await Future.delayed(const Duration(seconds: 3));
   initializeDateFormatting().then((_) => runApp(const ProviderScope(child: MainRouteApp())));
 }
 

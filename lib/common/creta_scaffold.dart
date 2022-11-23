@@ -129,7 +129,7 @@ class CretaScaffold {
   }
 
   void _gotoLoginPage() {
-    AppRoutes.push(context, AppRoutes.timeSheetPage, AppRoutes.login);
+    AppRoutes.pushReplace(context, AppRoutes.timeSheetPage, AppRoutes.login);
   }
 
 // List<SpeedDialChild> _getDialList(BuildContext context) {

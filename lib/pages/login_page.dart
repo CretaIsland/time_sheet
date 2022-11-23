@@ -11,6 +11,7 @@ import '../common/cross_common_job.dart';
 import '../api/api_service.dart';
 import '../model/data_model.dart';
 import '../common/sqlite_wapper.dart';
+import 'package:flutter/services.dart';
 
 class ColorsEffectPair {
   final List<Color> colors;
@@ -62,6 +63,7 @@ class _LoginPageState extends State<LoginPage> {
   String _errMsg = '';
   bool _loginProcessing = false;
   bool _initDb = false;
+  bool _showMetaball = false;
 
   void _gotoNextPage() {
     //Routemaster.of(context).replace(AppRoutes.settingPage);
@@ -615,6 +617,7 @@ class _LoginPageState extends State<LoginPage> {
     super.initState();
     Timer.periodic(const Duration(milliseconds: 100), (timer) {
       timer.cancel();
+      _showMetaball = true;
       _autoLogin();
     });
   }
@@ -629,14 +632,23 @@ class _LoginPageState extends State<LoginPage> {
     } else {
       isPortrait = height > width; // 세로
     }
-    return Material(
+    return WillPopScope(
+        onWillPop: () async {
+          logger.finest('back button pressed-------------------------');
+          // bool isOK = await yesNoDialog(context, "정말로 앱을 끝내시겠습니까 ?");
+          // if (isOK == true) {
+             SystemNavigator.pop();
+          // }
+          return false; //false 를 하므로, 백버튼이 무시된다.
+        },
+        child: Material(
       child: Container(
         decoration: const BoxDecoration(
             gradient: RadialGradient(center: Alignment.bottomCenter, radius: 1.5, colors: [
           Color.fromARGB(255, 13, 35, 61),
           Colors.white,
         ])),
-        child: Metaballs(
+        child: (_showMetaball == false) ? Container() : Metaballs(
           effect: colorsAndEffects[colorEffectIndex].effect,
           glowRadius: 1,
           glowIntensity: 0.6,
@@ -659,6 +671,6 @@ class _LoginPageState extends State<LoginPage> {
                     )),
         ),
       ),
-    );
+    ));
   }
 }
