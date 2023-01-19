@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:simple_tags/simple_tags.dart';
 import 'package:glass_kit/glass_kit.dart';
+import 'package:time_sheet/model/project_list_manager.dart';
 import 'package:time_sheet/pages/project_choice.dart';
 //import 'package:time_sheet/pages/time_sheet_wrapper.dart';
 import 'package:time_sheet/pages/time_slot_item.dart';
@@ -224,6 +225,7 @@ class TimeSheetListState extends State<TimeSheetList> {
                   onPressed: () {
                     //Navigator.of(context).pop();
                     //tsGlobalKey.currentState?.openDrawer();
+                    projectDataHolder!.changeProjectData(slotManagerHolder!.currentDate.substring(0, 4));
                     drawerManagerHolder!.openDrawer();
                     setState(() {
                       choiceManagerHolder!.unShowMenu(notify: false);

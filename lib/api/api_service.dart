@@ -136,4 +136,22 @@ class ApiService {
 
     return _apiCall(ApiConstants.baseUrl + ApiConstants.deleteMyFovorite, body);
   }
+
+
+  // 과거 프로젝트를 조회를 위해 추가한 api
+  static Future<dynamic> getPastProjectList(String tmId) async {
+    Map<String, String> body = {};
+    body['tm_id'] = tmId;
+
+    return _apiCall(ApiConstants.baseUrl + ApiConstants.getPastProjectList, body);
+  }
+
+  static Future<dynamic> getPastTeamList() async {
+    Map<String, String> body = {};
+
+    return _apiCall(ApiConstants.baseUrl + ApiConstants.getPastTeamList, body);
+  }
+
+  
+
 }

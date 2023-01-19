@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 //import 'package:routemaster/routemaster.dart';
 import 'package:metaballs/metaballs.dart';
 import 'package:loading_indicator/loading_indicator.dart';
+import 'package:time_sheet/model/project_list_manager.dart';
 import 'dart:async';
 import '../common/logger.dart';
 import '../routes.dart';
@@ -159,7 +160,7 @@ class _LoginPageState extends State<LoginPage> {
 
       logger.finest('get teams()');
       // Teams
-      dynamic teamResult = await ApiService.getTeamList().catchError((error, stackTrace) {
+      dynamic teamResult = await ApiService.getPastTeamList().catchError((error, stackTrace) {
         setState(() {
           colorEffectIndex = 0;
           _loginProcessing = false;
@@ -167,8 +168,7 @@ class _LoginPageState extends State<LoginPage> {
         });
         return false;
       });
-      Map<String, dynamic> teamData =
-          Map<String, dynamic>.from(teamResult); //jsonDecode(teamResult);
+      Map<String, dynamic> teamData = Map<String, dynamic>.from(teamResult); //jsonDecode(teamResult);
       String teamErrMsg = teamData['err_msg'] ?? '';
       if (teamErrMsg.compareTo('succeed') != 0 || teamData['data'] == null) {
         // something error
@@ -179,12 +179,18 @@ class _LoginPageState extends State<LoginPage> {
         });
         return false;
       }
-      List<String> teamList = [];
-      List<dynamic> teamDataList = teamData['data']; //jsonDecode(teamData['data']!);
-      for (var eleFavor in teamDataList) {
-        teamList.add(eleFavor);
+      List<String> presentTeamList = [];
+      List<dynamic> presentTeamDataList = teamData['data']; //jsonDecode(teamData['data']!);
+      for (var eleFavor in presentTeamDataList) {
+        presentTeamList.add(eleFavor);
       }
-      logger.finest('get teamList()=${teamList.length}');
+      List<String> pastTeamList = [];
+      List<dynamic> pastTeamDataList = teamData['past_data']; //jsonDecode(teamData['data']!);
+      for (var eleFavor in pastTeamDataList) {
+        pastTeamList.add(eleFavor);
+      }
+
+      logger.finest('get teamList()=${presentTeamList.length}');
 
       logger.finest('get favorites(${userModel.sabun!})');
       // favorites
@@ -220,7 +226,7 @@ class _LoginPageState extends State<LoginPage> {
       //project list;
       logger.finest('get project(${userModel.tm_id!})');
       dynamic projectResult =
-          await ApiService.getProjectList(userModel.tm_id!).catchError((error, stackTrace) {
+          await ApiService.getPastProjectList(userModel.tm_id!).catchError((error, stackTrace) {
         setState(() {
           colorEffectIndex = 0;
           _loginProcessing = false;
@@ -240,53 +246,21 @@ class _LoginPageState extends State<LoginPage> {
         });
         return false;
       }
-      Set<ProjectModel> projectModelList = {};
-      Set<String> projectDescList = {};
 
-      List<dynamic> projectList = projectData['data']; //jsonDecode(projectData['data']);
-      List<dynamic>? projectOthers = projectData['others']; //jsonDecode(projectData['data']);
-      //int alarmCount = projectData['count'] ?? 0;
-      logger.finest('get projectList=${projectList.length}');
-      for (var ele in projectList) {
-        Map<String, String> project = Map<String, String>.from(ele); //jsonDecode(ele);
-        if (project['code'] == null || project['name'] == null) continue;
-        ProjectModel proj = ProjectModel(code: project['code']!, name: project['name']!);
-        projectModelList.add(proj);
-        projectDescList.add('${proj.code}/${proj.name}');
-      }
-      if (projectOthers != null) {
-        for (var ele in projectOthers) {
-          Map<String, String> project = Map<String, String>.from(ele); //jsonDecode(ele);
-          if (project['code'] == null || project['name'] == null || project['tm_id'] == null) {
-            continue;
-          }
-          //logger.finest('${project['tm_id']!}, ${project['code']!}');
+      List<dynamic> presentProjectList = projectData['data']; //jsonDecode(projectData['data']);
+      List<dynamic>? presentProjectOthers = projectData['others']; //jsonDecode(projectData['data']);
+      List<dynamic> pastProjectList = projectData['past_data']; //jsonDecode(projectData['data']);
+      List<dynamic>? pastProjectOthers = projectData['past_others']; //jsonDecode(projectData['data']);
 
-          ProjectModel proj = ProjectModel(code: project['code']!, name: project['name']!);
+      projectDataHolder = ProjectDataManager();
+      projectDataHolder!.setProjectList(presentProjectList, presentProjectOthers, presentTeamList, pastProjectList, pastProjectOthers, pastTeamList);
 
-          String tmId = project['tm_id']!;
-          for (var team in teamList) {
-            if (team.length > tmId.length && team.substring(0, tmId.length) == tmId) {
-              tmId = team;
-              break;
-            }
-          }
-          if (DataManager.projectOthers[tmId] == null) {
-            logger.finest(project['tm_id']!);
-            DataManager.projectOthers[tmId] = {};
-          }
-          DataManager.projectOthers[tmId]!.add('${proj.code}/${proj.name}');
-        }
-        logger.finest('projectOthers= ${DataManager.projectOthers.keys.length}');
-      }
-
-      //
       DataManager.loginUser = userModel;
       DataManager.alarmList = alarmModelList;
       DataManager.myFavoriteList = favorList;
-      DataManager.projectList = projectModelList;
-      DataManager.projectDescList = projectDescList;
-      DataManager.teamList = teamList;
+      // DataManager.projectList = projectModelList;
+      // DataManager.projectDescList = projectDescList;
+      DataManager.teamList = presentTeamList;
 
       Timer.periodic(const Duration(seconds: 1), (timer) async {
         timer.cancel();
