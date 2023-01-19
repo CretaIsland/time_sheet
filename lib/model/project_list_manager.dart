@@ -31,7 +31,6 @@ class ProjectDataManager extends ChangeNotifier {
       Map<String, String> project = Map<String, String>.from(element);
       if(project['code']==null || project['name']==null) continue;
       ProjectModel projectModel = ProjectModel(code: project['code']!, name: project['name']!);
-      logger.finest('${projectModel.code}/${projectModel.name}');
       presentProjectList.add(projectModel);
       presentProjectDescList.add('${projectModel.code}/${projectModel.name}');
     }
