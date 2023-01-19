@@ -85,13 +85,24 @@ class TimeSheetListState extends State<TimeSheetList> {
                     await DataManager.saveTimeSheet(dailyList[index].timeSlot, project1, project2);
               }
 
+              int lastSlotIndex = index + 9;
+              for(int i=0; i<index; i++) {
+                if(dailyList[i].projectCode1 != null || dailyList[i].projectCode2 != null) {
+                  lastSlotIndex = i+9;
+                  break;
+                }
+              }
+
               bool changed = false;
               for (int i = index + 1; i < dailyList.length; i++) {
                 if (dailyList[i].timeSlot == '12') {
                   continue;
                 }
-                if (index < 11 && dailyList[i].timeSlot == '19') {
-                  break; // 18시이후는 자동도배해주지 않는다.
+                // if (index < 11 && dailyList[i].timeSlot == '19') {
+                //   break; // 18시이후는 자동도배해주지 않는다.
+                // }
+                if (index < lastSlotIndex && dailyList[i].timeSlot == dailyList[lastSlotIndex+1].timeSlot) {
+                  break; // 입력한 첫 번째 슬롯(출근 시간)에서부터 8시간 까지만 자동 도배 가능
                 }
                 if (dailyList[i].projectCode1 != null) {
                   break;
