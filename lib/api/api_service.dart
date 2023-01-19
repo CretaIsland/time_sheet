@@ -152,6 +152,13 @@ class ApiService {
     return _apiCall(ApiConstants.baseUrl + ApiConstants.getPastTeamList, body);
   }
 
+  static Future<dynamic> getPastMyFavorite(String sabun) async {
+    Map<String, String> body = {};
+    body['id'] = sabun;
+
+    return _apiCall(ApiConstants.baseUrl + ApiConstants.getPastMyFavorite, body);
+  }
+
   
 
 }

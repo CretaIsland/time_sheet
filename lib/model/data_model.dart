@@ -96,7 +96,11 @@ class DataManager {
 
   static UserModel? loginUser;
   static String? showDate;
+
   static List<String> myFavoriteList = [];
+  static List<String> presentMyFavoriteList = [];
+  static List<String> pastMyFavoriteList = [];
+  
   static Set<ProjectModel> projectList = {};
   static Map<String, Set<String>> projectOthers = {};
   static Set<String> projectDescList = {};
@@ -607,4 +611,31 @@ class DataManager {
     await DataManager._setTimeSheet(slot, code1 ?? '', code2 ?? '');
     return true;
   }
+
+
+  // 현재와 과거 즐겨찾기 프로젝트 조회
+  static void setFavorProjectData(List<dynamic> presentFavorData, List<dynamic> pastFavorData) {
+    for (var eleFavor in presentFavorData) {
+      if (presentMyFavoriteList.length > 10) break;
+      presentMyFavoriteList.add(eleFavor);
+    }
+    for (var eleFavor in pastFavorData) {
+      if (pastMyFavoriteList.length > 10) break;
+      pastMyFavoriteList.add(eleFavor);
+    }
+
+    myFavoriteList = presentMyFavoriteList;
+  }
+
+  static void changeFavorProjectData(String dateYear) {
+    if(DataManager.formatter.format(DateTime.now()).substring(0,4) == dateYear) {
+      myFavoriteList = presentMyFavoriteList;
+    } else { 
+      myFavoriteList = pastMyFavoriteList;
+    }
+  }
+
+
+
+
 }

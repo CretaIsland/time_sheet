@@ -194,8 +194,7 @@ class _LoginPageState extends State<LoginPage> {
 
       logger.finest('get favorites(${userModel.sabun!})');
       // favorites
-      dynamic favorResult =
-          await ApiService.getMyFavorite(userModel.sabun!).catchError((error, stackTrace) {
+      dynamic favorResult = await ApiService.getPastMyFavorite(userModel.sabun!).catchError((error, stackTrace) {
         setState(() {
           colorEffectIndex = 0;
           _loginProcessing = false;
@@ -203,8 +202,7 @@ class _LoginPageState extends State<LoginPage> {
         });
         return false;
       });
-      Map<String, dynamic> favorData =
-          Map<String, dynamic>.from(favorResult); //jsonDecode(favorResult);
+      Map<String, dynamic> favorData = Map<String, dynamic>.from(favorResult); //jsonDecode(favorResult);
       String favorErrMsg = favorData['err_msg'] ?? '';
       if (favorErrMsg.compareTo('succeed') != 0 || favorData['data'] == null) {
         // something error
@@ -215,13 +213,9 @@ class _LoginPageState extends State<LoginPage> {
         });
         return false;
       }
-      List<String> favorList = [];
-      List<dynamic> favorDataList = favorData['data']; //jsonDecode(favorData['data']!);
-      for (var eleFavor in favorDataList) {
-        if (favorList.length > 10) break;
-        favorList.add(eleFavor);
-      }
-      logger.finest('get favorList(${userModel.sabun!})=${favorList.length}');
+
+      DataManager.setFavorProjectData(favorData['data'], favorData['past_data']);
+      logger.finest('get favorList(${userModel.sabun!})=${DataManager.myFavoriteList.length}');
 
       //project list;
       logger.finest('get project(${userModel.tm_id!})');
@@ -257,7 +251,7 @@ class _LoginPageState extends State<LoginPage> {
 
       DataManager.loginUser = userModel;
       DataManager.alarmList = alarmModelList;
-      DataManager.myFavoriteList = favorList;
+      // DataManager.myFavoriteList = favorList;
       // DataManager.projectList = projectModelList;
       // DataManager.projectDescList = projectDescList;
       DataManager.teamList = presentTeamList;

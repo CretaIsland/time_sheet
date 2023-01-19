@@ -177,6 +177,10 @@ class TimeSheetListState extends State<TimeSheetList> {
   }
 
   Widget _favorateProject() {
+    
+    print("프로젝트 코드 변경");
+    DataManager.changeFavorProjectData(slotManagerHolder!.currentDate.substring(0, 4));
+    
     return GlassContainer.frostedGlass(
       width: 300,
       height: 240,

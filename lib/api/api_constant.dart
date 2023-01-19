@@ -15,4 +15,5 @@ class ApiConstants {
   // 과거 프로젝트를 조회를 위해 추가한 api
   static String getPastProjectList = '/getPastProjectList';
   static String getPastTeamList = '/getPastTeamList';
+  static String getPastMyFavorite = '/getPastMyFavorite';
 }
