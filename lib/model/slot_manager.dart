@@ -126,6 +126,7 @@ class SlotManager extends ChangeNotifier {
     for (var fromEle in fromList) {
       for (TimeSlotModel toEle in _timeSlotMap[currentDate]!) {
         if (toEle.timeSlot == fromEle.timeSlot) {
+          if(toEle.timeSlot == '*') break;
           if (fromEle.projectCode1 != null && fromEle.projectCode1!.isEmpty) {
             toEle.projectCode1 = null;
           } else {
@@ -136,8 +137,9 @@ class SlotManager extends ChangeNotifier {
           } else {
             toEle.projectCode2 = fromEle.projectCode2;
           }
-          toEle.notifyUI = await DataManager.saveTimeSheet(
-              toEle.timeSlot, toEle.projectCode1 ?? '', toEle.projectCode2 ?? '');
+          if(toEle.projectCode1 == null && toEle.projectCode2 == null ) break;
+
+          toEle.notifyUI = await DataManager.saveTimeSheet(toEle.timeSlot, toEle.projectCode1 ?? '', toEle.projectCode2 ?? '');
         }
       }
     }
