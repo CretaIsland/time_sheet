@@ -240,7 +240,7 @@ class TimeSheetPageState extends State<TimeSheetPage> {
                   '${slotManagerHolder!.currentDate}$_weekday',
                   style: TextStyle(
                     fontSize: 24,
-                    color: _dateMove == 0 ? Colors.black : Colors.blue[500]!,
+                    color: _weekday == '(토)' || _weekday == '(일)' ? Colors.red[500] : _dateMove == 0 ? Colors.black : Colors.blue[500]!,
                   ),
                 ),
               ),
