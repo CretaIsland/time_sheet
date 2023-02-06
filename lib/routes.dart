@@ -1,6 +1,8 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
+import 'package:time_sheet/general_user/day_time_sheet_page.dart';
+import 'package:time_sheet/pages/intro_page.dart';
 //import 'package:routemaster/routemaster.dart';
 import 'package:time_sheet/pages/project_choice.dart';
 import 'common/logger.dart';
@@ -17,6 +19,8 @@ class AppRoutes {
   static const String projectChoice = '/projectChoice';
   static const String login = '/login';
   static const String statPage = '/statPage';
+  static const String intro = '/intro';
+  static const String dayTimeSheetPage = '/dayTimeSheetPage';
   static String _lastPage = '';
   static String _currentPage = '';
   static String get lastPage => _lastPage;
@@ -88,8 +92,12 @@ Widget getPageWidget(String page) {
       return ProjectChoice();
     case AppRoutes.statPage:
       return StatPage();
+    case AppRoutes.intro:
+      return IntroPage();
+    case AppRoutes.dayTimeSheetPage:
+      return DayTimeSheetPage();
   }
-  return LoginPage();
+  return IntroPage();
 }
 //final menuKey = GlobalKey<DrawerMenuPageState>();
 //DrawerMenuPage menuWidget = DrawerMenuPage(key: menuKey);

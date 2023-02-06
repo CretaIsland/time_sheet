@@ -63,17 +63,13 @@ class _LoginPageState extends State<LoginPage> {
   bool _isHidden = true;
   String _errMsg = '';
   bool _loginProcessing = false;
-  bool _initDb = false;
-  bool _showMetaball = false;
+  // bool _showMetaball = false;
 
   void _gotoNextPage() {
-    //Routemaster.of(context).replace(AppRoutes.settingPage);
     if (DataManager.alarmList.isNotEmpty) {
       // 알람이 있을 경우 셋팅 페이지로 이동한다.
-      //Routemaster.of(context).replace(AppRoutes.settingPage);
       AppRoutes.push(context, AppRoutes.login, AppRoutes.settingPage);
     } else {
-      //Routemaster.of(context).replace(AppRoutes.timeSheetPage);
       AppRoutes.push(context, AppRoutes.login, AppRoutes.timeSheetPage);
     }
   }
@@ -546,49 +542,16 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  void _autoLogin() async {
-    CrossCommonJob ccj = CrossCommonJob();
-    if (ccj.isSupportLocalStorage()) {
-      Map<String, String> userInfoMap = await SqliteWrapper.getAutologinInfo();
-      String userId = userInfoMap['userId'] ?? '';
-      String password = userInfoMap['password'] ?? '';
-
-      if (userId.isNotEmpty && password.isNotEmpty) {
-        _loginEmailTextEditingController.text = userId;
-        _loginPasswordTextEditingController.text = password;
-
-        setState(() {
-          _initDb = true;
-          _loginProcessing = true;
-          colorEffectIndex = 4;
-          Timer.periodic(const Duration(seconds: 1), (timer) {
-            timer.cancel();
-            login(userId: userId, password: password);
-          });
-        });
-      } else {
-        setState(() {
-          _loginProcessing = false;
-          _initDb = true;
-        });
-      }
-    } else {
-      setState(() {
-        _loginProcessing = false;
-        _initDb = true;
-      });
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    Timer.periodic(const Duration(milliseconds: 100), (timer) {
-      timer.cancel();
-      _showMetaball = true;
-      _autoLogin();
-    });
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   Timer.periodic(const Duration(milliseconds: 100), (timer) {
+  //     timer.cancel();
+  //     setState(() {
+  //        _showMetaball = true;    
+  //     });
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -600,23 +563,14 @@ class _LoginPageState extends State<LoginPage> {
     } else {
       isPortrait = height > width; // 세로
     }
-    return WillPopScope(
-        onWillPop: () async {
-          logger.finest('back button pressed-------------------------');
-          // bool isOK = await yesNoDialog(context, "정말로 앱을 끝내시겠습니까 ?");
-          // if (isOK == true) {
-             SystemNavigator.pop();
-          // }
-          return false; //false 를 하므로, 백버튼이 무시된다.
-        },
-        child: Material(
+    return Material(
       child: Container(
         decoration: const BoxDecoration(
             gradient: RadialGradient(center: Alignment.bottomCenter, radius: 1.5, colors: [
           Color.fromARGB(255, 13, 35, 61),
           Colors.white,
         ])),
-        child: (_showMetaball == false) ? Container() : Metaballs(
+        child: Metaballs(
           effect: colorsAndEffects[colorEffectIndex].effect,
           glowRadius: 1,
           glowIntensity: 0.6,
@@ -628,17 +582,14 @@ class _LoginPageState extends State<LoginPage> {
               colors: colorsAndEffects[colorEffectIndex].colors,
               begin: Alignment.bottomRight,
               end: Alignment.topLeft),
-          child: (_initDb == false)
-              ? Container()
-              : ((isPortrait)
-                  ? _getChild(context, width, height) // 세로 ==> no scroll
+          child: (isPortrait) ? _getChild(context, width, height) // 세로 ==> no scroll
                   : SingleChildScrollView(
                       // 가로 => scroll on
                       scrollDirection: Axis.vertical,
                       child: _getChild(context, width, height),
-                    )),
+                    )
         ),
       ),
-    ));
+    );
   }
 }
