@@ -12,7 +12,6 @@ import '../common/cross_common_job.dart';
 import '../api/api_service.dart';
 import '../model/data_model.dart';
 import '../common/sqlite_wapper.dart';
-import 'package:flutter/services.dart';
 
 class ColorsEffectPair {
   final List<Color> colors;

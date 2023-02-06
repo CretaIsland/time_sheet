@@ -378,12 +378,12 @@ class _IntroPageState extends State<IntroPage> {
                       Shadow(
                         color: Colors.blue[300]!,
                         blurRadius: 10.0,
-                        offset: Offset(5.0, 5.0)
+                        offset: const Offset(5.0, 5.0)
                       ),
                       Shadow(
                         color: Colors.red[300]!,
                         blurRadius: 10.0,
-                        offset: Offset(-5.0, 5.0)
+                        offset: const Offset(-5.0, 5.0)
                       )
                     ]
                   )
@@ -400,12 +400,12 @@ class _IntroPageState extends State<IntroPage> {
                       Shadow(
                         color: Colors.blue[300]!,
                         blurRadius: 10.0,
-                        offset: Offset(5.0, 5.0)
+                        offset: const Offset(5.0, 5.0)
                       ),
                       Shadow(
                         color: Colors.red[300]!,
                         blurRadius: 10.0,
-                        offset: Offset(-5.0, 5.0)
+                        offset: const Offset(-5.0, 5.0)
                       )
                     ]
                   )
@@ -431,7 +431,7 @@ class _IntroPageState extends State<IntroPage> {
                           Text("개인 일정 기록하기", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.blue))
                         ],
                       ),
-                      const Text("누구나 사용 가능합니다.", style: TextStyle(fontSize: 12, color: Colors.blue))
+                      Text("누구나 사용 가능합니다.", style: TextStyle(fontSize: 12, color: Colors.blue[200]))
                     ],
                   ),
                 ),
@@ -459,7 +459,7 @@ class _IntroPageState extends State<IntroPage> {
                           Text("회사 일정 기록하기", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.blue))
                         ],
                       ),
-                      const Text("승인된 유저만 사용 가능합니다.", style: TextStyle(fontSize: 12, color: Colors.blue))
+                      Text("승인된 유저만 사용 가능합니다.", style: TextStyle(fontSize: 12, color: Colors.blue[200]))
                     ],
                   ),
                 ),

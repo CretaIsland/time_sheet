@@ -1,6 +1,4 @@
 import 'package:flutter/foundation.dart';
-
-import '../common/logger.dart';
 import 'data_model.dart';
 
 ProjectDataManager? projectDataHolder;

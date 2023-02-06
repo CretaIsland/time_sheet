@@ -7,9 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:time_sheet/model/project_list_manager.dart';
 
-import '../model/data_model.dart';
-import 'logger.dart';
-
 class TeamSelectWidget extends StatefulWidget {
   final DropdownEditingController<String> controller;
   const TeamSelectWidget({super.key, required this.controller});
