@@ -75,6 +75,7 @@ class TimeSheetListState extends State<TimeSheetList> {
             itemKey: GlobalKey<TimeSlotItemState>(),
             model: dailyList[index],
             //animation: animation,
+            // 이곳이 도배 로직
             onCopy: () async {
               String? project1 = dailyList[index].projectCode1;
               String? project2 = dailyList[index].projectCode2;
@@ -86,10 +87,10 @@ class TimeSheetListState extends State<TimeSheetList> {
                     await DataManager.saveTimeSheet(dailyList[index].timeSlot, project1, project2);
               }
 
-              int lastSlotIndex = index + 9;
+              int lastSlotIndex = index + 8;
               for(int i=0; i<index; i++) {
                 if(dailyList[i].projectCode1 != null || dailyList[i].projectCode2 != null) {
-                  lastSlotIndex = i+9;
+                  lastSlotIndex = i+8;
                   break;
                 }
               }

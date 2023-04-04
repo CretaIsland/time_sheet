@@ -37,7 +37,7 @@ dependencies:
   flutter_speed_dial: ^6.1.0+1
   http: ^0.13.5
   table_calendar: ^3.0.8
-  metaballs: ^1.4.2
+  metaballs: ^1.5.0
   intl: ^0.17.0
   universal_html: ^2.0.8
   sqflite: ^2.2.0

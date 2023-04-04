@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:simple_tags/simple_tags.dart';
+import 'package:time_sheet/routes.dart';
 
 import '../common/logger.dart';
 import '../model/data_model.dart';
@@ -67,15 +68,26 @@ class _DayTimeSheetPageState extends State<DayTimeSheetPage> {
             children: [
               Column(
                 children: [
-                  Container(
-                    margin: const EdgeInsets.only(top: 50),
-                    alignment: Alignment.center,
-                    width: MediaQuery.of(context).size.width,
-                    height: MediaQuery.of(context).size.height * .04,
-                    child: Text(
-                      '${DataManager.formatter.format(DateTime.now())}(${weekDayString[DateTime.now().weekday]})', 
-                      style: const TextStyle(color: Colors.black, fontSize: 26)
-                    ),
+                  Row(
+                    children: [
+                      IconButton(
+                        padding: const EdgeInsets.only(top: 50.0),
+                        icon: const Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white),
+                        onPressed: () {
+                          AppRoutes.push(context, AppRoutes.dayTimeSheetPage, AppRoutes.intro);
+                        }
+                      ),
+                      Container(
+                        margin: const EdgeInsets.only(top: 50),
+                        alignment: Alignment.center,
+                        width: MediaQuery.of(context).size.width * .7,
+                        height: MediaQuery.of(context).size.height * .04,
+                        child: Text(
+                          '${DataManager.formatter.format(DateTime.now())}(${weekDayString[DateTime.now().weekday]})', 
+                          style: const TextStyle(color: Colors.black, fontSize: 26)
+                        ),
+                      ),
+                    ],
                   ),
                   isLoadding ? Container() : 
                   SizedBox(
