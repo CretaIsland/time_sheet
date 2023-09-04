@@ -104,7 +104,7 @@ class _ProjectChoiceState extends State<ProjectChoice> {
       }
       DataManager.myFavoriteList.insert(0, _justSelected!);
 
-      while (DataManager.myFavoriteList.length > 10) {
+      while (DataManager.myFavoriteList.length > 7) {
         DataManager.myFavoriteList.removeAt(DataManager.myFavoriteList.length - 1);
       }
     }
@@ -207,7 +207,9 @@ class _ProjectChoiceState extends State<ProjectChoice> {
           ProjectChoice.selectedModel!.timeSlot,
           ProjectChoice.selectedModel!.projectCode1 ?? '',
           ProjectChoice.selectedModel!.projectCode2 ?? '');
-      DataManager.saveAllMyFavorite();
+      
+      DataManager.addMyFavorite(DataManager.myFavoriteList.first);
+      //DataManager.saveAllMyFavorite();
       _justSelected = null;
       setState(() {});
     }
