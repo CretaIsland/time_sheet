@@ -25,6 +25,12 @@ class ApiService {
         url,
         headers: _headers,
         body: jsonEncode(body),
+      ).timeout(
+        const Duration(seconds: 15),
+        onTimeout: () {
+          // Time has run out, do what you wanted to do.
+          return http.Response('Error', 408); // Request Timeout response status code
+        },
       );
       if (response.statusCode == 200) {
         logger.finest('api call succeed');

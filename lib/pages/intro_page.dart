@@ -347,9 +347,9 @@ class _IntroPageState extends State<IntroPage> {
         SizedBox(
           width: width,
           height: height,
-          child: Column(
+          child: const Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
+            children: [
               SizedBox(
                 width: 120,
                 height: 120,
@@ -424,9 +424,9 @@ class _IntroPageState extends State<IntroPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Row(
+                      const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
+                        children: [
                           Icon(Icons.person, color: Colors.blue, size: 30),
                           Text("개인 일정 기록하기", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.blue))
                         ],
@@ -452,9 +452,9 @@ class _IntroPageState extends State<IntroPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Row(
+                      const Row(
                         mainAxisAlignment: MainAxisAlignment.center,
-                        children: const [
+                        children: [
                           Icon(Icons.work, color: Colors.blue, size: 30),
                           Text("회사 일정 기록하기", style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.blue))
                         ],

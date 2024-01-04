@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import 'package:time_sheet/model/project_list_manager.dart';
 import 'package:time_sheet/pages/time_sheet_list.dart';
 // import 'package:flutter_weather_bg_null_safety/bg/weather_bg.dart';
 // import 'package:flutter_weather_bg_null_safety/utils/weather_type.dart';
@@ -45,6 +46,11 @@ class TimeSheetPageState extends State<TimeSheetPage> {
 
   @override
   Widget build(BuildContext context) {
+
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      projectDataHolder!.changeProjectData(slotManagerHolder!.currentDate.substring(0, 4));
+    });
+
     _gotoDate();
     return ChangeNotifierProvider<SlotManager>.value(
         value: slotManagerHolder!,
